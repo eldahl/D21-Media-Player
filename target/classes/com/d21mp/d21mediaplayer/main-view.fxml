@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.d21mp.d21mediaplayer.ExampleController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.media.MediaView?>
 
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
-</VBox>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="305.0" prefWidth="434.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.d21mp.d21mediaplayer.Controller">
+    <center>
+        <MediaView fx:id="mediaV" fitHeight="200.0" fitWidth="200.0" BorderPane.alignment="CENTER" />
+    </center>
+    <bottom>
+        <Button fx:id="play" mnemonicParsing="false" onAction="#handlePlay" text="Play" BorderPane.alignment="CENTER" />
+    </bottom>
+</BorderPane>
