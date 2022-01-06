@@ -1,13 +1,15 @@
 package com.d21mp.d21mediaplayer;
 
 
-import javafx.event.ActionEvent;
-import javafx.scene.control.TextField;
+import javafx.scene.control.Slider;
 import javafx.scene.media.*;
 import javafx.scene.control.Button;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.text.Text;
+import javafx.util.Duration;
+
 import java.io.*;
 import java.net.*;
 import java.util.ResourceBundle;
@@ -17,10 +19,21 @@ public class Controller implements Initializable {
     @FXML
     public Button playpause;
     @FXML
+    public Button stop;
+    @FXML
+    public Button back;
+    @FXML
+    public Button forward;
+    @FXML
+    public Slider sliderTime;
+    @FXML
     private MediaView mediaV;
+    @FXML
+    private Text test;
 
     private MediaPlayer mp;
     private Media me;
+
 
 
     /**
@@ -49,37 +62,65 @@ public class Controller implements Initializable {
         mp = new MediaPlayer(me);
 
         mediaV.setMediaPlayer(mp);
-        // mp.setAutoPlay(true);
-        // If autoplay is turned of the method play(), stop(), pause() etc controls how/when medias are played
+        // If autoplay is turned off the method play(), stop(), pause() etc controls how/when medias are played
         mp.setAutoPlay(false);
+
+        //Slider scaling
+        //sliderTime.setMax();
 
         //Starts the mediaPlayer automatic after loading had been completed
         mp.play();
+
     }
+
 
 
 
     @FXML
     /**
-     * Handler for the play button
+     * Handler for the play and pause button
      */
-    private void handlePlayPause()
-    {
+    private void handlePlayPause() {
+        if (playpause.getText().equals("Play")){
+            // Play the mediaPlayer with the attached media
+            mpPlay();
+        } else {
+            // Pause the mediaPlayer
+            mpPause();
+        }
+    }
+
+    @FXML
+    /**
+     * Plays the Media
+     */
+    private void mpPlay(){
         // Play the mediaPlayer with the attached media
         mp.play();
-
-        int durationOfCurrentMedia = Integer.parseInt(mp.getMedia().getDuration().toString());
-
+        playpause.setText("Pause");
     }
 
     @FXML
     /**
-     * Handler for the pause button
+     * Pause the Media
      */
-    private void handlePause()
-    {
+    private void mpPause(){
         // Pause the mediaPlayer
         mp.pause();
+        playpause.setText("Play");
+    }
+
+    @FXML
+    /**
+     * Handler for the stop button
+     */
+    private void handleStop()
+    {
+        // Stop the mediaPlayer
+        mp.stop();
+        playpause.setText("Play");
+
+        test.setText(MediaPlayerInfo.getCurrentTime(mp)+" / "+MediaPlayerInfo.getDuration(mp));
     }
 
     @FXML
@@ -99,6 +140,40 @@ public class Controller implements Initializable {
     {
         // Play the next media in mediaPlayer
     }
+
+    /**
+     * Handler for the skipforward button
+     */
+    @FXML
+    private void handleSliderTimeStartPoint()
+    {
+        //The video is paused
+        mpPause();
+    }
+
+    /**
+     * Handler for the skipforward button
+     */
+    @FXML
+    private void handleSliderTimeEndPoint()
+    {
+        // The video is startet
+
+    }
+
+    /**
+     * Handler for the skipforward button
+     */
+    @FXML
+    private void handleSliderTimeSliding()
+    {
+        // Skip forwards and backwards in the media via the slider
+        mp.setStartTime(Duration.seconds(sliderTime.getValue()));
+    }
+
+
+
+
 
 
 
@@ -181,8 +256,6 @@ public class Controller implements Initializable {
     @FXML
     /**
      * Handler for info about the program
-     *
-     * Nice to have, not a need to have
      */
     private void handleAbout()
     {

@@ -2,7 +2,6 @@ package com.d21mp.d21mediaplayer;
 
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.Properties;
