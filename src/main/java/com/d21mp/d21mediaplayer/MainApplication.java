@@ -14,7 +14,7 @@ public class MainApplication extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 500, 500);
-        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("stageIcon.png"))));
+        stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("awesomeicon.png"))));
         stage.setTitle("D21 MediaPlayer");
         stage.setScene(scene);
         stage.show();
