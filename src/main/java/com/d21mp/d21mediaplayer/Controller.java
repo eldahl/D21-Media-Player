@@ -15,16 +15,9 @@ import java.util.ResourceBundle;
 public class Controller implements Initializable {
 
     @FXML
+    public Button playpause;
+    @FXML
     private MediaView mediaV;
-
-    @FXML
-    private Button playpause;
-
-    @FXML
-    private TextField test1;
-    @FXML
-    private TextField test2;
-
 
     private MediaPlayer mp;
     private Media me;
@@ -38,16 +31,23 @@ public class Controller implements Initializable {
      */
     public void initialize(URL location, ResourceBundle resources){
         // Build the path to the location of the media file
-        ////String path = new File("src/main/java/com/d21mp/d21mediaplayer/media/file_example_MP4_640_3MG.mp4").getAbsolutePath();
+        String path = "";
+        DB.selectSQL("SELECT URL FROM Media WHERE Title = 'Countdown'");
+        do {
+            String data = DB.getData();
+            if (data.equals(DB.NOMOREDATA)) {
+                break;
+            }
+            else {
+                path = data;
+            }
+        } while (true);
 
-
-        DB.selectSQL("select URL from Media where Creator = Someone");
-        System.out.println(DB.getData());
         // Create new Media object (the actual media content)
-        me = new Media(new File(DB.getData()).toURI().toString());
+        me = new Media(new File(path).toURI().toString());
         // Create new MediaPlayer and attach the media to be played
         mp = new MediaPlayer(me);
-        //
+
         mediaV.setMediaPlayer(mp);
         // mp.setAutoPlay(true);
         // If autoplay is turned of the method play(), stop(), pause() etc controls how/when medias are played
@@ -69,9 +69,6 @@ public class Controller implements Initializable {
         mp.play();
 
         int durationOfCurrentMedia = Integer.parseInt(mp.getMedia().getDuration().toString());
-
-        test1.setText(mp.getCurrentTime().toString());
-
 
     }
 

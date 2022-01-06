@@ -45,10 +45,10 @@ public class DB {
             props.load(input);
             port = props.getProperty("port","1433");
             databaseName = props.getProperty("databaseName");
-            userName=props.getProperty("userName", "sa");
+            userName=props.getProperty("userName", "SA");
             password=props.getProperty("password");
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            System.out.println("Database Ready");
+            //System.out.println("Database Ready");
 
         }catch(Exception e){
             System.err.println(e.getMessage());
