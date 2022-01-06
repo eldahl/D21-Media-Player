@@ -46,9 +46,7 @@ public class PlaylistHandler {
      * Load another playlist into the current playlist
      */
     public void loadPlaylist(String name){
-        for (int i = 0; loadPlaylistFromDB(name).size()>i; i++){
-            Playlist.add(loadPlaylistFromDB(name).get(i));
-        }
+        Playlist.addAll(loadPlaylistFromDB(name));
     }
 
     /**
