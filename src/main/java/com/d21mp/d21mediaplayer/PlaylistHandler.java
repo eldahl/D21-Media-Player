@@ -94,10 +94,10 @@ public class PlaylistHandler {
      */
     private void savePlaylistToDB(String name){
 
-        for (int i = 0; Playlist.size()>i; i++){
+        for (String url : Playlist){
 
             //Get the url of the current media
-            String mediaURL = Playlist.get(i);
+            String mediaURL = url;
 
             //Make a new playlist
             DB.insertSQL("Insert into "+tblPlaylist+" values("+
