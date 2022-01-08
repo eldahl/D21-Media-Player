@@ -4,35 +4,60 @@ import java.util.ArrayList;
 
 public class PlaylistHandler {
 
+    public int getCurrentMediaPlayingPosition() {
+        return currentMediaPlayingPosition;
+    }
+
+    public void setCurrentMediaPlayingPosition(int currentMediaPlayingPosition) {
+        this.currentMediaPlayingPosition = currentMediaPlayingPosition;
+    }
+
+    private int currentMediaPlayingPosition;
+
+    public int getPlaylistSize() {
+        return playlistSize;
+    }
+
+    public void setPlaylistSize(int playlistSize) {
+        this.playlistSize = playlistSize;
+    }
+
+    private int playlistSize;
+
     //The playlist that is the master/current playlist
-    private ArrayList<String> Playlist = new ArrayList<>();
+    private ArrayList<String> playlist = new ArrayList<>();
+
+    public PlaylistHandler(){
+        this.currentMediaPlayingPosition = 0;
+        this.playlistSize = playlist.size();
+    }
 
     //Here the different names for the fld's and tbl's are stored for easy access
-    String tblMedia = "Media";
-    String fldURL = "URL";
-    String fldCreator = "Creator";
-    String fldTitle = "Title";
+    private String tblMedia = "Media";
+    private String fldURL = "URL";
+    private String fldCreator = "Creator";
+    private String fldTitle = "Title";
 
-    String tblPlaylist = "Playlist";
-    String fldPlaylistName = "PlaylistName";
+    private String tblPlaylist = "Playlist";
+    private String fldPlaylistName = "PlaylistName";
 
-    String tblRelation = "Relation";
-    String fldRelationURL = "R-URL";
-    String fldRelationPlaylistName = "R-PlaylistName";
-
+    private String tblRelation = "Relation";
+    private String fldRelationURL = "R-URL";
+    private String fldRelationPlaylistName = "R-PlaylistName";
 
     /**
      * Get the current playlist
      */
     public ArrayList<String> getCurrentPlaylist() {
-        return Playlist;
+        return playlist;
     }
 
     /**
      * Clear the playlist
      */
     public void clearCurrentPlaylist() {
-        Playlist.clear();
+        playlist.clear();
+        this.playlistSize = playlist.size();
     }
 
     /**
@@ -46,22 +71,43 @@ public class PlaylistHandler {
      * Load another playlist into the current playlist
      */
     public void loadPlaylist(String name){
-        Playlist.addAll(loadPlaylistFromDB(name));
+        playlist.addAll(loadPlaylistFromDB(name));
+        this.playlistSize = playlist.size();
     }
 
     /**
-     * Remove from the current playlist via position
+     * Remove from the current playlist via position (starts from 1 not 0)
      */
     public void removeUrlFromPlaylist(int position){
-        Playlist.remove(position);
+        playlist.remove(position-1);
+        this.playlistSize = playlist.size();
     }
 
     /**
-     * Get an url from the current playlist via position
+     * Get an url from the current playlist via position (starts from 1 not 0)
      */
     public String getUrlFromPlaylist(int position){
-        return Playlist.get(position);
+        this.currentMediaPlayingPosition=position-1;
+        return playlist.get(position-1);
     }
+
+    /**
+     * Get the next url in the playlist
+     */
+    public String getNextUrlFromPlaylist(){
+        return playlist.get(currentMediaPlayingPosition+1);
+    }
+
+    /**
+     * Get the previous url in the playlist
+     */
+    public String getLastUrlFromPlaylist(){
+        return playlist.get(currentMediaPlayingPosition-1);
+    }
+
+
+
+
 
 
 
@@ -94,7 +140,7 @@ public class PlaylistHandler {
      */
     private void savePlaylistToDB(String name){
 
-        for (String url : Playlist){
+        for (String url : playlist){
 
             //Get the url of the current media
             String mediaURL = url;

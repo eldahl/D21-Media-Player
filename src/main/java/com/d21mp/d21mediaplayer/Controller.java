@@ -1,6 +1,7 @@
 package com.d21mp.d21mediaplayer;
 
 
+import javafx.application.Platform;
 import javafx.scene.control.Slider;
 import javafx.scene.media.*;
 import javafx.scene.control.Button;
@@ -24,17 +25,65 @@ public class Controller implements Initializable {
     public Button back;
     @FXML
     public Button forward;
+
+    @FXML
+    public Button exit;
+
     @FXML
     public Slider sliderTime;
     @FXML
+    public Slider sliderVolume;
+    @FXML
     private MediaView mediaV;
     @FXML
-    private Text test;
+    private Text textTime;
+    @FXML
+    private Text textVolume;
+
 
     private MediaPlayer mp;
     private Media me;
+    PlaylistHandler playlist = new PlaylistHandler();
 
 
+    //the Thread to update UI
+    Thread taskThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            for(int i=0; true; i++){
+
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            //Resizes the max value of the time slider, so it matches the media
+                            if (sliderTime.getMax() != Double.parseDouble(MediaPlayerInfo.getDuration(mp))) {
+                                sliderTime.setMax(Double.parseDouble(MediaPlayerInfo.getDuration(mp)));
+                            }
+
+                            //Here the value for the time slider gets updated as the media plays (there is a 0.5 Sec delay)
+                            if (sliderTime.getValue()+0.49 != Double.parseDouble(MediaPlayerInfo.getCurrentTime(mp))+0.49) {
+                                //Updates the sliders value
+                                sliderTime.setValue(Double.parseDouble(MediaPlayerInfo.getCurrentTime(mp))+0.49);
+                                //Update the time text
+                                timeChangeShow();
+                            }
+                        } catch (NumberFormatException nfe){
+                            System.out.println("The Program hasn't started yet, it will soon...");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+        }
+    });
 
     /**
      * This method is invoked automatically in the beginning. Used for initializing, loading data etc.
@@ -65,16 +114,12 @@ public class Controller implements Initializable {
         // If autoplay is turned off the method play(), stop(), pause() etc controls how/when medias are played
         mp.setAutoPlay(false);
 
-        //Slider scaling
-        //sliderTime.setMax();
-
-        //Starts the mediaPlayer automatic after loading had been completed
+        //Starts the mediaPlayer automatic after loading have been completed
         mp.play();
 
+        //Here the UI update thread will start
+        taskThread.start();
     }
-
-
-
 
     @FXML
     /**
@@ -119,8 +164,6 @@ public class Controller implements Initializable {
         // Stop the mediaPlayer
         mp.stop();
         playpause.setText("Play");
-
-        test.setText(MediaPlayerInfo.getCurrentTime(mp)+" / "+MediaPlayerInfo.getDuration(mp));
     }
 
     @FXML
@@ -130,6 +173,7 @@ public class Controller implements Initializable {
     private void handleSkipBack()
     {
         // Play the next media in mediaPlayer
+        playlist.getLastUrlFromPlaylist();
     }
 
     @FXML
@@ -139,10 +183,11 @@ public class Controller implements Initializable {
     private void handleSkipLForward()
     {
         // Play the next media in mediaPlayer
+        playlist.getNextUrlFromPlaylist();
     }
 
     /**
-     * Handler for the skipforward button
+     * Handler for when you want to use the slider
      */
     @FXML
     private void handleSliderTimeStartPoint()
@@ -152,7 +197,7 @@ public class Controller implements Initializable {
     }
 
     /**
-     * Handler for the skipforward button
+     * Handler for when you have decided your skip to point
      */
     @FXML
     private void handleSliderTimeEndPoint()
@@ -162,17 +207,58 @@ public class Controller implements Initializable {
     }
 
     /**
-     * Handler for the skipforward button
+     * Handler for the Time slider
      */
     @FXML
     private void handleSliderTimeSliding()
     {
         // Skip forwards and backwards in the media via the slider
         mp.setStartTime(Duration.seconds(sliderTime.getValue()));
+
+        //Update the time
+        timeChangeShow();
     }
 
+    private void timeChangeShow(){
+        //The time gets rounded
+        String currentTime = ""+round(Double.parseDouble(MediaPlayerInfo.getCurrentTime(mp)),0);
+        String duration = ""+round(Double.parseDouble(MediaPlayerInfo.getDuration(mp)),0);
 
+        //Changes the time text
+        textTime.setText(currentTime+" / "+duration);
+    }
 
+    /**
+     * void for the Time sliders scaling
+     */
+    private void sliderTimeScaling()
+    {
+        //Slider scaling
+        sliderTime.setMax(Double.parseDouble(MediaPlayerInfo.getDuration(mp)));
+    }
+
+    /**
+     * Handler for the sound slider
+     */
+    @FXML
+    private void handleSliderVolume()
+    {
+        // Skip forwards and backwards in the media via the slider
+        mp.setVolume(sliderVolume.getValue()/100);
+
+        //Changes the volume text
+        textVolume.setText(round(sliderVolume.getValue(),0)+"%");
+    }
+
+    @FXML
+    /**
+     * Handler for the select media button
+     */
+    private void handleSelectMedia()
+    {
+        //AutoScales the time slider
+        sliderTimeScaling();
+    }
 
 
 
@@ -250,6 +336,7 @@ public class Controller implements Initializable {
      */
     private void handleExit()
     {
+        //This closes the system
         System.exit(0);
     }
 
@@ -265,4 +352,22 @@ public class Controller implements Initializable {
 
 
 
+
+    private static double round(double value, int places) {
+
+        //Her it checks if the places is above 0, else it will throw an exception
+        if (places < 0) throw new IllegalArgumentException();
+
+        //Here the factor number gets chosen. The bigger, the more digits are accurate
+        long factor = (long) Math.pow(10, places);
+
+        //Here the value is timed with the factor to get a larger number
+        value = value * factor;
+
+        //Here the value is rounded
+        long tmp = Math.round(value);
+
+        //Here the value gets devided with the factor to get the rounded number and then returned
+        return (double) tmp / factor;
+    }
 }
