@@ -39,10 +39,13 @@ public class MediaPlayerController implements Initializable {
     private Image playImg, pauseImg, stopImg, skipForwardImg, skipBackwardImg;
 
     // Weather or not the search / playlist view is displayed in the UI
-    // Initially the view is displayed so set to true
+    // Initially the view is initialized as being displayed, so set to true
     private boolean showSearchPlaylistView = true;
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        // Hide Search/Playlist view
+        toggleSearchPlaylistView();
 
         // Load icon images for video controls
         playImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/play.png").toURI().toString());
