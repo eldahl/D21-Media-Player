@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Menu?>
@@ -43,16 +44,47 @@
       </MenuBar>
       <HBox VBox.vgrow="SOMETIMES">
          <children>
-            <VBox fx:id="mediaViewVBox" alignment="CENTER" maxHeight="2000.0" maxWidth="2000.0" minHeight="90.0" minWidth="160.0" HBox.hgrow="SOMETIMES">
+            <VBox HBox.hgrow="SOMETIMES">
                <children>
-                  <MediaView fx:id="mediaView" fitHeight="${mediaViewVBox.height}" fitWidth="${mediaViewVBox.width}" VBox.vgrow="SOMETIMES">
-                     <cursor>
-                        <Cursor fx:constant="DEFAULT" />
-                     </cursor>
-                  </MediaView>
+                  <VBox fx:id="mediaViewVBox" alignment="CENTER" maxHeight="2000.0" maxWidth="2000.0" minHeight="90.0" minWidth="160.0" VBox.vgrow="SOMETIMES">
+                     <children>
+                        <MediaView fx:id="mediaView" fitHeight="${mediaViewVBox.height}" fitWidth="${mediaViewVBox.width}">
+                           <cursor>
+                              <Cursor fx:constant="DEFAULT" />
+                           </cursor>
+                        </MediaView>
+                     </children>
+                  </VBox>
+                  <HBox alignment="CENTER_LEFT">
+                     <children>
+                        <Button fx:id="playPauseBut" mnemonicParsing="false" text="Play">
+                           <HBox.margin>
+                              <Insets right="6.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="stopBut" mnemonicParsing="false" text="Stop">
+                           <HBox.margin>
+                              <Insets right="6.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="skipBackwardBut" mnemonicParsing="false" text="Backward">
+                           <HBox.margin>
+                              <Insets right="6.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="skipForwardBut" mnemonicParsing="false" text="Forward">
+                           <HBox.margin>
+                              <Insets right="6.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                     <padding>
+                        <Insets bottom="8.0" left="8.0" top="8.0" />
+                     </padding>
+                  </HBox>
                </children>
             </VBox>
-            <VBox minWidth="250.0" HBox.hgrow="SOMETIMES">
+            <VBox minWidth="250.0">
                <children>
                   <HBox maxHeight="25.0" VBox.vgrow="SOMETIMES">
                      <children>

@@ -33,8 +33,8 @@ public class MainApplication extends Application {
         stage.setTitle("D21 MediaPlayer");
         stage.setScene(scene);
         stage.show();
-        stage.setMinWidth(425);
-        stage.setMinHeight(153);
+        stage.setMinWidth(488);
+        stage.setMinHeight(200);
     }
 
     public static void main(String[] args) {
