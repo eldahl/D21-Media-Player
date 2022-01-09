@@ -18,8 +18,13 @@ public class MainApplication extends Application {
 
     public static Stage iStage;
 
+    /**
+     * Resize scene to fit fxml content size and set minimum size to content size
+     */
     public static void sizeToScene() {
         iStage.sizeToScene();
+        iStage.setMinWidth(iStage.getWidth());
+        iStage.setMinHeight(iStage.getHeight());
     }
 
     @Override
@@ -33,8 +38,6 @@ public class MainApplication extends Application {
         stage.setTitle("D21 MediaPlayer");
         stage.setScene(scene);
         stage.show();
-        stage.setMinWidth(488);
-        stage.setMinHeight(200);
     }
 
     public static void main(String[] args) {

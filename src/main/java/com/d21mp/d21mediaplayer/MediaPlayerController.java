@@ -78,12 +78,16 @@ public class MediaPlayerController implements Initializable {
             searchPlaylistView.setVisible(true);
             searchPlaylistView.setManaged(true);
             showSearchPlaylistView = true;
+            // Resize scene and set minimum size to content size
+            MainApplication.sizeToScene();
         }
         else {
             // Hide view
             searchPlaylistView.setVisible(false);
             searchPlaylistView.setManaged(false);
             showSearchPlaylistView = false;
+            // Resize scene and set minimum size to content size
+            MainApplication.sizeToScene();
         }
     }
 
