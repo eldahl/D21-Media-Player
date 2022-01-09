@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.media.MediaView?>
+
+<VBox fx:id="rootVBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.d21mp.d21mediaplayer.MediaPlayerController">
+   <children>
+      <MenuBar fx:id="menuBar">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false" onAction="#test" text="Close" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Delete" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Playlist">
+            <items>
+                  <MenuItem mnemonicParsing="false" text="Open playlist" />
+              <MenuItem mnemonicParsing="false" text="Create playlist" />
+                  <MenuItem mnemonicParsing="false" text="Edit playlist" />
+                  <MenuItem mnemonicParsing="false" text="Delete playlist" />
+            </items>
+          </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+               <items>
+                  <MenuItem mnemonicParsing="false" text="About" />
+               </items>
+            </Menu>
+        </menus>
+      </MenuBar>
+      <HBox VBox.vgrow="SOMETIMES">
+         <children>
+            <VBox fx:id="mediaViewVBox" alignment="CENTER" maxHeight="2000.0" maxWidth="2000.0" minHeight="90.0" minWidth="160.0" HBox.hgrow="SOMETIMES">
+               <children>
+                  <MediaView fx:id="mediaView" fitHeight="${mediaViewVBox.height}" fitWidth="${mediaViewVBox.width}" VBox.vgrow="SOMETIMES">
+                     <cursor>
+                        <Cursor fx:constant="DEFAULT" />
+                     </cursor>
+                  </MediaView>
+               </children>
+            </VBox>
+            <VBox minWidth="250.0" HBox.hgrow="SOMETIMES">
+               <children>
+                  <HBox maxHeight="25.0" VBox.vgrow="SOMETIMES">
+                     <children>
+                        <TextField fx:id="searchField" focusTraversable="false" promptText="Search" HBox.hgrow="SOMETIMES" />
+                        <Button mnemonicParsing="false" text="Search" />
+                     </children>
+                  </HBox>
+                  <ScrollPane VBox.vgrow="SOMETIMES">
+                     <content>
+                        <VBox />
+                     </content>
+                  </ScrollPane>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</VBox>
