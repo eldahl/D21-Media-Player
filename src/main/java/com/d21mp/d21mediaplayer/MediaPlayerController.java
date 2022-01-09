@@ -28,7 +28,7 @@ public class MediaPlayerController implements Initializable {
     private TextField searchField;
 
     @FXML
-    private VBox rootVBox, mediaViewVBox;
+    private VBox searchPlaylistView, mediaViewVBox;
 
     @FXML
     private Button playPauseBut, stopBut, skipForwardBut, skipBackwardBut;
@@ -37,6 +37,10 @@ public class MediaPlayerController implements Initializable {
     private Media me;
 
     private Image playImg, pauseImg, stopImg, skipForwardImg, skipBackwardImg;
+
+    // Weather or not the search / playlist view is displayed in the UI
+    // Initially the view is displayed so set to true
+    private boolean showSearchPlaylistView = true;
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -60,6 +64,24 @@ public class MediaPlayerController implements Initializable {
         // Plays this media when application launches
         mediaSelection("Countdown");
 
+    }
+
+    /**
+     * Show or hides the search / playlist view, depending on its state
+     */
+    public void toggleSearchPlaylistView() {
+        if(!showSearchPlaylistView) {
+            // Show view
+            searchPlaylistView.setVisible(true);
+            searchPlaylistView.setManaged(true);
+            showSearchPlaylistView = true;
+        }
+        else {
+            // Hide view
+            searchPlaylistView.setVisible(false);
+            searchPlaylistView.setManaged(false);
+            showSearchPlaylistView = false;
+        }
     }
 
     /**
