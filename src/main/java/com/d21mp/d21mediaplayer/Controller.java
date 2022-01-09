@@ -46,44 +46,6 @@ public class Controller implements Initializable {
     PlaylistHandler playlist = new PlaylistHandler();
 
 
-    //the Thread to update UI
-    Thread taskThread = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            for(int i=0; true; i++){
-
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            //Resizes the max value of the time slider, so it matches the media
-                            if (sliderTime.getMax() != Double.parseDouble(MediaPlayerInfo.getDuration(mp))) {
-                                sliderTime.setMax(Double.parseDouble(MediaPlayerInfo.getDuration(mp)));
-                            }
-
-                            //Here the value for the time slider gets updated as the media plays (there is a 0.5 Sec delay)
-                            if (sliderTime.getValue()+0.49 != Double.parseDouble(MediaPlayerInfo.getCurrentTime(mp))+0.49) {
-                                //Updates the sliders value
-                                sliderTime.setValue(Double.parseDouble(MediaPlayerInfo.getCurrentTime(mp))+0.49);
-                                //Update the time text
-                                timeChangeShow();
-                            }
-                        } catch (NumberFormatException nfe){
-                            System.out.println("The Program hasn't started yet, it will soon...");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-        }
-    });
 
     /**
      * This method is invoked automatically in the beginning. Used for initializing, loading data etc.
@@ -116,9 +78,6 @@ public class Controller implements Initializable {
 
         //Starts the mediaPlayer automatic after loading have been completed
         mp.play();
-
-        //Here the UI update thread will start
-        taskThread.start();
     }
 
     @FXML
@@ -173,7 +132,7 @@ public class Controller implements Initializable {
     private void handleSkipBack()
     {
         // Play the next media in mediaPlayer
-        playlist.getLastUrlFromPlaylist();
+        playlist.getPreviousFromPlaylist();
     }
 
     @FXML
@@ -352,10 +311,15 @@ public class Controller implements Initializable {
 
 
 
-
+    /**
+     * This is used for rounding the decimals and then choosing the amount of decimals you want to show (rounded)
+     * @param value this is the double that you want to round
+     * @param places this is the amount of decimals you want to round up to
+     * @return the value rounded up till the amount of places behind the dot
+     */
     private static double round(double value, int places) {
 
-        //Her it checks if the places is above 0, else it will throw an exception
+        //Here it checks if the places is above 0, else it will throw an exception
         if (places < 0) throw new IllegalArgumentException();
 
         //Here the factor number gets chosen. The bigger, the more digits are accurate

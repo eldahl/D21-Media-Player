@@ -4,22 +4,22 @@ import java.util.ArrayList;
 
 public class PlaylistHandler {
 
+    /**
+     * Get the current media playings position
+     * @return the position (int)
+     */
     public int getCurrentMediaPlayingPosition() {
         return currentMediaPlayingPosition;
     }
 
-    public void setCurrentMediaPlayingPosition(int currentMediaPlayingPosition) {
-        this.currentMediaPlayingPosition = currentMediaPlayingPosition;
-    }
-
     private int currentMediaPlayingPosition;
 
+    /**
+     * Get the current playlists size
+     * @return the size (int)
+     */
     public int getPlaylistSize() {
         return playlistSize;
-    }
-
-    public void setPlaylistSize(int playlistSize) {
-        this.playlistSize = playlistSize;
     }
 
     private int playlistSize;
@@ -101,7 +101,7 @@ public class PlaylistHandler {
     /**
      * Get the previous url in the playlist
      */
-    public String getLastUrlFromPlaylist(){
+    public String getPreviousFromPlaylist(){
         return playlist.get(currentMediaPlayingPosition-1);
     }
 

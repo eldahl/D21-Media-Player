@@ -4,6 +4,11 @@ import javafx.scene.media.MediaPlayer;
 
 public class MediaPlayerInfo {
 
+    /**
+     * This gets you the current time played of the specified mediaplayer
+     * @param mp the mediaplayer
+     * @return the current time played
+     */
     static public String getCurrentTime (MediaPlayer mp){
 
         //Here the number is rounded and the offset of (0.5 secs) are removed
@@ -13,6 +18,11 @@ public class MediaPlayerInfo {
         return currentTime;
     }
 
+    /**
+     * This gets you the duration of the media in the specified mediaplayer
+     * @param mp the mediaplayer
+     * @return the duration
+     */
     static public String getDuration (MediaPlayer mp){
 
         //Here the number is rounded
@@ -23,7 +33,12 @@ public class MediaPlayerInfo {
     }
 
 
-
+    /**
+     * This is used for rounding the decimals and then choosing the amount of decimals you want to show (rounded)
+     * @param value this is the double that you want to round
+     * @param places this is the amount of decimals you want to round up to
+     * @return the value rounded up till the amount of places behind the dot
+     */
     private static double round(double value, int places) {
 
         //Her it checks if the places is above 0, else it will throw an exception
@@ -48,6 +63,12 @@ public class MediaPlayerInfo {
         currentTime;
     }
 
+    /**
+     * This takes the value from the mediaplayer and converts its string to a double and then takes it from millisec to sec
+     * @param mp the mediaplayer
+     * @param it the information you want in sec
+     * @return the amount of sec
+     */
     static private double toSec (MediaPlayer mp,getInfoType it){
 
         //Here the string infoString is initiated
