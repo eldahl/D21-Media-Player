@@ -1,13 +1,16 @@
 package com.d21mp.d21mediaplayer;
 
 
-import javafx.scene.control.Slider;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.scene.control.*;
 import javafx.scene.media.*;
-import javafx.scene.control.Button;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
 import java.io.*;
@@ -17,13 +20,7 @@ import java.util.ResourceBundle;
 public class Controller implements Initializable {
 
     @FXML
-    public Button playpause;
-    @FXML
-    public Button stop;
-    @FXML
-    public Button back;
-    @FXML
-    public Button forward;
+    public Button playpause, stop, back, forward, openButton;
     @FXML
     public Slider sliderTime;
     @FXML
@@ -42,10 +39,16 @@ public class Controller implements Initializable {
      * @param location
      * @param resources
      */
-    public void initialize(URL location, ResourceBundle resources){
+    public void initialize(URL location, ResourceBundle resources) {
+        // Start a video when application opens
+        mediaSelection("Countdown");
+
+    }
+
+    public void mediaSelection(String title) {
         // Build the path to the location of the media file
         String path = "";
-        DB.selectSQL("SELECT URL FROM Media WHERE Title = 'Countdown'");
+        DB.selectSQL("SELECT URL FROM Media WHERE Title = '" + title + "'");
         do {
             String data = DB.getData();
             if (data.equals(DB.NOMOREDATA)) {
@@ -70,11 +73,33 @@ public class Controller implements Initializable {
 
         //Starts the mediaPlayer automatic after loading had been completed
         mp.play();
-
     }
 
 
+    /**
+     * Opens a file using Windows file explorer
+     */
+    @FXML
+    public void openFile() {
+        FileChooser fileChooser = new FileChooser();
 
+        File selectedFile = fileChooser.showOpenDialog(null);
+        String pathToSelectedFile = selectedFile.getAbsolutePath();
+
+        me = new Media(new File(pathToSelectedFile).toURI().toString());
+        // Create new MediaPlayer and attach the media to be played
+        mp = new MediaPlayer(me);
+
+        mediaV.setMediaPlayer(mp);
+        // If autoplay is turned off the method play(), stop(), pause() etc controls how/when medias are played
+        mp.setAutoPlay(false);
+
+        //Slider scaling
+        //sliderTime.setMax();
+
+        //Starts the mediaPlayer automatic after loading had been completed
+        mp.play();
+    }
 
     @FXML
     /**
@@ -171,12 +196,6 @@ public class Controller implements Initializable {
         mp.setStartTime(Duration.seconds(sliderTime.getValue()));
     }
 
-
-
-
-
-
-
     @FXML
     /**
      * Handler for the search button
@@ -185,8 +204,6 @@ public class Controller implements Initializable {
     {
         DBHandling.main();
     }
-
-
 
     @FXML
     /**
