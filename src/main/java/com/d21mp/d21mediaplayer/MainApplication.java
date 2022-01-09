@@ -1,8 +1,11 @@
 package com.d21mp.d21mediaplayer;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
@@ -21,6 +24,7 @@ public class MainApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+
         iStage = stage;
 
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("media-player.fxml"));

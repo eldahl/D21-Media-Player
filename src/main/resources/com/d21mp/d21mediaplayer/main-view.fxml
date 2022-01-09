@@ -5,37 +5,50 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.media.MediaView?>
 <?import javafx.scene.text.Text?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.d21mp.d21mediaplayer.Controller">
-  <columnConstraints>
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="166.0" minWidth="10.0" prefWidth="131.0" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="316.0" minWidth="10.0" prefWidth="314.0" />
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="195.0" minWidth="10.0" prefWidth="136.0" />
-  </columnConstraints>
-  <rowConstraints>
-    <RowConstraints maxHeight="77.0" minHeight="10.0" prefHeight="14.0" vgrow="SOMETIMES" />
-    <RowConstraints maxHeight="334.0" minHeight="10.0" prefHeight="289.0" vgrow="SOMETIMES" />
-    <RowConstraints maxHeight="128.0" minHeight="0.0" prefHeight="96.0" vgrow="SOMETIMES" />
-  </rowConstraints>
+<Pane fx:id="mainPane" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.d21mp.d21mediaplayer.Controller">
    <children>
-      <MediaView fx:id="mediaV" fitHeight="300.0" fitWidth="300.0" onMouseClicked="#handlePlayPause" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      <Text fx:id="test" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" textAlignment="CENTER" wrappingWidth="144.13671875" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-      <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+      <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="166.0" minWidth="10.0" prefWidth="131.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="316.0" minWidth="10.0" prefWidth="314.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="195.0" minWidth="10.0" prefWidth="136.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="162.0" minHeight="10.0" prefHeight="18.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="334.0" minHeight="10.0" prefHeight="286.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="128.0" minHeight="0.0" prefHeight="96.0" vgrow="SOMETIMES" />
+        </rowConstraints>
          <children>
-            <Slider fx:id="sliderTime" majorTickUnit="10.0" max="60.0" minorTickCount="10" onMouseDragged="#handleSliderTimeSliding" onMousePressed="#handleSliderTimeStartPoint" onMouseReleased="#handleSliderTimeEndPoint" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
-            <Button fx:id="playpause" mnemonicParsing="false" onMouseClicked="#handlePlayPause" prefHeight="25.0" prefWidth="325.0" text="Pause" />
-            <HBox prefHeight="100.0" prefWidth="200.0">
+            <MediaView fx:id="mediaV" fitHeight="300.0" fitWidth="300.0" onMouseClicked="#handlePlayPause" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <children>
-                  <Button fx:id="back" mnemonicParsing="false" onMouseClicked="#handleSkipBack" prefHeight="25.0" prefWidth="130.0" text="Back" />
-                  <Button fx:id="stop" mnemonicParsing="false" onMouseClicked="#handleStop" prefHeight="25.0" prefWidth="69.0" text="Stop" />
-                  <Button fx:id="forward" mnemonicParsing="false" onMouseClicked="#handleSkipLForward" prefHeight="25.0" prefWidth="127.0" text="Forward" />
+                  <Slider fx:id="sliderTime" majorTickUnit="10.0" minorTickCount="10" onMouseDragged="#handleSliderTimeSliding" onMousePressed="#handleSliderTimeStartPoint" onMouseReleased="#handleSliderTimeEndPoint" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                  <Button fx:id="playpause" mnemonicParsing="false" onMouseClicked="#handlePlayPause" prefHeight="25.0" prefWidth="325.0" text="Pause" />
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Button fx:id="back" mnemonicParsing="false" onMouseClicked="#handleSkipBack" prefHeight="25.0" prefWidth="130.0" text="Back" />
+                        <Button fx:id="stop" mnemonicParsing="false" onMouseClicked="#handleStop" prefHeight="25.0" prefWidth="69.0" text="Stop" />
+                        <Button fx:id="forward" mnemonicParsing="false" onMouseClicked="#handleSkipLForward" prefHeight="25.0" prefWidth="127.0" text="Forward" />
+                     </children>
+                  </HBox>
                </children>
-            </HBox>
+            </VBox>
+            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
+               <children>
+                  <Slider fx:id="sliderVolume" majorTickUnit="50.0" max="200.0" minorTickCount="10" onMouseDragged="#handleSliderVolume" onMouseReleased="#handleSliderVolume" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="100.0" />
+                  <Text fx:id="textVolume" strokeType="OUTSIDE" strokeWidth="0.0" text="100%" textAlignment="CENTER" wrappingWidth="144.13671875" />
+                  <Pane prefHeight="29.0" prefWidth="145.0" />
+                  <Text fx:id="textTime" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" textAlignment="CENTER" wrappingWidth="144.13671875" />
+               </children>
+            </VBox>
+            <Button fx:id="exit" mnemonicParsing="false" onMouseClicked="#handleExit" text="Exit" />
          </children>
-      </VBox>
+      </GridPane>
    </children>
-</GridPane>
+</Pane>
