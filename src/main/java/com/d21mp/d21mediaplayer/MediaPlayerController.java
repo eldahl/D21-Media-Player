@@ -9,6 +9,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.net.URL;
@@ -34,8 +35,18 @@ public class MediaPlayerController implements Initializable {
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
+        // Plays this media when application launches
+        mediaSelection("Countdown");
+
+    }
+
+    /**
+     * Method for selecting a media to be played in media viewer
+     * @param title
+     */
+    public void mediaSelection(String title) {
         String path = "";
-        DB.selectSQL("SELECT URL FROM Media WHERE Title = 'Countdown'");
+        DB.selectSQL("SELECT URL FROM Media WHERE Title = '" + title + "'");
         do {
             String data = DB.getData();
             if (data.equals(DB.NOMOREDATA)) {
@@ -62,8 +73,37 @@ public class MediaPlayerController implements Initializable {
         mp.play();
     }
 
+    /**
+     * Opens a file via Windows file explorer which plays instantly
+     */
     @FXML
-    public void test() {
+    public void openFile() {
+        FileChooser fileChooser = new FileChooser();
+
+        File selectedFile = fileChooser.showOpenDialog(null);
+        String pathToSelectedFile = selectedFile.getAbsolutePath();
+
+        me = new Media(new File(pathToSelectedFile).toURI().toString());
+        mp = new MediaPlayer(me);
+
+        mediaViewVBox.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
+
+        mediaView.setPreserveRatio(true);
+
+        Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
+        mp.setOnReady(sizeToSceneRun);
+
+        mediaView.setMediaPlayer(mp);
+        mp.setAutoPlay(false);
+        mp.play();
+    }
+
+
+    /**
+     * Closes current playing media
+     */
+    @FXML
+    public void close() {
 
         me = new Media(new File("src/main/java/com/d21mp/d21mediaplayer/media/Meme.mp4").toURI().toString());
         mp = new MediaPlayer(me);
@@ -87,7 +127,7 @@ public class MediaPlayerController implements Initializable {
     }
 
     /**
-     * Search Media table in Media Player DB by keyword found in a textfield
+     * Search Media table in Media Player DB by keyword found in a text field
      * @return All found results an Arraylist
      */
     public ArrayList<String> searchFunction() {
