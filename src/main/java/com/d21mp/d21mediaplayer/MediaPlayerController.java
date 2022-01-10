@@ -314,12 +314,7 @@ public class MediaPlayerController implements Initializable {
     }
 
     private void timeChangeShow(){
-        //The time gets rounded
-        //String currentTime = ""+round(Double.parseDouble(MediaPlayerInfo.getCurrentTime(mp)),0);
-        //String duration = ""+round(Double.parseDouble(MediaPlayerInfo.getDuration(mp)),0);
-
-        //Changes the time text
-        //textTime.setText(currentTime+" / "+duration);
+        //The time
     }
 
     /**
@@ -339,9 +334,6 @@ public class MediaPlayerController implements Initializable {
     {
         // Skip forwards and backwards in the media via the slider
         mp.setVolume(sliderVolume.getValue()/100);
-
-        //Changes the volume text
-        labelTime.setText(round(sliderVolume.getValue(),0)+"%");
     }
 
     @FXML
@@ -403,32 +395,4 @@ public class MediaPlayerController implements Initializable {
 
         return mp;
     }
-
-
-
-
-    /**
-     * This is used for rounding the decimals and then choosing the amount of decimals you want to show (rounded)
-     * @param value this is the double that you want to round
-     * @param places this is the amount of decimals you want to round up to
-     * @return the value rounded up till the amount of places behind the dot
-     */
-    private static double round(double value, int places) {
-
-        //Here it checks if the places is above 0, else it will throw an exception
-        if (places < 0) throw new IllegalArgumentException();
-
-        //Here the factor number gets chosen. The bigger, the more digits are accurate
-        long factor = (long) Math.pow(10, places);
-
-        //Here the value is timed with the factor to get a larger number
-        value = value * factor;
-
-        //Here the value is rounded
-        long tmp = Math.round(value);
-
-        //Here the value gets devided with the factor to get the rounded number and then returned
-        return (double) tmp / factor;
-    }
-
 }
