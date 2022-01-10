@@ -64,6 +64,10 @@ public class MediaPlayerController implements Initializable {
         else
             System.out.println("Error: Failed to load UI icons");
 
+        // Paint it black and preserve aspect ratio of video
+        mediaViewVBox.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+        mediaView.setPreserveRatio(true);
+
         // Plays this media when application launches
         mediaSelection("Countdown");
 
@@ -117,17 +121,13 @@ public class MediaPlayerController implements Initializable {
             }
             else {
                 path = data;
-                System.out.printf("path: " + path);
             }
         } while (true);
 
         me = new Media(new File(path).toURI().toString());
         mp = new MediaPlayer(me);
 
-        mediaViewVBox.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-
-        mediaView.setPreserveRatio(true);
-
+        // Resize window and set minimum window size when media has loaded
         Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
         mp.setOnReady(sizeToSceneRun);
 
@@ -149,10 +149,7 @@ public class MediaPlayerController implements Initializable {
         me = new Media(new File(pathToSelectedFile).toURI().toString());
         mp = new MediaPlayer(me);
 
-        mediaViewVBox.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-
-        mediaView.setPreserveRatio(true);
-
+        // Resize window and set minimum window size when media has loaded
         Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
         mp.setOnReady(sizeToSceneRun);
 
@@ -179,9 +176,7 @@ public class MediaPlayerController implements Initializable {
 
     public void addSearchResult() {
         // add button
-
         // add label
-
     }
 
     public void clearSearchResults() {

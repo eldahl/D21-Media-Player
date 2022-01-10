@@ -16,6 +16,7 @@ import java.util.Objects;
 
 public class MainApplication extends Application {
 
+    // Fxml stage instance used for later access to stage
     public static Stage iStage;
 
     /**
@@ -29,7 +30,6 @@ public class MainApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-
         iStage = stage;
 
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("media-player.fxml"));
