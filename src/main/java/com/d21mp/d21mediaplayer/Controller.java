@@ -253,7 +253,7 @@ public class Controller implements Initializable {
      */
     private void handleSearch()
     {
-        DBHandling.main();
+
     }
 
     @FXML
