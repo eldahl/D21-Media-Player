@@ -33,7 +33,7 @@
           <Menu mnemonicParsing="false" text="Playlist">
             <items>
                   <MenuItem mnemonicParsing="false" text="Open playlist" />
-              <MenuItem mnemonicParsing="false" text="Create playlist" />
+              <MenuItem mnemonicParsing="false" onAction="#createPlaylist" text="Create playlist" />
                   <MenuItem mnemonicParsing="false" text="Edit playlist" />
                   <MenuItem mnemonicParsing="false" text="Delete playlist" />
             </items>
