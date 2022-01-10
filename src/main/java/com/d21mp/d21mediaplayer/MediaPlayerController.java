@@ -269,7 +269,7 @@ public class MediaPlayerController implements Initializable {
     private void buttonSkipBack()
     {
         // Play the next media in mediaPlayer
-        nextURLToPlayFromPlaylist(previousNext.previous);
+        getURLFromPlaylist(nextMedia.previous);
     }
 
     @FXML
@@ -279,7 +279,7 @@ public class MediaPlayerController implements Initializable {
     private void buttonSkipForward()
     {
         // Play the next media in mediaPlayer
-        nextURLToPlayFromPlaylist(previousNext.next);
+        getURLFromPlaylist(nextMedia.next);
     }
 
     @FXML
@@ -353,15 +353,15 @@ public class MediaPlayerController implements Initializable {
         // Show version and our names as creators
     }
 
-    enum previousNext {
+    enum nextMedia {
         previous,
         next;
     }
 
-    private void nextURLToPlayFromPlaylist(previousNext p){
+    private void getURLFromPlaylist(nextMedia p){
 
         //Creates a new mediaplayer with the next media to play
-        if (p.equals(previousNext.next)){
+        if (p.equals(nextMedia.next)){
             createMediaPlayer(playlist, playlist.getNextUrlFromPlaylist());
         } else {
             createMediaPlayer(playlist, playlist.getPreviousFromPlaylist());
@@ -392,7 +392,7 @@ public class MediaPlayerController implements Initializable {
         mp.setOnPlaying(timeSliderUpdater);
 
         //Gets the next media in the playlist
-        Runnable nextUrlFromPlaylist = () -> nextURLToPlayFromPlaylist(previousNext.next);
+        Runnable nextUrlFromPlaylist = () -> getURLFromPlaylist(nextMedia.next);
         mp.setOnEndOfMedia(nextUrlFromPlaylist);
 
         //Set the volume to the same as last media
