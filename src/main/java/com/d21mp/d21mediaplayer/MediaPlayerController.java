@@ -4,6 +4,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -13,6 +15,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.net.URL;
@@ -25,6 +28,9 @@ public class MediaPlayerController implements Initializable {
     private MediaView mediaView;
 
     @FXML
+    private Label labelTime;
+
+    @FXML
     private TextField searchField;
 
     @FXML
@@ -32,6 +38,9 @@ public class MediaPlayerController implements Initializable {
 
     @FXML
     private Button playPauseBut, stopBut, skipForwardBut, skipBackwardBut;
+
+    @FXML
+    public Slider sliderTime, sliderVolume;
 
     private MediaPlayer mp;
     private Media me;
@@ -41,6 +50,10 @@ public class MediaPlayerController implements Initializable {
     // Weather or not the search / playlist view is displayed in the UI
     // Initially the view is initialized as being displayed, so set to true
     private boolean showSearchPlaylistView = true;
+
+    //This is used for handling the playlist
+    PlaylistHandler playlist = new PlaylistHandler();
+
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -56,7 +69,7 @@ public class MediaPlayerController implements Initializable {
 
         // Check for successful loading of images and add to buttons
         if(playImg != null && pauseImg != null && stopImg != null && skipForwardImg != null && skipBackwardImg != null) {
-            setButtonUIImage(playPauseBut, playImg);
+            setButtonUIImage(playPauseBut, pauseImg);
             setButtonUIImage(stopBut, stopImg);
             setButtonUIImage(skipForwardBut, skipForwardImg);
             setButtonUIImage(skipBackwardBut, skipBackwardImg);
@@ -201,4 +214,221 @@ public class MediaPlayerController implements Initializable {
         } while (true);
         return collected;
     }
+
+    @FXML
+    /**
+     * Handler for the play and pause button
+     */
+    private void buttonPlayPause() {
+        if (playPauseBut.getText().equals("Play")){
+            // Play the mediaPlayer with the attached media
+            setButtonUIImage(playPauseBut, pauseImg);
+            mpPlay();
+        } else {
+            // Pause the mediaPlayer
+            setButtonUIImage(playPauseBut, playImg);
+            mpPause();
+        }
+    }
+
+    @FXML
+    /**
+     * Plays the Media
+     */
+    private void mpPlay(){
+        // Play the mediaPlayer with the attached media
+        mp.play();
+        playPauseBut.setText("Pause");
+    }
+
+    @FXML
+    /**
+     * Pause the Media
+     */
+    private void mpPause(){
+        // Pause the mediaPlayer
+        mp.pause();
+        playPauseBut.setText("Play");
+    }
+
+    @FXML
+    /**
+     * Handler for the stop button
+     */
+    private void buttonStop()
+    {
+        // Stop the mediaPlayer
+        mp.stop();
+        playPauseBut.setText("Play");
+    }
+
+    @FXML
+    /**
+     * Handler for the skipback button
+     */
+    private void buttonSkipBack()
+    {
+        // Play the next media in mediaPlayer
+        nextURLToPlayFromPlaylist(previousNext.previous);
+    }
+
+    @FXML
+    /**
+     * Handler for the skipforward button
+     */
+    private void buttonSkipForward()
+    {
+        // Play the next media in mediaPlayer
+        nextURLToPlayFromPlaylist(previousNext.next);
+    }
+
+    @FXML
+    /**
+     * Handler for the mute button
+     */
+    private void buttonMute()
+    {
+        if (mp.getVolume()==0){
+            //Set the volume to the sliders value
+            sliderVolume();
+        } else {
+            //Mute the sound
+            mp.setVolume(0);
+        }
+    }
+
+
+
+
+    /**
+     * Handler for the Time slider
+     */
+    @FXML
+    private void sliderTimeSliding()
+    {
+        // Skip forwards and backwards in the media via the slider
+        mp.setStartTime(Duration.seconds(sliderTime.getValue()));
+
+        //Update the time
+        //timeChangeShow();
+    }
+
+    private void timeChangeShow(){
+        //The time gets rounded
+        //String currentTime = ""+round(Double.parseDouble(MediaPlayerInfo.getCurrentTime(mp)),0);
+        //String duration = ""+round(Double.parseDouble(MediaPlayerInfo.getDuration(mp)),0);
+
+        //Changes the time text
+        //textTime.setText(currentTime+" / "+duration);
+    }
+
+    /**
+     * void for the Time sliders scaling
+     */
+    private void sliderTimeScaling()
+    {
+        //Slider scaling
+        sliderTime.setMax(Double.parseDouble(MediaPlayerInfo.getDuration(mp)));
+    }
+
+    /**
+     * Handler for the sound slider
+     */
+    @FXML
+    private void sliderVolume()
+    {
+        // Skip forwards and backwards in the media via the slider
+        mp.setVolume(sliderVolume.getValue()/100);
+
+        //Changes the volume text
+        labelTime.setText(round(sliderVolume.getValue(),0)+"%");
+    }
+
+    @FXML
+    /**
+     * Handler for info about the program
+     */
+    private void buttonAbout()
+    {
+        // Show version and our names as creators
+    }
+
+    enum previousNext {
+        previous,
+        next;
+    }
+
+    private void nextURLToPlayFromPlaylist(previousNext p){
+
+        //Creates a new mediaplayer with the next media to play
+        if (p.equals(previousNext.next)){
+            createMediaPlayer(playlist, playlist.getNextUrlFromPlaylist());
+        } else {
+            createMediaPlayer(playlist, playlist.getPreviousFromPlaylist());
+        }
+
+        //Plays the new media
+        mpPlay();
+    }
+
+    private MediaPlayer createMediaPlayer(PlaylistHandler playlistHandler, String URL){
+
+        //Stops the current media if there is some playing
+        buttonStop();
+
+        me = new Media(new File(URL).toURI().toString());
+        mp = new MediaPlayer(me);
+
+        // Resize window and set minimum window size when media has loaded
+        Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
+        mp.setOnReady(sizeToSceneRun);
+
+        //Resize the slider
+        Runnable sliderResize = () -> sliderTimeScaling();
+        mp.setOnReady(sliderResize);
+
+        //While playing this changes the UI live
+        Runnable timeSliderUpdater = () -> sliderTimeSliding();
+        mp.setOnPlaying(timeSliderUpdater);
+
+        //Gets the next media in the playlist
+        Runnable nextUrlFromPlaylist = () -> nextURLToPlayFromPlaylist(previousNext.next);
+        mp.setOnEndOfMedia(nextUrlFromPlaylist);
+
+        //Set the volume to the same as last media
+        sliderVolume();
+
+        mediaView.setMediaPlayer(mp);
+        mp.setAutoPlay(false);
+
+        return mp;
+    }
+
+
+
+
+    /**
+     * This is used for rounding the decimals and then choosing the amount of decimals you want to show (rounded)
+     * @param value this is the double that you want to round
+     * @param places this is the amount of decimals you want to round up to
+     * @return the value rounded up till the amount of places behind the dot
+     */
+    private static double round(double value, int places) {
+
+        //Here it checks if the places is above 0, else it will throw an exception
+        if (places < 0) throw new IllegalArgumentException();
+
+        //Here the factor number gets chosen. The bigger, the more digits are accurate
+        long factor = (long) Math.pow(10, places);
+
+        //Here the value is timed with the factor to get a larger number
+        value = value * factor;
+
+        //Here the value is rounded
+        long tmp = Math.round(value);
+
+        //Here the value gets devided with the factor to get the rounded number and then returned
+        return (double) tmp / factor;
+    }
+
 }

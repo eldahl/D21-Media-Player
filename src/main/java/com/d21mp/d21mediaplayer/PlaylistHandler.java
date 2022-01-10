@@ -1,5 +1,7 @@
 package com.d21mp.d21mediaplayer;
 
+import javafx.util.Duration;
+
 import java.util.ArrayList;
 
 public class PlaylistHandler {
@@ -25,7 +27,7 @@ public class PlaylistHandler {
     private int playlistSize;
 
     //The playlist that is the master/current playlist
-    private ArrayList<String> playlist = new ArrayList<>();
+    private final ArrayList<String> playlist = new ArrayList<>();
 
     public PlaylistHandler(){
         this.currentMediaPlayingPosition = 0;
@@ -38,7 +40,7 @@ public class PlaylistHandler {
     private String fldCreator = "Creator";
     private String fldTitle = "Title";
 
-    private String tblPlaylist = "Playlist";
+    private String tblPlaylist = "PlaylistCollection";
     private String fldPlaylistName = "PlaylistName";
 
     private String tblRelation = "Relation";
@@ -95,14 +97,24 @@ public class PlaylistHandler {
      * Get the next url in the playlist
      */
     public String getNextUrlFromPlaylist(){
-        return playlist.get(currentMediaPlayingPosition+1);
+        if (playlistSize==currentMediaPlayingPosition+1){
+            currentMediaPlayingPosition=0;
+        } else {
+            currentMediaPlayingPosition+=1;
+        }
+        return playlist.get(currentMediaPlayingPosition);
     }
 
     /**
      * Get the previous url in the playlist
      */
     public String getPreviousFromPlaylist(){
-        return playlist.get(currentMediaPlayingPosition-1);
+        if (0>currentMediaPlayingPosition-1){
+            currentMediaPlayingPosition=playlistSize;
+        } else {
+            currentMediaPlayingPosition-=1;
+        }
+        return playlist.get(currentMediaPlayingPosition);
     }
 
 
@@ -119,7 +131,7 @@ public class PlaylistHandler {
 
         ArrayList<String> loadedPlaylist = new ArrayList<>();
 
-        DB.selectSQL("select "+fldURL+" from "+tblMedia+" where "+fldPlaylistName+" = "+name+";");
+        DB.selectSQL("select "+fldURL+" from "+tblPlaylist+" where "+fldPlaylistName+" = '"+name+"';");
 
         do{
             String data = DB.getData();

@@ -51,32 +51,32 @@
                <children>
                   <VBox fx:id="mediaViewVBox" alignment="CENTER" maxHeight="2000.0" maxWidth="2000.0" minHeight="90.0" minWidth="160.0" VBox.vgrow="SOMETIMES">
                      <children>
-                        <MediaView fx:id="mediaView" fitHeight="${mediaViewVBox.height}" fitWidth="${mediaViewVBox.width}">
+                        <MediaView fx:id="mediaView" fitHeight="${mediaViewVBox.height}" fitWidth="${mediaViewVBox.width}" onMouseClicked="#buttonPlayPause">
                            <cursor>
                               <Cursor fx:constant="DEFAULT" />
                            </cursor>
                         </MediaView>
                      </children>
                   </VBox>
-                  <Slider />
+                  <Slider fx:id="sliderTime" majorTickUnit="10.0" minorTickCount="10" onMouseDragged="#sliderTimeSliding" onMousePressed="#mpPause" onMouseReleased="#mpPlay" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
                   <HBox alignment="CENTER_LEFT">
                      <children>
-                        <Button fx:id="playPauseBut" mnemonicParsing="false" text="Play">
+                        <Button fx:id="playPauseBut" mnemonicParsing="false" onMouseClicked="#buttonPlayPause" prefHeight="25.0" prefWidth="80.0" text="Pause">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="stopBut" mnemonicParsing="false" text="Stop">
+                        <Button fx:id="stopBut" mnemonicParsing="false" onMousePressed="#buttonStop" text="Stop">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="skipBackwardBut" mnemonicParsing="false" text="Backward">
+                        <Button fx:id="skipBackwardBut" mnemonicParsing="false" onMouseClicked="#buttonSkipBack" onMousePressed="#buttonSkipBack" text="Backward">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="skipForwardBut" mnemonicParsing="false" text="Forward">
+                        <Button fx:id="skipForwardBut" mnemonicParsing="false" onMouseClicked="#buttonSkipForward" onMousePressed="#buttonSkipForward" text="Forward">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
@@ -87,8 +87,8 @@
                               <Insets left="6.0" right="6.0" />
                            </HBox.margin>
                            <children>
-                              <Slider prefWidth="100.0" value="100.0" />
-                              <Label text="0%    Vol.    100%" />
+                              <Slider fx:id="sliderVolume" onMouseDragged="#sliderVolume" prefWidth="100.0" value="100.0" />
+                              <Label fx:id="labelTime" text="0%    Vol.    100%" />
                            </children>
                         </VBox>
                      </children>
