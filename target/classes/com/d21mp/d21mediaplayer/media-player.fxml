@@ -61,7 +61,7 @@
                   <Slider fx:id="sliderTime" majorTickUnit="10.0" minorTickCount="10" onMouseDragged="#sliderTimeSliding" onMousePressed="#mpPause" onMouseReleased="#mpPlay" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
                   <HBox alignment="CENTER_LEFT">
                      <children>
-                        <Button fx:id="playPauseBut" mnemonicParsing="false" onMouseClicked="#buttonPlayPause" prefHeight="25.0" prefWidth="80.0" text="Pause">
+                        <Button fx:id="playPauseBut" mnemonicParsing="false" onAction="#buttonPlayPause" prefHeight="25.0" prefWidth="80.0" text="Pause">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
