@@ -3,7 +3,10 @@ package com.d21mp.d21mediaplayer;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -25,19 +28,83 @@ public class MediaPlayerController implements Initializable {
     private TextField searchField;
 
     @FXML
-    private VBox mediaViewVBox;
+    private VBox searchPlaylistView, mediaViewVBox;
 
     @FXML
-    private VBox rootVBox;
+    private Button playPauseBut, stopBut, skipForwardBut, skipBackwardBut;
 
     private MediaPlayer mp;
     private Media me;
 
+    private Image playImg, pauseImg, stopImg, skipForwardImg, skipBackwardImg;
+
+    // Weather or not the search / playlist view is displayed in the UI
+    // Initially the view is initialized as being displayed, so set to true
+    private boolean showSearchPlaylistView = true;
+
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        // Hide Search/Playlist view
+        toggleSearchPlaylistView();
+
+        // Load icon images for video controls
+        playImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/play.png").toURI().toString());
+        pauseImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/pause.png").toURI().toString());
+        stopImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/stop.png").toURI().toString());
+        skipForwardImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/skip-forward.png").toURI().toString());
+        skipBackwardImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/skip-backward.png").toURI().toString());
+
+        // Check for successful loading of images and add to buttons
+        if(playImg != null && pauseImg != null && stopImg != null && skipForwardImg != null && skipBackwardImg != null) {
+            setButtonUIImage(playPauseBut, playImg);
+            setButtonUIImage(stopBut, stopImg);
+            setButtonUIImage(skipForwardBut, skipForwardImg);
+            setButtonUIImage(skipBackwardBut, skipBackwardImg);
+        }
+        else
+            System.out.println("Error: Failed to load UI icons");
+
+        // Paint it black and preserve aspect ratio of video
+        mediaViewVBox.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+        mediaView.setPreserveRatio(true);
 
         // Plays this media when application launches
         mediaSelection("Countdown");
 
+    }
+
+    /**
+     * Show or hides the search / playlist view, depending on its state
+     */
+    public void toggleSearchPlaylistView() {
+        if(!showSearchPlaylistView) {
+            // Show view
+            searchPlaylistView.setVisible(true);
+            searchPlaylistView.setManaged(true);
+            showSearchPlaylistView = true;
+            // Resize scene and set minimum size to content size
+            MainApplication.sizeToScene();
+        }
+        else {
+            // Hide view
+            searchPlaylistView.setVisible(false);
+            searchPlaylistView.setManaged(false);
+            showSearchPlaylistView = false;
+            // Resize scene and set minimum size to content size
+            MainApplication.sizeToScene();
+        }
+    }
+
+    /**
+     * Puts the supplied image onto supplied button
+     * @param button Button to put image onto
+     * @param img Image to put on button
+     */
+    private void setButtonUIImage(Button button, Image img) {
+        ImageView view = new ImageView(img);
+        view.setFitHeight(20);
+        view.setPreserveRatio(true);
+        button.setGraphic(view);
     }
 
     /**
@@ -54,17 +121,13 @@ public class MediaPlayerController implements Initializable {
             }
             else {
                 path = data;
-                System.out.printf("path: " + path);
             }
         } while (true);
 
         me = new Media(new File(path).toURI().toString());
         mp = new MediaPlayer(me);
 
-        mediaViewVBox.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
-
-        mediaView.setPreserveRatio(true);
-
+        // Resize window and set minimum window size when media has loaded
         Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
         mp.setOnReady(sizeToSceneRun);
 
@@ -86,10 +149,7 @@ public class MediaPlayerController implements Initializable {
         me = new Media(new File(pathToSelectedFile).toURI().toString());
         mp = new MediaPlayer(me);
 
-        mediaViewVBox.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
-
-        mediaView.setPreserveRatio(true);
-
+        // Resize window and set minimum window size when media has loaded
         Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
         mp.setOnReady(sizeToSceneRun);
 
@@ -112,14 +172,11 @@ public class MediaPlayerController implements Initializable {
         mediaView.setMediaPlayer(mp);
         mp.setAutoPlay(false);
         mp.play();
-        //System.out.println(rootVBox.getHeight() + "|" + rootVBox.getWidth());
     }
 
     public void addSearchResult() {
         // add button
-
         // add label
-
     }
 
     public void clearSearchResults() {

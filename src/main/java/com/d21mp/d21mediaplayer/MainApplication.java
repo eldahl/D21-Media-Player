@@ -16,15 +16,20 @@ import java.util.Objects;
 
 public class MainApplication extends Application {
 
+    // Fxml stage instance used for later access to stage
     public static Stage iStage;
 
+    /**
+     * Resize scene to fit fxml content size and set minimum size to content size
+     */
     public static void sizeToScene() {
         iStage.sizeToScene();
+        iStage.setMinWidth(iStage.getWidth());
+        iStage.setMinHeight(iStage.getHeight());
     }
 
     @Override
     public void start(Stage stage) throws IOException {
-
         iStage = stage;
 
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("media-player.fxml"));
@@ -33,8 +38,6 @@ public class MainApplication extends Application {
         stage.setTitle("D21 MediaPlayer");
         stage.setScene(scene);
         stage.show();
-        stage.setMinWidth(425);
-        stage.setMinHeight(153);
     }
 
     public static void main(String[] args) {
