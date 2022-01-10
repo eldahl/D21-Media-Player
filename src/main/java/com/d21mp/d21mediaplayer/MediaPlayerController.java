@@ -304,7 +304,7 @@ public class MediaPlayerController implements Initializable {
      * Handler for the Time slider
      */
     @FXML
-    private void sliderTimeSliding()
+    private void sliderTimeDragging()
     {
         // Skip forwards and backwards in the media via the slider
         mp.setStartTime(Duration.seconds(sliderTime.getValue()));
@@ -380,7 +380,7 @@ public class MediaPlayerController implements Initializable {
         mp.setOnReady(sliderResize);
 
         //While playing this changes the UI live
-        Runnable timeSliderUpdater = () -> sliderTimeSliding();
+        Runnable timeSliderUpdater = () -> sliderTimeDragging();
         mp.setOnPlaying(timeSliderUpdater);
 
         //Gets the next media in the playlist
