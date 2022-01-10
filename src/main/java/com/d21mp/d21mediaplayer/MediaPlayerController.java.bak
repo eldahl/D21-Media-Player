@@ -304,10 +304,8 @@ public class MediaPlayerController implements Initializable {
      */
     private void buttonSkipBack()
     {
-        if(playlist.getPlaylistSize()>0) {
-			// Play the next media in mediaPlayer
-			getURLFromPlaylist(nextMedia.previous);
-		}
+        // Play the next media in mediaPlayer
+        getURLFromPlaylist(nextMedia.previous);
     }
 
     @FXML
@@ -316,10 +314,8 @@ public class MediaPlayerController implements Initializable {
      */
     private void buttonSkipForward()
     {
-        if(playlist.getPlaylistSize()>0) {
-			// Play the next media in mediaPlayer
-			getURLFromPlaylist(nextMedia.next);
-		}
+        // Play the next media in mediaPlayer
+        getURLFromPlaylist(nextMedia.next);
     }
 
     @FXML
