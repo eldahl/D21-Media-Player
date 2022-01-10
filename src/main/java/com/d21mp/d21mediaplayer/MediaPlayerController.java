@@ -5,6 +5,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -12,11 +13,18 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MediaPlayerController implements Initializable {
@@ -173,6 +181,35 @@ public class MediaPlayerController implements Initializable {
         mp.setAutoPlay(false);
         mp.play();
     }
+
+    /**
+     * Creates a new playlist and adds to database
+     */
+    @FXML
+    public void createPlaylist() {
+        // Create new object
+        DBHandling playlistCreator = new DBHandling();
+
+        // Values for dialog box
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("New Playlist");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Please enter name of playlist:");
+        // Add custom graphics to dialog box
+        dialog.setGraphic(new ImageView(Objects.requireNonNull(this.getClass().getResource("addIcon32.png")).toString()));
+
+        // Get the Stage
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+
+        // Add a custom icon.
+        stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("awesomeicon.png")).toString()));
+
+        // Get the response value.
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(playlistCreator::createPlaylist);
+
+    }
+
 
     public void addSearchResult() {
         // add button
