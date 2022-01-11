@@ -1,13 +1,19 @@
 package com.d21mp.d21mediaplayer;
 
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -19,6 +25,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.net.URL;
@@ -33,13 +41,22 @@ public class MediaPlayerController implements Initializable {
     private MediaView mediaView;
 
     @FXML
+    private Label labelTime;
+
+    @FXML
     private TextField searchField;
 
     @FXML
-    private VBox searchPlaylistView, mediaViewVBox;
+    private VBox rootVBox, searchPlaylistView, mediaViewVBox;
 
     @FXML
     private Button playPauseBut, stopBut, skipForwardBut, skipBackwardBut;
+
+    @FXML
+    public Slider sliderTime, sliderVolume;
+
+    @FXML
+    RadioMenuItem lightmode, darkmode;
 
     private MediaPlayer mp;
     private Media me;
@@ -49,6 +66,10 @@ public class MediaPlayerController implements Initializable {
     // Weather or not the search / playlist view is displayed in the UI
     // Initially the view is initialized as being displayed, so set to true
     private boolean showSearchPlaylistView = true;
+
+    //This is used for handling the playlist
+    PlaylistHandler playlist = new PlaylistHandler();
+
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -64,7 +85,7 @@ public class MediaPlayerController implements Initializable {
 
         // Check for successful loading of images and add to buttons
         if(playImg != null && pauseImg != null && stopImg != null && skipForwardImg != null && skipBackwardImg != null) {
-            setButtonUIImage(playPauseBut, playImg);
+            setButtonUIImage(playPauseBut, pauseImg);
             setButtonUIImage(stopBut, stopImg);
             setButtonUIImage(skipForwardBut, skipForwardImg);
             setButtonUIImage(skipBackwardBut, skipBackwardImg);
@@ -164,6 +185,8 @@ public class MediaPlayerController implements Initializable {
         mediaView.setMediaPlayer(mp);
         mp.setAutoPlay(false);
         mp.play();
+
+
     }
 
 
@@ -237,5 +260,252 @@ public class MediaPlayerController implements Initializable {
             }
         } while (true);
         return collected;
+    }
+
+    @FXML
+    /**
+     * Handler for the play and pause button
+     */
+    private void buttonPlayPause() {
+        if (playPauseBut.getText().equals("Play")){
+            // Play the mediaPlayer with the attached media
+            setButtonUIImage(playPauseBut, pauseImg);
+            mpPlay();
+        } else {
+            // Pause the mediaPlayer
+            setButtonUIImage(playPauseBut, playImg);
+            mpPause();
+        }
+    }
+
+    @FXML
+    /**
+     * Plays the Media
+     */
+    private void mpPlay(){
+        // Play the mediaPlayer with the attached media
+        mp.play();
+        playPauseBut.setText("Pause");
+    }
+
+    @FXML
+    /**
+     * Pause the Media
+     */
+    private void mpPause(){
+        // Pause the mediaPlayer
+        mp.pause();
+        playPauseBut.setText("Play");
+    }
+
+    @FXML
+    /**
+     * Handler for the stop button
+     */
+    private void buttonStop()
+    {
+        // Stop the mediaPlayer
+        mp.stop();
+        playPauseBut.setText("Play");
+    }
+
+    @FXML
+    /**
+     * Handler for the skipback button
+     */
+    private void buttonSkipBack()
+    {
+        if(playlist.getPlaylistSize()>0) {
+			// Play the next media in mediaPlayer
+			getURLFromPlaylist(nextMedia.previous);
+		}
+    }
+
+    @FXML
+    /**
+     * Handler for the skipforward button
+     */
+    private void buttonSkipForward()
+    {
+        if(playlist.getPlaylistSize()>0) {
+			// Play the next media in mediaPlayer
+			getURLFromPlaylist(nextMedia.next);
+		}
+    }
+
+    @FXML
+    /**
+     * Handler for the mute button
+     */
+    private void buttonMute()
+    {
+        if (mp.getVolume()==0){
+            //Set the volume to the sliders value
+            sliderVolume();
+        } else {
+            //Mute the sound
+            mp.setVolume(0);
+        }
+    }
+
+
+
+
+    /**
+     * Handler for the Time slider
+     */
+    @FXML
+    private void sliderTimeDragging()
+    {
+        // Skip forwards and backwards in the media via the slider
+        mp.setStartTime(Duration.seconds(sliderTime.getValue()));
+
+        //Update the time
+        //timeChangeShow();
+    }
+
+    private void timeChangeShow(){
+        //The time
+    }
+
+    /**
+     * void for the Time sliders scaling
+     */
+    private void sliderTimeScaling()
+    {
+        //Slider scaling
+        sliderTime.setMax(Double.parseDouble(MediaPlayerInfo.getDuration(mp)));
+    }
+
+    /**
+     * Handler for the sound slider
+     */
+    @FXML
+    private void sliderVolume()
+    {
+        // Skip forwards and backwards in the media via the slider
+        mp.setVolume(sliderVolume.getValue()/100);
+    }
+
+    @FXML
+    /**
+     * Handler for info about the program
+     */
+    private void buttonAbout()
+    {
+        // Show version and our names as creators
+    }
+
+    enum nextMedia {
+        previous,
+        next;
+    }
+
+    private void getURLFromPlaylist(nextMedia p){
+
+        //Creates a new mediaplayer with the next media to play
+        if (p.equals(nextMedia.next)){
+            createMediaPlayer(playlist, playlist.getNextUrlFromPlaylist());
+        } else {
+            createMediaPlayer(playlist, playlist.getPreviousFromPlaylist());
+        }
+
+        //Plays the new media
+        mpPlay();
+    }
+
+    private MediaPlayer createMediaPlayer(PlaylistHandler playlistHandler, String URL){
+
+        //Stops the current media if there is some playing
+        buttonStop();
+
+        me = new Media(new File(URL).toURI().toString());
+        mp = new MediaPlayer(me);
+
+        // Resize window and set minimum window size when media has loaded
+        Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
+        mp.setOnReady(sizeToSceneRun);
+
+        //Resize the slider
+        Runnable sliderResize = () -> sliderTimeScaling();
+        mp.setOnReady(sliderResize);
+
+        //While playing this changes the UI live
+        Runnable timeSliderUpdater = () -> sliderTimeDragging();
+        mp.setOnPlaying(timeSliderUpdater);
+
+        //Gets the next media in the playlist
+        Runnable nextUrlFromPlaylist = () -> getURLFromPlaylist(nextMedia.next);
+        mp.setOnEndOfMedia(nextUrlFromPlaylist);
+
+        //Set the volume to the same as last media
+        sliderVolume();
+
+        mediaView.setMediaPlayer(mp);
+        mp.setAutoPlay(false);
+
+        return mp;
+    }
+
+    /**
+     * Enables light mode
+     */
+    @FXML
+    public void toggleLightMode() {
+        // Main theme
+        rootVBox.setStyle("");
+        // Buttons
+        playPauseBut.setStyle("");
+        stopBut.setStyle("");
+        skipForwardBut.setStyle("");
+        skipBackwardBut.setStyle("");
+        // Radio MenuItem
+        darkmode.setSelected(false);
+    }
+
+    /**
+     * Enables dark mode
+     */
+    @FXML
+    public void toggleDarkMode() {
+        // Main theme
+        rootVBox.setStyle("-fx-base:black");
+        // Buttons
+        playPauseBut.setStyle("-fx-base:darkgrey");
+        stopBut.setStyle("-fx-base:darkgrey");
+        skipForwardBut.setStyle("-fx-base:darkgrey");
+        skipBackwardBut.setStyle("-fx-base:darkgrey");
+        // Radio MenuItem
+        lightmode.setSelected(false);
+
+
+
+    }
+
+    /**
+     * Allows the user to exit the application after confirming an alert
+     */
+    @FXML
+    public void exit() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.initStyle(StageStyle.UNDECORATED);
+        alert.setTitle(null);
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to exit?");
+
+        // Set to dark mord if activated
+        if (darkmode.isSelected()) {
+            alert.getDialogPane().setStyle("-fx-background-color: darkgrey");
+        }
+
+        // Get result
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            // ... user chose OK
+            System.exit(0);
+        } else {
+            // ... user chose CANCEL or closed the dialog
+        }
+
     }
 }

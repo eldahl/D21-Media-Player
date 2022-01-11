@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
@@ -23,11 +24,14 @@
             <items>
                   <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
               <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
+                  <MenuItem mnemonicParsing="false" onAction="#exit" text="Exit" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Show / Hide">
+          <Menu mnemonicParsing="false" text="View">
             <items>
               <MenuItem mnemonicParsing="false" onAction="#toggleSearchPlaylistView" text="Search / Playlist" />
+                  <RadioMenuItem fx:id="lightmode" mnemonicParsing="false" onAction="#toggleLightMode" text="Enable light mode" />
+                  <RadioMenuItem fx:id="darkmode" mnemonicParsing="false" onAction="#toggleDarkMode" text="Enable dark mode" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Playlist">
@@ -51,32 +55,32 @@
                <children>
                   <VBox fx:id="mediaViewVBox" alignment="CENTER" maxHeight="2000.0" maxWidth="2000.0" minHeight="90.0" minWidth="160.0" VBox.vgrow="SOMETIMES">
                      <children>
-                        <MediaView fx:id="mediaView" fitHeight="${mediaViewVBox.height}" fitWidth="${mediaViewVBox.width}">
+                        <MediaView fx:id="mediaView" fitHeight="${mediaViewVBox.height}" fitWidth="${mediaViewVBox.width}" onMouseClicked="#buttonPlayPause">
                            <cursor>
                               <Cursor fx:constant="DEFAULT" />
                            </cursor>
                         </MediaView>
                      </children>
                   </VBox>
-                  <Slider />
+                  <Slider fx:id="sliderTime" majorTickUnit="10.0" minorTickCount="10" onMouseDragged="#sliderTimeDragging" onMousePressed="#mpPause" onMouseReleased="#mpPlay" snapToTicks="true" />
                   <HBox alignment="CENTER_LEFT">
                      <children>
-                        <Button fx:id="playPauseBut" mnemonicParsing="false" text="Play">
+                        <Button fx:id="playPauseBut" mnemonicParsing="false" onAction="#buttonPlayPause" prefHeight="25.0" prefWidth="80.0" text="Pause">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="stopBut" mnemonicParsing="false" text="Stop">
+                        <Button fx:id="stopBut" mnemonicParsing="false" onAction="#buttonStop" text="Stop">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="skipBackwardBut" mnemonicParsing="false" text="Backward">
+                        <Button fx:id="skipBackwardBut" mnemonicParsing="false" onAction="#buttonSkipBack" text="Backward">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="skipForwardBut" mnemonicParsing="false" text="Forward">
+                        <Button fx:id="skipForwardBut" mnemonicParsing="false" onAction="#buttonSkipForward" text="Forward">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
@@ -87,8 +91,8 @@
                               <Insets left="6.0" right="6.0" />
                            </HBox.margin>
                            <children>
-                              <Slider prefWidth="100.0" value="100.0" />
-                              <Label text="0%    Vol.    100%" />
+                              <Slider fx:id="sliderVolume" onMouseDragged="#sliderVolume" prefWidth="100.0" value="100.0" />
+                              <Label fx:id="labelTime" text="0%    Vol.    100%" />
                            </children>
                         </VBox>
                      </children>
