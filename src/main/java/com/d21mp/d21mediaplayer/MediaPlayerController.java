@@ -3,10 +3,7 @@ package com.d21mp.d21mediaplayer;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -62,6 +59,7 @@ public class MediaPlayerController implements Initializable {
     PlaylistHandler playlist = new PlaylistHandler();
 
 
+
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         // Hide Search/Playlist view
@@ -90,6 +88,7 @@ public class MediaPlayerController implements Initializable {
 
         // Plays this media when application launches
         mediaSelection("Countdown");
+
 
     }
 
@@ -337,7 +336,23 @@ public class MediaPlayerController implements Initializable {
         }
     }
 
+    /**
+     * Create a shuffle button
+     */
+    @FXML
+   private void buttonShuffle(){
+        playlist.changeToShufflePlaylist();
+        createMediaPlayer(playlist,playlist.getUrlFromPlaylist(1));
+   }
 
+    /**
+     * Create an unshuffle button
+     */
+    @FXML
+    private void buttonUnShuffle(){
+        playlist.changeToMasterPlaylist();
+        createMediaPlayer(playlist,playlist.getUrlFromPlaylist(1));
+    }
 
 
     /**
@@ -435,4 +450,11 @@ public class MediaPlayerController implements Initializable {
 
         return mp;
     }
+
+    public void shufflePlaylist ()
+    {
+
+    }
+
+
 }
