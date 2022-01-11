@@ -23,6 +23,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import java.io.File;
@@ -182,6 +183,8 @@ public class MediaPlayerController implements Initializable {
         mediaView.setMediaPlayer(mp);
         mp.setAutoPlay(false);
         mp.play();
+
+
     }
 
 
@@ -443,7 +446,14 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     public void toggleLightMode() {
+        // Main theme
         rootVBox.setStyle("");
+        // Buttons
+        playPauseBut.setStyle("");
+        stopBut.setStyle("");
+        skipForwardBut.setStyle("");
+        skipBackwardBut.setStyle("");
+        // Radio MenuItem
         darkmode.setSelected(false);
     }
 
@@ -452,12 +462,14 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     public void toggleDarkMode() {
+        // Main theme
         rootVBox.setStyle("-fx-base:black");
+        // Buttons
         playPauseBut.setStyle("-fx-base:darkgrey");
         stopBut.setStyle("-fx-base:darkgrey");
         skipForwardBut.setStyle("-fx-base:darkgrey");
         skipBackwardBut.setStyle("-fx-base:darkgrey");
-
+        // Radio MenuItem
         lightmode.setSelected(false);
 
 
@@ -470,10 +482,17 @@ public class MediaPlayerController implements Initializable {
     @FXML
     public void exit() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.initStyle(StageStyle.UNDECORATED);
         alert.setTitle(null);
         alert.setHeaderText(null);
         alert.setContentText("Are you sure you want to exit?");
 
+        // Set to dark mord if activated
+        if (darkmode.isSelected()) {
+            alert.getDialogPane().setStyle("-fx-background-color: darkgrey");
+        }
+
+        // Get result
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
             // ... user chose OK
@@ -481,6 +500,10 @@ public class MediaPlayerController implements Initializable {
         } else {
             // ... user chose CANCEL or closed the dialog
         }
+
+
+
+
 
     }
 }
