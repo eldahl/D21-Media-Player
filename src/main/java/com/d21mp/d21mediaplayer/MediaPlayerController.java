@@ -67,6 +67,9 @@ public class MediaPlayerController implements Initializable {
     // Initially the view is initialized as being displayed, so set to true
     private boolean showSearchPlaylistView = true;
 
+    // Weather or not media is currently playing
+    private boolean isPlaying = false;
+
     //This is used for handling the playlist
     PlaylistHandler playlist = new PlaylistHandler();
 
@@ -160,6 +163,28 @@ public class MediaPlayerController implements Initializable {
         Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
         mp.setOnReady(sizeToSceneRun);
 
+        // Change isPlaying state when mp starts playing
+        mp.setOnPlaying(new Runnable() {
+            @Override
+            public void run() {
+                isPlaying = true;
+            }
+        });
+
+        // Change isPlaying state on pause or stop
+        mp.setOnPaused(new Runnable() {
+            @Override
+            public void run() {
+                isPlaying = false;
+            }
+        });
+        mp.setOnStopped(new Runnable() {
+            @Override
+            public void run() {
+                isPlaying = false;
+            }
+        });
+
         mediaView.setMediaPlayer(mp);
         mp.setAutoPlay(false);
         mp.play();
@@ -181,6 +206,28 @@ public class MediaPlayerController implements Initializable {
         // Resize window and set minimum window size when media has loaded
         Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
         mp.setOnReady(sizeToSceneRun);
+
+        // Change isPlaying state when mp starts playing
+        mp.setOnPlaying(new Runnable() {
+            @Override
+            public void run() {
+                isPlaying = true;
+            }
+        });
+
+        // Change isPlaying state on pause or stop
+        mp.setOnPaused(new Runnable() {
+            @Override
+            public void run() {
+                isPlaying = false;
+            }
+        });
+        mp.setOnStopped(new Runnable() {
+            @Override
+            public void run() {
+                isPlaying = false;
+            }
+        });
 
         mediaView.setMediaPlayer(mp);
         mp.setAutoPlay(false);
@@ -267,15 +314,10 @@ public class MediaPlayerController implements Initializable {
      * Handler for the play and pause button
      */
     private void buttonPlayPause() {
-        if (playPauseBut.getText().equals("Play")){
-            // Play the mediaPlayer with the attached media
-            setButtonUIImage(playPauseBut, pauseImg);
+        if (!isPlaying)
             mpPlay();
-        } else {
-            // Pause the mediaPlayer
-            setButtonUIImage(playPauseBut, playImg);
+        else
             mpPause();
-        }
     }
 
     @FXML
@@ -285,7 +327,8 @@ public class MediaPlayerController implements Initializable {
     private void mpPlay(){
         // Play the mediaPlayer with the attached media
         mp.play();
-        playPauseBut.setText("Pause");
+        setButtonUIImage(playPauseBut, pauseImg);
+        isPlaying = true;
     }
 
     @FXML
@@ -295,7 +338,8 @@ public class MediaPlayerController implements Initializable {
     private void mpPause(){
         // Pause the mediaPlayer
         mp.pause();
-        playPauseBut.setText("Play");
+        setButtonUIImage(playPauseBut, playImg);
+        isPlaying = false;
     }
 
     @FXML
@@ -306,7 +350,8 @@ public class MediaPlayerController implements Initializable {
     {
         // Stop the mediaPlayer
         mp.stop();
-        playPauseBut.setText("Play");
+        setButtonUIImage(playPauseBut, playImg);
+        isPlaying = false;
     }
 
     @FXML
