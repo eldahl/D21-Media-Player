@@ -54,10 +54,13 @@ public class MediaPlayerController implements Initializable {
     public Slider sliderTime, sliderVolume;
 
     @FXML
-    RadioMenuItem lightmode, darkmode;
+    RadioMenuItem darkmode, maximize;
 
     private MediaPlayer mp;
     private Media me;
+
+    private double xOffset;
+    private double yOffset;
 
     private Image playImg, pauseImg, stopImg, skipForwardImg, skipBackwardImg;
 
@@ -213,11 +216,16 @@ public class MediaPlayerController implements Initializable {
 
         // Values for dialog box
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("New Playlist");
+        dialog.initStyle(StageStyle.UNDECORATED); // THIS DISABLES TOP BAR
         dialog.setHeaderText(null);
         dialog.setContentText("Please enter name of playlist:");
         // Add custom graphics to dialog box
         dialog.setGraphic(new ImageView(Objects.requireNonNull(this.getClass().getResource("addIcon32.png")).toString()));
+
+        // Set to dark mord if activated
+        if (darkmode.isSelected()) {
+            dialog.getDialogPane().setStyle("-fx-background-color: darkgrey");
+        }
 
         // Get the Stage
         Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
@@ -441,38 +449,54 @@ public class MediaPlayerController implements Initializable {
         return mp;
     }
 
-    /**
-     * Enables light mode
-     */
-    @FXML
-    public void toggleLightMode() {
-        // Main theme
-        rootVBox.setStyle("");
-        // Buttons
-        playPauseBut.setStyle("");
-        stopBut.setStyle("");
-        skipForwardBut.setStyle("");
-        skipBackwardBut.setStyle("");
-        // Radio MenuItem
-        darkmode.setSelected(false);
-    }
 
     /**
-     * Enables dark mode
+     * Toggles light/dark mode
      */
     @FXML
     public void toggleDarkMode() {
-        // Main theme
-        rootVBox.setStyle("-fx-base:black");
-        // Buttons
-        playPauseBut.setStyle("-fx-base:darkgrey");
-        stopBut.setStyle("-fx-base:darkgrey");
-        skipForwardBut.setStyle("-fx-base:darkgrey");
-        skipBackwardBut.setStyle("-fx-base:darkgrey");
-        // Radio MenuItem
-        lightmode.setSelected(false);
 
+        if (darkmode.isSelected()) {
+            // Main theme
+            rootVBox.setStyle("-fx-base:black");
+            // Buttons
+            playPauseBut.setStyle("-fx-base:darkgrey");
+            stopBut.setStyle("-fx-base:darkgrey");
+            skipForwardBut.setStyle("-fx-base:darkgrey");
+            skipBackwardBut.setStyle("-fx-base:darkgrey");
+        }
+        else {
+            // Main theme
+            rootVBox.setStyle("");
+            // Buttons
+            playPauseBut.setStyle("");
+            stopBut.setStyle("");
+            skipForwardBut.setStyle("");
+            skipBackwardBut.setStyle("");
+        }
+    }
 
+     @FXML
+     public void maximize() {
+        Stage stage = (Stage) rootVBox.getScene().getWindow();
+        if ( maximize.isSelected()) {
+            stage.setMaximized(true);
+        }
+        else
+            stage.setMaximized(false);
+     }
+
+    @FXML
+    private void drag(MouseEvent event) {
+        Stage stage = (Stage) rootVBox.getScene().getWindow();
+        stage.setY(event.getScreenY() - yOffset);
+        stage.setX(event.getScreenX() - xOffset);
+    }
+
+    @FXML
+    private void presDrag(MouseEvent event) {
+        xOffset = event.getSceneX();
+        yOffset = event.getSceneY();
 
     }
 
@@ -500,10 +524,7 @@ public class MediaPlayerController implements Initializable {
         } else {
             // ... user chose CANCEL or closed the dialog
         }
-
-
-
-
-
     }
+
+
 }
