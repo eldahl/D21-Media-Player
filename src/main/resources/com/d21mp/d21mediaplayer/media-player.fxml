@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
@@ -17,34 +18,52 @@
 
 <VBox fx:id="rootVBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.d21mp.d21mediaplayer.MediaPlayerController">
    <children>
-      <MenuBar fx:id="menuBar">
-        <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-                  <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
-              <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Show / Hide">
-            <items>
-              <MenuItem mnemonicParsing="false" onAction="#toggleSearchPlaylistView" text="Search / Playlist" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Playlist">
-            <items>
-                  <MenuItem mnemonicParsing="false" text="Open playlist" />
-              <MenuItem mnemonicParsing="false" onAction="#createPlaylist" text="Create playlist" />
-                  <MenuItem mnemonicParsing="false" text="Edit playlist" />
-                  <MenuItem mnemonicParsing="false" text="Delete playlist" />
-            </items>
-          </Menu>
-            <Menu mnemonicParsing="false" text="Help">
-               <items>
-                  <MenuItem mnemonicParsing="false" text="About" />
-               </items>
-            </Menu>
-        </menus>
-      </MenuBar>
+      <HBox>
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+         <children>
+            <MenuBar fx:id="menuBar" prefHeight="26.0" prefWidth="194.0" HBox.hgrow="ALWAYS">
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                        <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
+                    <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
+                        <MenuItem mnemonicParsing="false" onAction="#exit" text="Exit" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="View">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#toggleSearchPlaylistView" text="Search / Playlist" />
+                        <RadioMenuItem fx:id="darkmode" mnemonicParsing="false" onAction="#toggleDarkMode" text="Dark mode" />
+                        <RadioMenuItem fx:id="maximize" mnemonicParsing="false" onAction="#maximize" text="Maximize" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Playlist">
+                  <items>
+                        <MenuItem mnemonicParsing="false" text="Open playlist" />
+                    <MenuItem mnemonicParsing="false" onAction="#createPlaylist" text="Create playlist" />
+                        <MenuItem mnemonicParsing="false" text="Edit playlist" />
+                        <MenuItem mnemonicParsing="false" text="Delete playlist" />
+                  </items>
+                </Menu>
+                  <Menu mnemonicParsing="false" text="Help">
+                     <items>
+                        <MenuItem mnemonicParsing="false" text="About" />
+                     </items>
+                  </Menu>
+              </menus>
+               <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+               </cursor>
+            </MenuBar>
+            <MenuBar onMouseDragged="#drag" onMousePressed="#presDrag" prefHeight="26.0" prefWidth="344.0" HBox.hgrow="ALWAYS">
+               <cursor>
+                  <Cursor fx:constant="MOVE" />
+               </cursor>
+            </MenuBar>
+         </children>
+      </HBox>
       <HBox VBox.vgrow="SOMETIMES">
          <children>
             <VBox HBox.hgrow="SOMETIMES">
@@ -66,17 +85,17 @@
                               <Insets right="6.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="stopBut" mnemonicParsing="false" onAction="#buttonStop" text="Stop">
+                        <Button fx:id="stopBut" mnemonicParsing="false" onAction="#buttonStop">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="skipBackwardBut" mnemonicParsing="false" onAction="#buttonSkipBack" text="Backward">
+                        <Button fx:id="skipBackwardBut" mnemonicParsing="false" onAction="#buttonSkipBack">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="skipForwardBut" mnemonicParsing="false" onAction="#buttonSkipForward" text="Forward">
+                        <Button fx:id="skipForwardBut" mnemonicParsing="false" onAction="#buttonSkipForward">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
@@ -116,4 +135,7 @@
          </children>
       </HBox>
    </children>
+   <padding>
+      <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+   </padding>
 </VBox>
