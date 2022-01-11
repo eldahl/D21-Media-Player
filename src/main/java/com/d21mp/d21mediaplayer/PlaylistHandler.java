@@ -3,6 +3,7 @@ package com.d21mp.d21mediaplayer;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class PlaylistHandler {
 
@@ -26,12 +27,14 @@ public class PlaylistHandler {
 
     private int playlistSize;
 
-    //The playlist that is the master/current playlist
-    private final ArrayList<String> playlist = new ArrayList<>();
+    //These arraylists show the master, shuffle and current playlists
+    private final ArrayList<String> masterPlaylist = new ArrayList<>();
+    private final ArrayList<String> shufflePlaylist = new ArrayList<>();
+    private final ArrayList<String> currentPlaylist = new ArrayList<>();
 
     public PlaylistHandler(){
         this.currentMediaPlayingPosition = 0;
-        this.playlistSize = playlist.size();
+        this.playlistSize = masterPlaylist.size();
     }
 
     //Here the different names for the fld's and tbl's are stored for easy access
@@ -51,15 +54,52 @@ public class PlaylistHandler {
      * Get the current playlist
      */
     public ArrayList<String> getCurrentPlaylist() {
-        return playlist;
+        return currentPlaylist;
+    }
+
+    /**
+     * Create the shuffled playlist
+     */
+    private void shuffleThePlaylist () {
+        shufflePlaylist.clear();
+        shufflePlaylist.addAll(masterPlaylist);
+        Collections.shuffle(shufflePlaylist);
+    }
+
+    /**
+     * Change current playlist to a shuffled playlist
+     */
+    public void changeToShufflePlaylist(){
+        if (shufflePlaylist.size()==0){
+            shuffleThePlaylist();
+        }
+        this.currentMediaPlayingPosition=0;
+        currentPlaylist.clear();
+        currentPlaylist.addAll(shufflePlaylist);
+
+    }
+
+    /**
+     * Change current playlist to master playlist
+     */
+    public void changeToMasterPlaylist(){
+        if (masterPlaylist.size()>0){
+            this.currentMediaPlayingPosition=0;
+            currentPlaylist.clear();
+            currentPlaylist.addAll(masterPlaylist);
+        }
+
+
     }
 
     /**
      * Clear the playlist
      */
     public void clearCurrentPlaylist() {
-        playlist.clear();
-        this.playlistSize = playlist.size();
+        masterPlaylist.clear();
+        shufflePlaylist.clear();
+        currentPlaylist.clear();
+        this.playlistSize = masterPlaylist.size();
     }
 
     /**
@@ -73,16 +113,17 @@ public class PlaylistHandler {
      * Load another playlist into the current playlist
      */
     public void loadPlaylist(String name){
-        playlist.addAll(loadPlaylistFromDB(name));
-        this.playlistSize = playlist.size();
+        masterPlaylist.addAll(loadPlaylistFromDB(name));
+        currentPlaylist.addAll(masterPlaylist);
+        this.playlistSize = masterPlaylist.size();
     }
 
     /**
      * Remove from the current playlist via position (starts from 1 not 0)
      */
     public void removeUrlFromPlaylist(int position){
-        playlist.remove(position-1);
-        this.playlistSize = playlist.size();
+        masterPlaylist.remove(position-1);
+        this.playlistSize = masterPlaylist.size();
     }
 
     /**
@@ -90,7 +131,7 @@ public class PlaylistHandler {
      */
     public String getUrlFromPlaylist(int position){
         this.currentMediaPlayingPosition=position-1;
-        return playlist.get(position-1);
+        return currentPlaylist.get(position-1);
     }
 
     /**
@@ -102,7 +143,7 @@ public class PlaylistHandler {
         } else {
             currentMediaPlayingPosition+=1;
         }
-        return playlist.get(currentMediaPlayingPosition);
+        return currentPlaylist.get(currentMediaPlayingPosition);
     }
 
     /**
@@ -114,7 +155,7 @@ public class PlaylistHandler {
         } else {
             currentMediaPlayingPosition-=1;
         }
-        return playlist.get(currentMediaPlayingPosition);
+        return currentPlaylist.get(currentMediaPlayingPosition);
     }
 
 
@@ -152,7 +193,7 @@ public class PlaylistHandler {
      */
     private void savePlaylistToDB(String name){
 
-        for (String url : playlist){
+        for (String url : currentPlaylist){
 
             //Get the url of the current media
             String mediaURL = url;
