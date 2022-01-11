@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
@@ -23,11 +24,14 @@
             <items>
                   <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
               <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
+                  <MenuItem mnemonicParsing="false" onAction="#exit" text="Exit" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Show / Hide">
+          <Menu mnemonicParsing="false" text="View">
             <items>
               <MenuItem mnemonicParsing="false" onAction="#toggleSearchPlaylistView" text="Search / Playlist" />
+                  <RadioMenuItem fx:id="lightmode" mnemonicParsing="false" onAction="#toggleLightMode" text="Enable light mode" />
+                  <RadioMenuItem fx:id="darkmode" mnemonicParsing="false" onAction="#toggleDarkMode" text="Enable dark mode" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Playlist">
@@ -58,7 +62,7 @@
                         </MediaView>
                      </children>
                   </VBox>
-                  <Slider fx:id="sliderTime" majorTickUnit="10.0" minorTickCount="10" onMouseDragged="#sliderTimeSliding" onMousePressed="#mpPause" onMouseReleased="#mpPlay" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                  <Slider fx:id="sliderTime" majorTickUnit="10.0" minorTickCount="10" onMouseDragged="#sliderTimeDragging" onMousePressed="#mpPause" onMouseReleased="#mpPlay" snapToTicks="true" />
                   <HBox alignment="CENTER_LEFT">
                      <children>
                         <Button fx:id="playPauseBut" mnemonicParsing="false" onAction="#buttonPlayPause" prefHeight="25.0" prefWidth="80.0" text="Pause">
@@ -66,17 +70,17 @@
                               <Insets right="6.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="stopBut" mnemonicParsing="false" onMousePressed="#buttonStop" text="Stop">
+                        <Button fx:id="stopBut" mnemonicParsing="false" onAction="#buttonStop" text="Stop">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="skipBackwardBut" mnemonicParsing="false" onMouseClicked="#buttonSkipBack" onMousePressed="#buttonSkipBack" text="Backward">
+                        <Button fx:id="skipBackwardBut" mnemonicParsing="false" onAction="#buttonSkipBack" text="Backward">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="skipForwardBut" mnemonicParsing="false" onMouseClicked="#buttonSkipForward" onMousePressed="#buttonSkipForward" text="Forward">
+                        <Button fx:id="skipForwardBut" mnemonicParsing="false" onAction="#buttonSkipForward" text="Forward">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>

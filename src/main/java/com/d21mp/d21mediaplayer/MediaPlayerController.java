@@ -1,14 +1,17 @@
 package com.d21mp.d21mediaplayer;
 
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -20,6 +23,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import java.io.File;
@@ -41,13 +45,16 @@ public class MediaPlayerController implements Initializable {
     private TextField searchField;
 
     @FXML
-    private VBox searchPlaylistView, mediaViewVBox;
+    private VBox rootVBox, searchPlaylistView, mediaViewVBox;
 
     @FXML
     private Button playPauseBut, stopBut, skipForwardBut, skipBackwardBut;
 
     @FXML
     public Slider sliderTime, sliderVolume;
+
+    @FXML
+    RadioMenuItem lightmode, darkmode;
 
     private MediaPlayer mp;
     private Media me;
@@ -176,6 +183,8 @@ public class MediaPlayerController implements Initializable {
         mediaView.setMediaPlayer(mp);
         mp.setAutoPlay(false);
         mp.play();
+
+
     }
 
 
@@ -434,5 +443,71 @@ public class MediaPlayerController implements Initializable {
         mp.setAutoPlay(false);
 
         return mp;
+    }
+
+    /**
+     * Enables light mode
+     */
+    @FXML
+    public void toggleLightMode() {
+        // Main theme
+        rootVBox.setStyle("");
+        // Buttons
+        playPauseBut.setStyle("");
+        stopBut.setStyle("");
+        skipForwardBut.setStyle("");
+        skipBackwardBut.setStyle("");
+        // Radio MenuItem
+        darkmode.setSelected(false);
+    }
+
+    /**
+     * Enables dark mode
+     */
+    @FXML
+    public void toggleDarkMode() {
+        // Main theme
+        rootVBox.setStyle("-fx-base:black");
+        // Buttons
+        playPauseBut.setStyle("-fx-base:darkgrey");
+        stopBut.setStyle("-fx-base:darkgrey");
+        skipForwardBut.setStyle("-fx-base:darkgrey");
+        skipBackwardBut.setStyle("-fx-base:darkgrey");
+        // Radio MenuItem
+        lightmode.setSelected(false);
+
+
+
+    }
+
+    /**
+     * Allows the user to exit the application after confirming an alert
+     */
+    @FXML
+    public void exit() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.initStyle(StageStyle.UNDECORATED);
+        alert.setTitle(null);
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to exit?");
+
+        // Set to dark mord if activated
+        if (darkmode.isSelected()) {
+            alert.getDialogPane().setStyle("-fx-background-color: darkgrey");
+        }
+
+        // Get result
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            // ... user chose OK
+            System.exit(0);
+        } else {
+            // ... user chose CANCEL or closed the dialog
+        }
+
+
+
+
+
     }
 }
