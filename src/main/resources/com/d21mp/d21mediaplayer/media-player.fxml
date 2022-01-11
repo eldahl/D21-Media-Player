@@ -80,7 +80,7 @@
                   <Slider fx:id="sliderTime" majorTickUnit="10.0" minorTickCount="10" onMouseDragged="#sliderTimeDragging" onMousePressed="#mpPause" onMouseReleased="#mpPlay" snapToTicks="true" />
                   <HBox alignment="CENTER_LEFT">
                      <children>
-                        <Button fx:id="playPauseBut" mnemonicParsing="false" onAction="#buttonPlayPause" prefHeight="25.0" prefWidth="80.0" text="Pause">
+                        <Button fx:id="playPauseBut" mnemonicParsing="false" onAction="#buttonPlayPause">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
