@@ -24,7 +24,7 @@
             <Insets />
          </VBox.margin>
          <children>
-            <MenuBar fx:id="menuBar" prefHeight="26.0" prefWidth="194.0" HBox.hgrow="ALWAYS">
+            <MenuBar fx:id="menuBar" prefHeight="26.0" prefWidth="194.0" style="-fx-background-radius: 0;" HBox.hgrow="ALWAYS">
               <menus>
                 <Menu mnemonicParsing="false" text="File">
                   <items>
@@ -44,8 +44,7 @@
                   <items>
                         <MenuItem mnemonicParsing="false" onAction="#openPlaylist" text="Open playlist" />
                     <MenuItem mnemonicParsing="false" onAction="#createPlaylist" text="Create playlist" />
-                        <MenuItem mnemonicParsing="false" text="Edit playlist" />
-                        <MenuItem mnemonicParsing="false" text="Delete playlist" />
+                        <MenuItem mnemonicParsing="false" onAction="#deletePlaylist" text="Delete playlist" />
                   </items>
                 </Menu>
                   <Menu mnemonicParsing="false" text="Help">
@@ -58,7 +57,7 @@
                   <Cursor fx:constant="DEFAULT" />
                </cursor>
             </MenuBar>
-            <MenuBar onMouseDragged="#drag" onMousePressed="#presDrag" prefHeight="26.0" prefWidth="344.0" HBox.hgrow="ALWAYS">
+            <MenuBar onMouseDragged="#drag" onMousePressed="#presDrag" prefHeight="26.0" prefWidth="344.0" style="-fx-background-radius: 0;" HBox.hgrow="ALWAYS">
                <cursor>
                   <Cursor fx:constant="MOVE" />
                </cursor>
@@ -69,7 +68,7 @@
          <children>
             <VBox HBox.hgrow="SOMETIMES">
                <children>
-                  <VBox fx:id="mediaViewVBox" alignment="CENTER" maxHeight="2000.0" maxWidth="2000.0" minHeight="90.0" minWidth="160.0" VBox.vgrow="SOMETIMES">
+                  <VBox fx:id="mediaViewVBox" alignment="CENTER" maxHeight="2000.0" maxWidth="2000.0" minHeight="90.0" minWidth="160.0" style="-fx-background-radius: 0;" VBox.vgrow="SOMETIMES">
                      <children>
                         <MediaView fx:id="mediaView" fitHeight="${mediaViewVBox.height}" fitWidth="${mediaViewVBox.width}" onMouseClicked="#buttonPlayPause">
                            <cursor>
@@ -81,25 +80,40 @@
                   <Slider fx:id="sliderTime" majorTickUnit="10.0" minorTickCount="10" onMouseDragged="#sliderTimeDragging" onMousePressed="#mpPause" onMouseReleased="#mpPlay" snapToTicks="true" />
                   <HBox alignment="CENTER_LEFT">
                      <children>
-                        <Button fx:id="playPauseBut" mnemonicParsing="false" onAction="#buttonPlayPause">
+                        <Button fx:id="playPauseBut" mnemonicParsing="false" onAction="#buttonPlayPause" style="-fx-background-radius: 0;">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
                         </Button>
-                        <Button fx:id="stopBut" mnemonicParsing="false" onAction="#buttonStop">
+                        <Button fx:id="stopBut" mnemonicParsing="false" onAction="#buttonStop" style="-fx-background-radius: 0;">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
                         </Button>
-                        <Button fx:id="skipBackwardBut" mnemonicParsing="false" onAction="#buttonSkipBack">
+                        <Button fx:id="skipBackwardBut" mnemonicParsing="false" onAction="#buttonSkipBack" style="-fx-background-radius: 0;">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
                         </Button>
-                        <Button fx:id="skipForwardBut" mnemonicParsing="false" onAction="#buttonSkipForward">
+                        <Button fx:id="skipForwardBut" mnemonicParsing="false" onAction="#buttonSkipForward" style="-fx-background-radius: 0;">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
                         </Button>
                         <Region HBox.hgrow="ALWAYS" />
                         <VBox alignment="CENTER">
@@ -122,19 +136,28 @@
                <children>
                   <HBox maxHeight="25.0" VBox.vgrow="SOMETIMES">
                      <children>
-                        <TextField fx:id="searchField" focusTraversable="false" prefHeight="26.0" prefWidth="249.0" promptText="Search" HBox.hgrow="SOMETIMES" />
-                        <Button mnemonicParsing="false" text="Search" />
+                        <TextField fx:id="searchField" focusTraversable="false" prefHeight="26.0" prefWidth="249.0" promptText="Search" style="-fx-background-radius: 0;" HBox.hgrow="SOMETIMES" />
+                        <Button mnemonicParsing="false" style="-fx-background-radius: 0;" text="Search">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor></Button>
                      </children>
                   </HBox>
                   <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="SOMETIMES">
                      <content>
                         <VBox>
                            <children>
-                              <ListView fx:id="listview" editable="true" onMouseClicked="#playSongFromPlaylist" prefHeight="200.0" prefWidth="249.0" />
-                              <HBox alignment="CENTER_LEFT">
+                              <ListView fx:id="listview" editable="true" onMouseClicked="#playSongFromPlaylist" prefHeight="200.0" prefWidth="249.0" style="-fx-background-radius: 0;" />
+                              <HBox fx:id="lowerHBox" alignment="CENTER_LEFT">
                                  <children>
-                                    <Button fx:id="addToPlaylist" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-color: lightgreen;" text="+" />
-                                    <Button fx:id="removeFromPlaylist" mnemonicParsing="false" onAction="#removeSongFromPlaylistViaButton" style="-fx-background-color: pink;" text="-" />
+                                    <Button fx:id="addToPlaylist" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-color: lightgreen; -fx-background-radius: 0;">
+                                       <cursor>
+                                          <Cursor fx:constant="HAND" />
+                                       </cursor></Button>
+                                    <Button fx:id="removeFromPlaylist" mnemonicParsing="false" onAction="#removeSongFromPlaylistViaButton" style="-fx-background-color: pink; -fx-background-radius: 0;">
+                                       <cursor>
+                                          <Cursor fx:constant="HAND" />
+                                       </cursor></Button>
                                     <Label text=" Current playlist: " />
                                     <Label fx:id="currentPlaylist" />
                                  </children>
