@@ -134,7 +134,7 @@
                               <HBox alignment="CENTER_LEFT">
                                  <children>
                                     <Button fx:id="addToPlaylist" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-color: lightgreen;" text="+" />
-                                    <Button fx:id="removeFromPlaylist" mnemonicParsing="false" onAction="#removeSongToPlaylistViaButton" style="-fx-background-color: pink;" text="-" />
+                                    <Button fx:id="removeFromPlaylist" mnemonicParsing="false" onAction="#removeSongFromPlaylistViaButton" style="-fx-background-color: pink;" text="-" />
                                     <Label text=" Current playlist: " />
                                     <Label fx:id="currentPlaylist" />
                                  </children>

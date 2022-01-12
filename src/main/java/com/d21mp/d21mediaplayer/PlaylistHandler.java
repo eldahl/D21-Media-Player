@@ -235,20 +235,23 @@ public class PlaylistHandler {
     }
 
     /**
-     * Adds a media to this medias
+     * Deletes media from chosen playlist
      */
-    public void addMediaToMedias(String URL) {
+    public void deleteMediaFromPlaylist(String PlaylistName, String URL) {
+        DB.insertSQL("DELETE FROM PlaylistCollection WHERE PlaylistName = '" + PlaylistName + "' AND URL = '" + URL + "'");
+    }
 
-        // Add playlist to PlaylistOverview
-        DB.insertSQL("INSERT INTO Media (URL) VALUES ('"  + URL + "' );");
+    /**
+     * If not exist, add media to media
+     */
+    public void ifNotExistAddToMediaTable(String URL) {
+        DB.insertSQL("INSERT INTO Media (URL) SELECT '"  + URL + "' WHERE NOT EXISTS (SELECT URL FROM Media WHERE URL = '" + URL + "');");
     }
 
     /**
      * Adds a media to this playlist
      */
     public void addMediaToPlaylist(String PlaylistName, String URL) {
-
-        // Add playlist to PlaylistOverview
         DB.insertSQL("INSERT INTO PlaylistCollection (PlaylistName, URL) VALUES ('" + PlaylistName + "','" + URL + "' );");
     }
 }

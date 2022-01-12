@@ -300,6 +300,17 @@ public class MediaPlayerController implements Initializable {
         dialog.setHeaderText(null);
         dialog.setContentText("Choose your playlist:");
 
+        // Set to dark mord if activated
+        if (darkmode.isSelected()) {
+            dialog.getDialogPane().setStyle("-fx-background-color: darkgrey");
+        }
+
+        // Get the Stage
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+
+        // Add a custom icon.
+        stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("awesomeicon.png")).toString()));
+
         // Get result
         Optional<String> result = dialog.showAndWait();
         String resultAsString = String.valueOf(result);
@@ -311,41 +322,54 @@ public class MediaPlayerController implements Initializable {
 
     @FXML
     public void playSongFromPlaylist(MouseEvent event) {
-        String pathToSelectedFile = (String) listview.getSelectionModel().getSelectedItem();
 
-        me = new Media(new File(pathToSelectedFile).toURI().toString());
-        mp = new MediaPlayer(me);
+        listview.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
-        // Resize window and set minimum window size when media has loaded
-        Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
-        mp.setOnReady(sizeToSceneRun);
-
-        // Change isPlaying state when mp starts playing
-        mp.setOnPlaying(new Runnable() {
             @Override
-            public void run() {
-                isPlaying = true;
+            public void handle(MouseEvent click) {
+
+                if (click.getClickCount() == 2) {
+                    //Use ListView's getSelected Item
+                    String pathToSelectedFile = (String) listview.getSelectionModel().getSelectedItem();
+                    //use this to do whatever you want to. Open Link etc.
+                    me = new Media(new File(pathToSelectedFile).toURI().toString());
+                    mp = new MediaPlayer(me);
+
+                    // Resize window and set minimum window size when media has loaded
+                    Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
+                    mp.setOnReady(sizeToSceneRun);
+
+                    // Change isPlaying state when mp starts playing
+                    mp.setOnPlaying(new Runnable() {
+                        @Override
+                        public void run() {
+                            isPlaying = true;
+                        }
+                    });
+
+                    // Change isPlaying state on pause or stop
+                    mp.setOnPaused(new Runnable() {
+                        @Override
+                        public void run() {
+                            isPlaying = false;
+                        }
+                    });
+                    mp.setOnStopped(new Runnable() {
+                        @Override
+                        public void run() {
+                            isPlaying = false;
+                        }
+                    });
+
+                    mediaView.setMediaPlayer(mp);
+                    mp.setAutoPlay(false);
+                    mp.play();
+                }
             }
         });
-
-        // Change isPlaying state on pause or stop
-        mp.setOnPaused(new Runnable() {
-            @Override
-            public void run() {
-                isPlaying = false;
-            }
-        });
-        mp.setOnStopped(new Runnable() {
-            @Override
-            public void run() {
-                isPlaying = false;
-            }
-        });
-
-        mediaView.setMediaPlayer(mp);
-        mp.setAutoPlay(false);
-        mp.play();
     }
+
+
 
     /**
      * Add media to a playlist and refresh listview
@@ -359,16 +383,26 @@ public class MediaPlayerController implements Initializable {
         String pathToSelectedFile = selectedFile.getAbsolutePath();
         System.out.println(pathToSelectedFile);
 
-        // Add to database
-        playlistAdd.addMediaToMedias(pathToSelectedFile);
-        // Add to database
+        // Add to database in table Media
+        playlistAdd.ifNotExistAddToMediaTable(pathToSelectedFile);
+        // Add to database in table PlaylistCollection
         playlistAdd.addMediaToPlaylist(chosenPlaylist, pathToSelectedFile);
         // Refresh listview
         listview.setItems((FXCollections.observableArrayList(playlistAdd.loadPlaylistFromDB(chosenPlaylist))));
     }
 
+    /**
+     * Remove a media from a given playlist
+     */
     @FXML
-    public void removeSongToPlaylistViaButton() {
+    public void removeSongFromPlaylistViaButton() {
+        PlaylistHandler playlistHandler = new PlaylistHandler();
+
+        // Delete media from database and thus listview
+        playlistHandler.deleteMediaFromPlaylist(chosenPlaylist, (String) listview.getSelectionModel().getSelectedItem());
+
+        // Refresh listview
+        listview.setItems((FXCollections.observableArrayList(playlistHandler.loadPlaylistFromDB(chosenPlaylist))));
 
     }
 
@@ -655,10 +689,16 @@ public class MediaPlayerController implements Initializable {
     @FXML
     public void exit() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.initStyle(StageStyle.UNDECORATED);
-        alert.setTitle(null);
+        //alert.initStyle(StageStyle.UNDECORATED);
+        alert.setTitle("Confirm Exist");
         alert.setHeaderText(null);
         alert.setContentText("Are you sure you want to exit?");
+
+        // Get the Stage
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+
+        // Add a custom icon.
+        stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("awesomeicon.png")).toString()));
 
         // Set to dark mord if activated
         if (darkmode.isSelected()) {
