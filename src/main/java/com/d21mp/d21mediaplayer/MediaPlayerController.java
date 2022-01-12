@@ -31,6 +31,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
@@ -415,12 +416,19 @@ public class MediaPlayerController implements Initializable {
     /**
      * Handler for the skipforward button
      */
-    private void buttonSkipForward()
-    {
+    private void buttonSkipForward() {
+
+        YoutubeHandler yth = new YoutubeHandler();
+
+        yth.downloadYoutubeVideo("https://www.youtube.com/watch?v=mDYqT0_9VR4");
+        System.out.println("done");
+
+        /*
         if(playlist.getPlaylistSize()>0) {
 			// Play the next media in mediaPlayer
 			getURLFromPlaylist(nextMedia.next);
 		}
+         */
     }
 
     @FXML
