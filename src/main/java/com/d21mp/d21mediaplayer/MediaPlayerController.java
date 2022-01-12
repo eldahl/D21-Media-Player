@@ -498,16 +498,17 @@ public class MediaPlayerController implements Initializable {
     }
 
     private void getURLFromPlaylist(nextMedia p){
+        if (playlist.getPlaylistSize()>0) {
+            //Creates a new mediaplayer with the next media to play
+            if (p.equals(nextMedia.next)){
+                createMediaPlayer(playlist.getNextUrlFromPlaylist());
+            } else {
+                createMediaPlayer(playlist.getPreviousFromPlaylist());
+            }
 
-        //Creates a new mediaplayer with the next media to play
-        if (p.equals(nextMedia.next)){
-            createMediaPlayer(playlist.getNextUrlFromPlaylist());
-        } else {
-            createMediaPlayer(playlist.getPreviousFromPlaylist());
+            //Plays the new media
+            mpPlay();
         }
-
-        //Plays the new media
-        mpPlay();
     }
 
     private MediaPlayer createMediaPlayer(String URL){
