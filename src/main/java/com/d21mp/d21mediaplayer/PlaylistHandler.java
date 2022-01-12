@@ -39,17 +39,17 @@ public class PlaylistHandler {
     }
 
     //Here the different names for the fld's and tbl's are stored for easy access
-    private String tblMedia = "Media";
-    private String fldURL = "URL";
-    private String fldCreator = "Creator";
-    private String fldTitle = "Title";
+    private String Media = "Media";
+    private String URL = "URL";
+    private String Creator = "Creator";
+    private String Title = "Title";
 
-    private String tblPlaylist = "PlaylistCollection";
-    private String fldPlaylistName = "PlaylistName";
+    private String PlaylistCollection = "PlaylistCollection";
+    private String PlaylistName = "PlaylistName";
 
-    private String tblRelation = "Relation";
-    private String fldRelationURL = "R-URL";
-    private String fldRelationPlaylistName = "R-PlaylistName";
+    private String Relation = "Relation";
+    private String RelationURL = "R-URL";
+    private String RelationPlaylistName = "R-PlaylistName";
 
     /**
      * Get the current playlist
@@ -187,7 +187,7 @@ public class PlaylistHandler {
 
         List<String> loadedPlaylist = new ArrayList<>();
 
-        DB.selectSQL("select "+fldURL+" from "+tblPlaylist+" where "+fldPlaylistName+" = '"+name+"';");
+        DB.selectSQL("select "+URL+" from "+PlaylistCollection+" where "+PlaylistName+" = '"+name+"';");
 
         do{
             String data = DB.getData();
@@ -214,11 +214,11 @@ public class PlaylistHandler {
             String mediaURL = url;
 
             //Make a new playlist
-            DB.insertSQL("Insert into "+tblPlaylist+" values("+
+            DB.insertSQL("Insert into "+PlaylistCollection+" values("+
                     name+");");
 
             //Insert the link between the playlist and the media
-            DB.insertSQL("Insert into "+tblRelation+ " values("+
+            DB.insertSQL("Insert into "+Relation+ " values("+
                     mediaURL+
                     name+");");
 
