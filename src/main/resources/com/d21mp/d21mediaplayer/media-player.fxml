@@ -130,7 +130,7 @@
                      <content>
                         <VBox>
                            <children>
-                              <ListView fx:id="listview" editable="true" onMouseClicked="#playSongFromPlaylist" prefHeight="200.0" prefWidth="249.0" />
+                              <ListView fx:id="listview" editable="true" onMouseClicked="#playSongFromPlaylist" prefHeight="200.0" prefWidth="249.0" VBox.vgrow="SOMETIMES" />
                               <HBox alignment="CENTER_LEFT">
                                  <children>
                                     <Button fx:id="addToPlaylist" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-color: lightgreen;" text="+" />
