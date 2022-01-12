@@ -110,14 +110,6 @@ public class PlaylistHandler {
         savePlaylistToDB(name);
     }
 
-    /**
-     * Load another playlist into the current playlist
-     */
-    public void loadPlaylist(String name){
-        masterPlaylist.addAll(loadPlaylistFromDB(name));
-        currentPlaylist.addAll(masterPlaylist);
-        this.playlistSize = masterPlaylist.size();
-    }
 
     /**
      * Remove from the current playlist via position (starts from 1 not 0)
@@ -160,11 +152,9 @@ public class PlaylistHandler {
     }
 
 
-
-
-    public ArrayList<String> loadPlaylistOverview() {
+    public ArrayList<String> loadPlaylistOverview(String HostName) {
         ArrayList<String> loadedList = new ArrayList<>();
-        DB.selectSQL("SELECT PlaylistName FROM PlaylistOverview");
+        DB.selectSQL("SELECT PlaylistName FROM PlaylistOverview WHERE HostName = '" + HostName + "'");
         do{
             String data = DB.getData();
             if (data.equals(DB.NOMOREDATA)){
@@ -178,16 +168,15 @@ public class PlaylistHandler {
     }
 
 
-
     /**
      * Select the different songs in the loaded playlist and make them into an array
-     * @param name this is the name of the selected playlist, which will now be loaded
+     * @param PlaylistName this is the name of the selected playlist, which will now be loaded
      */
-    public List<String> loadPlaylistFromDB(String name){
+    public List<String> loadPlaylistFromDB(String HostName, String PlaylistName){
 
         List<String> loadedPlaylist = new ArrayList<>();
 
-        DB.selectSQL("select "+URL+" from "+PlaylistCollection+" where "+PlaylistName+" = '"+name+"';");
+        DB.selectSQL("SELECT Title from PlaylistCollection WHERE HostName = '" + HostName + "' AND PlaylistName = '" + PlaylistName + "'");
 
         do{
             String data = DB.getData();
@@ -228,27 +217,30 @@ public class PlaylistHandler {
     /**
      * Adds a new playlist to the database
      */
-    public void createPlaylist(String nameOfPlaylist) {
+    public void createPlaylist(String HostName, String PlaylistName) {
 
         // Add playlist to PlaylistOverview
-        DB.insertSQL("INSERT INTO PlaylistOverview VALUES ('" + nameOfPlaylist + "');");
+        DB.insertSQL("INSERT INTO PlaylistOverview (HostName, PlaylistName) VALUES ('" + HostName + "','" + PlaylistName + "' );");
     }
 
     /**
-     * Adds a media to this medias
+     * Deletes media from chosen playlist
      */
-    public void addMediaToMedias(String URL) {
+    public void deleteMediaFromPlaylist(String HostName, String PlaylistName, String Title) {
+        DB.insertSQL("DELETE FROM PlaylistCollection WHERE HostName = '" + HostName + "' AND PlaylistName = '" + PlaylistName + "' AND Title = '" + Title + "'");
+    }
 
-        // Add playlist to PlaylistOverview
-        DB.insertSQL("INSERT INTO Media (URL) VALUES ('"  + URL + "' );");
+    /**
+     * If not exist, add media to media
+     */
+    public void ifNotExistAddToMediaTable(String HostName, String Title, String URL) {
+        DB.insertSQL("INSERT INTO Media (HostName, Title, URL) SELECT '" + HostName  + "','" + Title + "','" + URL + "' WHERE NOT EXISTS (SELECT HostName, Title, URL FROM Media WHERE HostName = '" + HostName + "' AND Title = '" + Title + "' AND URL = '" + URL + "');");
     }
 
     /**
      * Adds a media to this playlist
      */
-    public void addMediaToPlaylist(String PlaylistName, String URL) {
-
-        // Add playlist to PlaylistOverview
-        DB.insertSQL("INSERT INTO PlaylistCollection (PlaylistName, URL) VALUES ('" + PlaylistName + "','" + URL + "' );");
+    public void addMediaToPlaylist(String HostName, String PlaylistName, String Title, String URL) {
+        DB.insertSQL("INSERT INTO PlaylistCollection (HostName, PlaylistName, Title, URL) VALUES ('" + HostName + "','" + PlaylistName + "','" +  Title + "','" + URL + "' );");
     }
 }
