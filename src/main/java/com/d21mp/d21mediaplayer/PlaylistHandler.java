@@ -89,8 +89,6 @@ public class PlaylistHandler {
             currentPlaylist.clear();
             currentPlaylist.addAll(masterPlaylist);
         }
-
-
     }
 
     /**
@@ -167,7 +165,6 @@ public class PlaylistHandler {
         return loadedList;
     }
 
-
     /**
      * Select the different songs in the loaded playlist and make them into an array
      * @param PlaylistName this is the name of the selected playlist, which will now be loaded
@@ -186,8 +183,6 @@ public class PlaylistHandler {
                 loadedPlaylist.add(data);
             }
         } while (true);
-
-
         return loadedPlaylist;
     }
 
@@ -218,9 +213,12 @@ public class PlaylistHandler {
      * Adds a new playlist to the database
      */
     public void createPlaylist(String HostName, String PlaylistName) {
-
-        // Add playlist to PlaylistOverview
         DB.insertSQL("INSERT INTO PlaylistOverview (HostName, PlaylistName) VALUES ('" + HostName + "','" + PlaylistName + "' );");
+    }
+
+    public void deletePlaylist(String HostName, String PlaylistName) {
+        DB.insertSQL("DELETE FROM PlaylistCollection WHERE HostName = '" + HostName + "' AND PlaylistName = '" + PlaylistName + "';");
+        DB.insertSQL("DELETE FROM PlaylistOverview WHERE HostName = '" + HostName + "' AND PlaylistName = '" + PlaylistName + "';");
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.d21mp.d21mediaplayer;
 
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -45,6 +46,8 @@ public class MediaPlayerController implements Initializable {
     @FXML
     private VBox rootVBox, searchPlaylistView, mediaViewVBox;
     @FXML
+    private HBox lowerHBox;
+    @FXML
     private Button playPauseBut, stopBut, skipForwardBut, skipBackwardBut, addToPlaylist, removeFromPlaylist;
     @FXML
     public Slider sliderTime, sliderVolume;
@@ -53,14 +56,16 @@ public class MediaPlayerController implements Initializable {
     @FXML
     ListView listview;
 
+    // For media player
     private MediaPlayer mp;
     private Media me;
-
+    // For dragging
     private double xOffset;
     private double yOffset;
+    // To log current playlist at all time
     private String chosenPlaylist = "";
-
-    private Image playImg, pauseImg, stopImg, skipForwardImg, skipBackwardImg;
+    // For icons
+    private Image playImg, pauseImg, stopImg, skipForwardImg, skipBackwardImg, addButton, removeButton;
 
     // Weather or not the search / playlist view is displayed in the UI
     // Initially the view is initialized as being displayed, so set to true
@@ -69,10 +74,8 @@ public class MediaPlayerController implements Initializable {
     // Weather or not media is currently playing
     private boolean isPlaying = false;
 
-    //This is used for handling the playlist
+    // This is used for handling the playlist
     PlaylistHandler playlist = new PlaylistHandler();
-
-
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -85,13 +88,17 @@ public class MediaPlayerController implements Initializable {
         stopImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/stop.png").toURI().toString());
         skipForwardImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/skip-forward.png").toURI().toString());
         skipBackwardImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/skip-backward.png").toURI().toString());
+        addButton = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/add32.png").toURI().toString());
+        removeButton = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/remove32.png").toURI().toString());
 
         // Check for successful loading of images and add to buttons
-        if(playImg != null && pauseImg != null && stopImg != null && skipForwardImg != null && skipBackwardImg != null) {
+        if(playImg != null && pauseImg != null && stopImg != null && skipForwardImg != null && skipBackwardImg != null && addButton != null && removeButton != null) {
             setButtonUIImage(playPauseBut, pauseImg);
             setButtonUIImage(stopBut, stopImg);
             setButtonUIImage(skipForwardBut, skipForwardImg);
             setButtonUIImage(skipBackwardBut, skipBackwardImg);
+            setButtonUIImage(addToPlaylist, addButton);
+            setButtonUIImage(removeFromPlaylist, removeButton);
         }
         else
             System.out.println("Error: Failed to load UI icons");
@@ -100,9 +107,8 @@ public class MediaPlayerController implements Initializable {
         mediaViewVBox.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
         mediaView.setPreserveRatio(true);
 
+        labelAnimation();
         // WE DON'T WANT AN MEDIA TO AUTOPLAY THEREFOR DELETED
-
-
     }
 
     /**
@@ -141,7 +147,6 @@ public class MediaPlayerController implements Initializable {
 
     /**
      * Method for selecting a media to be played in media viewer
-     * @param title
      */
     public void mediaSelection(String title) {
         String path = "";
@@ -156,10 +161,10 @@ public class MediaPlayerController implements Initializable {
             }
         } while (true);
 
-        //create mediaplayer
+        //create media player
         createMediaPlayer(path);
 
-        //play mediaplayer
+        //play media player
         mpPlay();
     }
 
@@ -170,10 +175,13 @@ public class MediaPlayerController implements Initializable {
     public void openFile() {
         FileChooser fileChooser = new FileChooser();
 
+        // Open classic file explorer window
         File selectedFile = fileChooser.showOpenDialog(null);
+
+        // Get URL for file
         String pathToSelectedFile = selectedFile.getAbsolutePath();
 
-        // To ArrayList
+        // Separate path by "\" to get filename
         List<String> pathDivided = new ArrayList<>(Arrays.asList(pathToSelectedFile.split("\\\\")));
 
         // Get file name
@@ -189,6 +197,8 @@ public class MediaPlayerController implements Initializable {
 
     /**
      * Closes current playing media
+     * // WHY DOES THIS THEN PLAY ANOTHER MEDIA?????
+     * // NIKOLAI
      */
     @FXML
     public void close() {
@@ -212,9 +222,9 @@ public class MediaPlayerController implements Initializable {
 
         // Values for dialog box
         TextInputDialog dialog = new TextInputDialog();
-        //dialog.initStyle(StageStyle.UNDECORATED); // THIS DISABLES TOP BAR
         dialog.setHeaderText(null);
         dialog.setContentText("Please enter name of playlist:");
+
         // Add custom graphics to dialog box
         dialog.setGraphic(new ImageView(Objects.requireNonNull(this.getClass().getResource("addIcon32.png")).toString()));
 
@@ -226,13 +236,34 @@ public class MediaPlayerController implements Initializable {
         // Get the Stage
         Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
 
-        // Add a custom icon.
+        // Add a custom icon
         stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("awesomeicon.png")).toString()));
 
-        // Get the response value.
+        // Get the response value
         Optional<String> result = dialog.showAndWait();
 
+        // Convert to string and remove "Optional[" and "]" from string
+        String resultAsString = String.valueOf(result);
+        chosenPlaylist = resultAsString.substring(9, resultAsString.length()-1);
+
+        // Set the current playlist label
+        currentPlaylist.setText(chosenPlaylist);
+
+        // Create playlist!
         result.ifPresent(s -> playlistCreator.createPlaylist(getComputerName(), s));
+
+        // Refresh listview
+        result.ifPresent(s -> listview.setItems((FXCollections.observableArrayList(playlistCreator.loadPlaylistFromDB(getComputerName(), s)))));
+
+        // Show Search and Playlist to the right
+        if(!showSearchPlaylistView) {
+            // Show view
+            searchPlaylistView.setVisible(true);
+            searchPlaylistView.setManaged(true);
+            showSearchPlaylistView = true;
+            // Resize scene and set minimum size to content size
+            MainApplication.sizeToScene();
+        }
     }
 
     /**
@@ -243,8 +274,10 @@ public class MediaPlayerController implements Initializable {
         // Create new object
         PlaylistHandler playlistOpener = new PlaylistHandler();
 
+        // Fetches PlaylistName from PlaylistOverview and collects in a List
         List<String> choices = playlistOpener.loadPlaylistOverview(getComputerName());
 
+        // Values for dialog box
         ChoiceDialog<String> dialog = new ChoiceDialog<>("", choices);
         dialog.setTitle("Select Playlist");
         dialog.setHeaderText(null);
@@ -258,30 +291,85 @@ public class MediaPlayerController implements Initializable {
         // Get the Stage
         Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
 
-        // Add a custom icon.
+        // Add a custom icon
         stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("awesomeicon.png")).toString()));
 
         // Get result
         Optional<String> result = dialog.showAndWait();
+
+        // Convert to string and remove "Optional[" and "]" from string
         String resultAsString = String.valueOf(result);
         chosenPlaylist = resultAsString.substring(9, resultAsString.length()-1);
 
+        // Open playlist!
         currentPlaylist.setText(chosenPlaylist);
+
+        // Refresh listview
         result.ifPresent(s -> listview.setItems((FXCollections.observableArrayList(playlistOpener.loadPlaylistFromDB(getComputerName(), s)))));
+
+        // Show Search and Playlist to the right
+        if(!showSearchPlaylistView) {
+            // Show view
+            searchPlaylistView.setVisible(true);
+            searchPlaylistView.setManaged(true);
+            showSearchPlaylistView = true;
+            // Resize scene and set minimum size to content size
+            MainApplication.sizeToScene();
+        }
     }
 
     @FXML
+    public void deletePlaylist() {
+        // Create new object
+        PlaylistHandler playlistDeleter = new PlaylistHandler();
+
+        // Fetches PlaylistName from PlaylistOverview and collects in a List
+        List<String> choices = playlistDeleter.loadPlaylistOverview(getComputerName());
+
+        // Values for dialog box
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("", choices);
+        dialog.setTitle("Delete Playlist");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Choose your playlist:");
+
+        // Add custom graphics to dialog box
+        dialog.setGraphic(new ImageView(Objects.requireNonNull(this.getClass().getResource("delete.png")).toString()));
+
+        // Set to dark mord if activated
+        if (darkmode.isSelected()) {
+            dialog.getDialogPane().setStyle("-fx-background-color: darkgrey");
+        }
+
+        // Get the Stage
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+
+        // Add a custom icon
+        stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("awesomeicon.png")).toString()));
+
+        // Get result
+        Optional<String> result = dialog.showAndWait();
+
+        // Convert to string and remove "Optional[" and "]" from string
+        String resultAsString = String.valueOf(result);
+        resultAsString = resultAsString.substring(9, resultAsString.length()-1);
+
+        // Delete playlist!
+        playlistDeleter.deletePlaylist(getComputerName(), resultAsString);
+    }
+
+    /**
+     * Allows the user to play media from listview by using a double click
+     */
+    @FXML
     public void playSongFromPlaylist(MouseEvent event) {
-
         listview.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
             @Override
             public void handle(MouseEvent click) {
-
                 if (click.getClickCount() == 2) {
-                    //Use ListView's getSelected Item
+                    // Use ListView's getSelected Item
                     String listviewItem = (String) listview.getSelectionModel().getSelectedItem();
-                    //use this to do whatever you want to. Open Link etc.
+
+                    // Play media!
                     mediaSelection(listviewItem);
                 }
             }
@@ -293,14 +381,17 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     public void addSongToPlaylistViaButton() {
+        // Create needed objects
         PlaylistHandler playlistAdd = new PlaylistHandler();
         FileChooser fileChooser = new FileChooser();
 
+        // Values for fileChooser
         File selectedFile = fileChooser.showOpenDialog(null);
-        String pathToSelectedFile = selectedFile.getAbsolutePath();
-        System.out.println(pathToSelectedFile);
 
-        // To ArrayList
+        // Get URL to file
+        String pathToSelectedFile = selectedFile.getAbsolutePath();
+
+        // Separate path by "\" to get filename
         List<String> pathDivided = new ArrayList<>(Arrays.asList(pathToSelectedFile.split("\\\\")));
 
         // Get file name
@@ -322,6 +413,7 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     public void removeSongFromPlaylistViaButton() {
+        // Create new object
         PlaylistHandler playlistHandler = new PlaylistHandler();
 
         // Delete media from database and thus listview
@@ -329,16 +421,6 @@ public class MediaPlayerController implements Initializable {
 
         // Refresh listview
         listview.setItems((FXCollections.observableArrayList(playlistHandler.loadPlaylistFromDB(getComputerName(), chosenPlaylist))));
-    }
-
-
-    public void addSearchResult() {
-        // add button
-        // add label
-    }
-
-    public void clearSearchResults() {
-
     }
 
     /**
@@ -360,8 +442,14 @@ public class MediaPlayerController implements Initializable {
         return collected;
     }
 
+    public void addSearchResult() {
+        // add button
+        // add label
+    }
 
+    public void clearSearchResults() {
 
+    }
 
     @FXML
     /**
@@ -384,10 +472,6 @@ public class MediaPlayerController implements Initializable {
         setButtonUIImage(playPauseBut, playImg);
         isPlaying = false;
     }
-
-
-
-
 
     @FXML
     /**
@@ -586,7 +670,6 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     public void toggleDarkMode() {
-
         if (darkmode.isSelected()) {
             // Main theme
             rootVBox.setStyle("-fx-base:black");
@@ -607,16 +690,18 @@ public class MediaPlayerController implements Initializable {
         }
     }
 
+    /**
+     * Toggles maximize window
+     */
      @FXML
      public void maximize() {
         Stage stage = (Stage) rootVBox.getScene().getWindow();
-        if ( maximize.isSelected()) {
-            stage.setMaximized(true);
-        }
-        else
-            stage.setMaximized(false);
+         stage.setMaximized(maximize.isSelected());
      }
 
+    /**
+     * Allows the user to drag movie by menu bar
+     */
     @FXML
     private void drag(MouseEvent event) {
         Stage stage = (Stage) rootVBox.getScene().getWindow();
@@ -624,6 +709,9 @@ public class MediaPlayerController implements Initializable {
         stage.setX(event.getScreenX() - xOffset);
     }
 
+    /**
+     * Allows the user to drag movie by menu bar
+     */
     @FXML
     private void presDrag(MouseEvent event) {
         xOffset = event.getSceneX();
@@ -635,8 +723,8 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     public void exit() {
+        // Values for alert box
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        //alert.initStyle(StageStyle.UNDECORATED);
         alert.setTitle("Confirm Exist");
         alert.setHeaderText(null);
         alert.setContentText("Are you sure you want to exit?");
@@ -644,7 +732,7 @@ public class MediaPlayerController implements Initializable {
         // Get the Stage
         Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
 
-        // Add a custom icon.
+        // Add a custom icon
         stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("awesomeicon.png")).toString()));
 
         // Set to dark mord if activated
@@ -660,6 +748,20 @@ public class MediaPlayerController implements Initializable {
         } else {
             // ... user chose CANCEL or closed the dialog
         }
+    }
+
+    /**
+     * Animation for current playlist. I want this to keep scrolling from the right if the text is too wide. Like your radio.
+     */
+    @FXML
+    public void labelAnimation() {
+
+        KeyFrame kfP = new KeyFrame(Duration.seconds(2), new KeyValue(currentPlaylist.textFillProperty(), Color.GREY));
+        Timeline TIMER = new Timeline();
+        TIMER.getKeyFrames().add(kfP);
+        TIMER.setCycleCount(Animation.INDEFINITE);
+        TIMER.setAutoReverse(true);
+        TIMER.play();
 
     }
 
@@ -667,8 +769,7 @@ public class MediaPlayerController implements Initializable {
      * Get the name of the host PC
      * @return host name
      */
-    private String getComputerName()
-    {
+    private String getComputerName() {
         Map<String, String> env = System.getenv();
         if (env.containsKey("COMPUTERNAME"))
             return env.get("COMPUTERNAME");
