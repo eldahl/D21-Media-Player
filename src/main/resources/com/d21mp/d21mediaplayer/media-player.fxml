@@ -4,6 +4,7 @@
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -41,7 +42,7 @@
                 </Menu>
                 <Menu mnemonicParsing="false" text="Playlist">
                   <items>
-                        <MenuItem mnemonicParsing="false" text="Open playlist" />
+                        <MenuItem mnemonicParsing="false" onAction="#openPlaylist" text="Open playlist" />
                     <MenuItem mnemonicParsing="false" onAction="#createPlaylist" text="Create playlist" />
                         <MenuItem mnemonicParsing="false" text="Edit playlist" />
                         <MenuItem mnemonicParsing="false" text="Delete playlist" />
@@ -121,13 +122,24 @@
                <children>
                   <HBox maxHeight="25.0" VBox.vgrow="SOMETIMES">
                      <children>
-                        <TextField fx:id="searchField" focusTraversable="false" promptText="Search" HBox.hgrow="SOMETIMES" />
+                        <TextField fx:id="searchField" focusTraversable="false" prefHeight="26.0" prefWidth="249.0" promptText="Search" HBox.hgrow="SOMETIMES" />
                         <Button mnemonicParsing="false" text="Search" />
                      </children>
                   </HBox>
                   <ScrollPane VBox.vgrow="SOMETIMES">
                      <content>
-                        <VBox />
+                        <VBox>
+                           <children>
+                              <ListView fx:id="listview" editable="true" onMouseClicked="#playSongFromPlaylist" prefHeight="200.0" prefWidth="249.0" />
+                              <HBox alignment="CENTER_LEFT">
+                                 <children>
+                                    <Button fx:id="addToPlaylist" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-color: lightgreen;" text="+" />
+                                    <Button fx:id="removeFromPlaylist" mnemonicParsing="false" onAction="#removeSongToPlaylistViaButton" style="-fx-background-color: pink;" text="-" />
+                                    <Label text=" Current playlist: " />
+                                    <Label fx:id="currentPlaylist" />
+                                 </children>
+                              </HBox>
+                           </children></VBox>
                      </content>
                   </ScrollPane>
                </children>

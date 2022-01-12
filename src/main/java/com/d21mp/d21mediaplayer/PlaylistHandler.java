@@ -4,6 +4,7 @@ import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class PlaylistHandler {
 
@@ -161,6 +162,20 @@ public class PlaylistHandler {
 
 
 
+    public ArrayList<String> loadPlaylistOverview() {
+        ArrayList<String> loadedList = new ArrayList<>();
+        DB.selectSQL("SELECT PlaylistName FROM PlaylistOverview");
+        do{
+            String data = DB.getData();
+            if (data.equals(DB.NOMOREDATA)){
+                break;
+            } else {
+                loadedList.add(data);
+            }
+        } while (true);
+
+        return loadedList;
+    }
 
 
 
@@ -168,9 +183,9 @@ public class PlaylistHandler {
      * Select the different songs in the loaded playlist and make them into an array
      * @param name this is the name of the selected playlist, which will now be loaded
      */
-    private ArrayList<String> loadPlaylistFromDB(String name){
+    public List<String> loadPlaylistFromDB(String name){
 
-        ArrayList<String> loadedPlaylist = new ArrayList<>();
+        List<String> loadedPlaylist = new ArrayList<>();
 
         DB.selectSQL("select "+fldURL+" from "+tblPlaylist+" where "+fldPlaylistName+" = '"+name+"';");
 
@@ -208,7 +223,32 @@ public class PlaylistHandler {
                     name+");");
 
         }
-
     }
 
+    /**
+     * Adds a new playlist to the database
+     */
+    public void createPlaylist(String nameOfPlaylist) {
+
+        // Add playlist to PlaylistOverview
+        DB.insertSQL("INSERT INTO PlaylistOverview VALUES ('" + nameOfPlaylist + "');");
+    }
+
+    /**
+     * Adds a media to this medias
+     */
+    public void addMediaToMedias(String URL) {
+
+        // Add playlist to PlaylistOverview
+        DB.insertSQL("INSERT INTO Media (URL) VALUES ('"  + URL + "' );");
+    }
+
+    /**
+     * Adds a media to this playlist
+     */
+    public void addMediaToPlaylist(String PlaylistName, String URL) {
+
+        // Add playlist to PlaylistOverview
+        DB.insertSQL("INSERT INTO PlaylistCollection (PlaylistName, URL) VALUES ('" + PlaylistName + "','" + URL + "' );");
+    }
 }

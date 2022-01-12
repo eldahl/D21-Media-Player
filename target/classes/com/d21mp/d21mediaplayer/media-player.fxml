@@ -4,6 +4,7 @@
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -18,37 +19,52 @@
 
 <VBox fx:id="rootVBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.d21mp.d21mediaplayer.MediaPlayerController">
    <children>
-      <MenuBar fx:id="menuBar">
-        <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-                  <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
-              <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
-                  <MenuItem mnemonicParsing="false" onAction="#exit" text="Exit" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="View">
-            <items>
-              <MenuItem mnemonicParsing="false" onAction="#toggleSearchPlaylistView" text="Search / Playlist" />
-                  <RadioMenuItem fx:id="lightmode" mnemonicParsing="false" onAction="#toggleLightMode" text="Enable light mode" />
-                  <RadioMenuItem fx:id="darkmode" mnemonicParsing="false" onAction="#toggleDarkMode" text="Enable dark mode" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Playlist">
-            <items>
-                  <MenuItem mnemonicParsing="false" text="Open playlist" />
-              <MenuItem mnemonicParsing="false" onAction="#createPlaylist" text="Create playlist" />
-                  <MenuItem mnemonicParsing="false" text="Edit playlist" />
-                  <MenuItem mnemonicParsing="false" text="Delete playlist" />
-            </items>
-          </Menu>
-            <Menu mnemonicParsing="false" text="Help">
-               <items>
-                  <MenuItem mnemonicParsing="false" text="About" />
-               </items>
-            </Menu>
-        </menus>
-      </MenuBar>
+      <HBox>
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+         <children>
+            <MenuBar fx:id="menuBar" prefHeight="26.0" prefWidth="194.0" HBox.hgrow="ALWAYS">
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                        <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
+                    <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
+                        <MenuItem mnemonicParsing="false" onAction="#exit" text="Exit" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="View">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#toggleSearchPlaylistView" text="Search / Playlist" />
+                        <RadioMenuItem fx:id="darkmode" mnemonicParsing="false" onAction="#toggleDarkMode" text="Dark mode" />
+                        <RadioMenuItem fx:id="maximize" mnemonicParsing="false" onAction="#maximize" text="Maximize" />
+                  </items>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Playlist">
+                  <items>
+                        <MenuItem mnemonicParsing="false" onAction="#openPlaylist" text="Open playlist" />
+                    <MenuItem mnemonicParsing="false" onAction="#createPlaylist" text="Create playlist" />
+                        <MenuItem mnemonicParsing="false" text="Edit playlist" />
+                        <MenuItem mnemonicParsing="false" text="Delete playlist" />
+                  </items>
+                </Menu>
+                  <Menu mnemonicParsing="false" text="Help">
+                     <items>
+                        <MenuItem mnemonicParsing="false" text="About" />
+                     </items>
+                  </Menu>
+              </menus>
+               <cursor>
+                  <Cursor fx:constant="DEFAULT" />
+               </cursor>
+            </MenuBar>
+            <MenuBar onMouseDragged="#drag" onMousePressed="#presDrag" prefHeight="26.0" prefWidth="344.0" HBox.hgrow="ALWAYS">
+               <cursor>
+                  <Cursor fx:constant="MOVE" />
+               </cursor>
+            </MenuBar>
+         </children>
+      </HBox>
       <HBox VBox.vgrow="SOMETIMES">
          <children>
             <VBox HBox.hgrow="SOMETIMES">
@@ -106,13 +122,24 @@
                <children>
                   <HBox maxHeight="25.0" VBox.vgrow="SOMETIMES">
                      <children>
-                        <TextField fx:id="searchField" focusTraversable="false" promptText="Search" HBox.hgrow="SOMETIMES" />
+                        <TextField fx:id="searchField" focusTraversable="false" prefHeight="26.0" prefWidth="249.0" promptText="Search" HBox.hgrow="SOMETIMES" />
                         <Button mnemonicParsing="false" text="Search" />
                      </children>
                   </HBox>
                   <ScrollPane VBox.vgrow="SOMETIMES">
                      <content>
-                        <VBox />
+                        <VBox>
+                           <children>
+                              <ListView fx:id="listview" editable="true" onMouseClicked="#playSongFromPlaylist" prefHeight="200.0" prefWidth="249.0" />
+                              <HBox alignment="CENTER_LEFT">
+                                 <children>
+                                    <Button fx:id="addToPlaylist" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-color: lightgreen;" text="+" />
+                                    <Button fx:id="removeFromPlaylist" mnemonicParsing="false" onAction="#removeSongToPlaylistViaButton" style="-fx-background-color: pink;" text="-" />
+                                    <Label text=" Current playlist: " />
+                                    <Label fx:id="currentPlaylist" />
+                                 </children>
+                              </HBox>
+                           </children></VBox>
                      </content>
                   </ScrollPane>
                </children>
@@ -120,4 +147,7 @@
          </children>
       </HBox>
    </children>
+   <padding>
+      <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
+   </padding>
 </VBox>
