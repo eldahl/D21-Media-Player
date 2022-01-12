@@ -7,9 +7,5 @@ public class DBHandling {
     public DBHandling() {
     }
 
-    public void createPlaylist(String nameOfPlaylist) {
 
-        // Add playlist to PlaylistOverview
-        DB.insertSQL("INSERT INTO PlaylistOverview VALUES ('" + nameOfPlaylist + "');");
-    }
 }

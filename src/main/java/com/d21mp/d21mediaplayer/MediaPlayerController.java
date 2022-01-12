@@ -1,6 +1,8 @@
 package com.d21mp.d21mediaplayer;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -30,39 +32,33 @@ import javafx.util.Duration;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class MediaPlayerController implements Initializable {
 
     @FXML
     private MediaView mediaView;
-
     @FXML
-    private Label labelTime;
-
+    private Label currentPlaylist;
     @FXML
     private TextField searchField;
-
     @FXML
     private VBox rootVBox, searchPlaylistView, mediaViewVBox;
-
     @FXML
-    private Button playPauseBut, stopBut, skipForwardBut, skipBackwardBut;
-
+    private Button playPauseBut, stopBut, skipForwardBut, skipBackwardBut, addToPlaylist, removeFromPlaylist;
     @FXML
     public Slider sliderTime, sliderVolume;
-
     @FXML
     RadioMenuItem darkmode, maximize;
+    @FXML
+    ListView listview;
 
     private MediaPlayer mp;
     private Media me;
 
     private double xOffset;
     private double yOffset;
+    private String chosenPlaylist = "";
 
     private Image playImg, pauseImg, stopImg, skipForwardImg, skipBackwardImg;
 
@@ -263,11 +259,11 @@ public class MediaPlayerController implements Initializable {
     @FXML
     public void createPlaylist() {
         // Create new object
-        DBHandling playlistCreator = new DBHandling();
+        PlaylistHandler playlistCreator = new PlaylistHandler();
 
         // Values for dialog box
         TextInputDialog dialog = new TextInputDialog();
-        dialog.initStyle(StageStyle.UNDECORATED); // THIS DISABLES TOP BAR
+        //dialog.initStyle(StageStyle.UNDECORATED); // THIS DISABLES TOP BAR
         dialog.setHeaderText(null);
         dialog.setContentText("Please enter name of playlist:");
         // Add custom graphics to dialog box
@@ -287,6 +283,92 @@ public class MediaPlayerController implements Initializable {
         // Get the response value.
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(playlistCreator::createPlaylist);
+    }
+
+    /**
+     * Opens a playlist and displays content in listview
+     */
+    @FXML
+    public void openPlaylist() {
+        // Create new object
+        PlaylistHandler playlistOpener = new PlaylistHandler();
+
+        List<String> choices = playlistOpener.loadPlaylistOverview();
+
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("", choices);
+        dialog.setTitle("Select Playlist");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Choose your playlist:");
+
+        // Get result
+        Optional<String> result = dialog.showAndWait();
+        String resultAsString = String.valueOf(result);
+        chosenPlaylist = resultAsString.substring(9, resultAsString.length()-1);
+
+        currentPlaylist.setText(chosenPlaylist);
+        result.ifPresent(s -> listview.setItems((FXCollections.observableArrayList(playlistOpener.loadPlaylistFromDB(s)))));
+    }
+
+    @FXML
+    public void playSongFromPlaylist(MouseEvent event) {
+        String pathToSelectedFile = (String) listview.getSelectionModel().getSelectedItem();
+
+        me = new Media(new File(pathToSelectedFile).toURI().toString());
+        mp = new MediaPlayer(me);
+
+        // Resize window and set minimum window size when media has loaded
+        Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
+        mp.setOnReady(sizeToSceneRun);
+
+        // Change isPlaying state when mp starts playing
+        mp.setOnPlaying(new Runnable() {
+            @Override
+            public void run() {
+                isPlaying = true;
+            }
+        });
+
+        // Change isPlaying state on pause or stop
+        mp.setOnPaused(new Runnable() {
+            @Override
+            public void run() {
+                isPlaying = false;
+            }
+        });
+        mp.setOnStopped(new Runnable() {
+            @Override
+            public void run() {
+                isPlaying = false;
+            }
+        });
+
+        mediaView.setMediaPlayer(mp);
+        mp.setAutoPlay(false);
+        mp.play();
+    }
+
+    /**
+     * Add media to a playlist and refresh listview
+     */
+    @FXML
+    public void addSongToPlaylistViaButton() {
+        PlaylistHandler playlistAdd = new PlaylistHandler();
+        FileChooser fileChooser = new FileChooser();
+
+        File selectedFile = fileChooser.showOpenDialog(null);
+        String pathToSelectedFile = selectedFile.getAbsolutePath();
+        System.out.println(pathToSelectedFile);
+
+        // Add to database
+        playlistAdd.addMediaToMedias(pathToSelectedFile);
+        // Add to database
+        playlistAdd.addMediaToPlaylist(chosenPlaylist, pathToSelectedFile);
+        // Refresh listview
+        listview.setItems((FXCollections.observableArrayList(playlistAdd.loadPlaylistFromDB(chosenPlaylist))));
+    }
+
+    @FXML
+    public void removeSongToPlaylistViaButton() {
 
     }
 
