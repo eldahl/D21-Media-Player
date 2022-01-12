@@ -126,7 +126,7 @@
                         <Button mnemonicParsing="false" text="Search" />
                      </children>
                   </HBox>
-                  <ScrollPane VBox.vgrow="SOMETIMES">
+                  <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="SOMETIMES">
                      <content>
                         <VBox>
                            <children>

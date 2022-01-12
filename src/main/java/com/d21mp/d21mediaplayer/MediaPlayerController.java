@@ -100,8 +100,7 @@ public class MediaPlayerController implements Initializable {
         mediaViewVBox.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
         mediaView.setPreserveRatio(true);
 
-        // Plays this media when application launches
-        mediaSelection("Countdown");
+        // WE DON'T WANT AN MEDIA TO AUTOPLAY THEREFOR DELETED
 
 
     }
@@ -201,39 +200,14 @@ public class MediaPlayerController implements Initializable {
         File selectedFile = fileChooser.showOpenDialog(null);
         String pathToSelectedFile = selectedFile.getAbsolutePath();
 
-        me = new Media(new File(pathToSelectedFile).toURI().toString());
-        mp = new MediaPlayer(me);
+        // To ArrayList
+        List<String> pathDivided = new ArrayList<>(Arrays.asList(pathToSelectedFile.split("\\\\")));
 
-        // Resize window and set minimum window size when media has loaded
-        Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
-        mp.setOnReady(sizeToSceneRun);
+        // Get file name
+        String mediaTitle = pathDivided.get(pathDivided.size()-1);
 
-        // Change isPlaying state when mp starts playing
-        mp.setOnPlaying(new Runnable() {
-            @Override
-            public void run() {
-                isPlaying = true;
-            }
-        });
-
-        // Change isPlaying state on pause or stop
-        mp.setOnPaused(new Runnable() {
-            @Override
-            public void run() {
-                isPlaying = false;
-            }
-        });
-        mp.setOnStopped(new Runnable() {
-            @Override
-            public void run() {
-                isPlaying = false;
-            }
-        });
-
-        mediaView.setMediaPlayer(mp);
-        mp.setAutoPlay(false);
-        mp.play();
-
+        // Remove ".mp4" from filename and play file
+        mediaSelection(mediaTitle.substring(0, mediaTitle.length()-4));
 
     }
 
@@ -282,7 +256,7 @@ public class MediaPlayerController implements Initializable {
 
         // Get the response value.
         Optional<String> result = dialog.showAndWait();
-        result.ifPresent(playlistCreator::createPlaylist);
+        result.ifPresent(s -> playlistCreator.createPlaylist(getComputerName(), s));
     }
 
     /**
@@ -293,7 +267,7 @@ public class MediaPlayerController implements Initializable {
         // Create new object
         PlaylistHandler playlistOpener = new PlaylistHandler();
 
-        List<String> choices = playlistOpener.loadPlaylistOverview();
+        List<String> choices = playlistOpener.loadPlaylistOverview(getComputerName());
 
         ChoiceDialog<String> dialog = new ChoiceDialog<>("", choices);
         dialog.setTitle("Select Playlist");
@@ -317,7 +291,7 @@ public class MediaPlayerController implements Initializable {
         chosenPlaylist = resultAsString.substring(9, resultAsString.length()-1);
 
         currentPlaylist.setText(chosenPlaylist);
-        result.ifPresent(s -> listview.setItems((FXCollections.observableArrayList(playlistOpener.loadPlaylistFromDB(s)))));
+        result.ifPresent(s -> listview.setItems((FXCollections.observableArrayList(playlistOpener.loadPlaylistFromDB(getComputerName(), s)))));
     }
 
     @FXML
@@ -330,40 +304,9 @@ public class MediaPlayerController implements Initializable {
 
                 if (click.getClickCount() == 2) {
                     //Use ListView's getSelected Item
-                    String pathToSelectedFile = (String) listview.getSelectionModel().getSelectedItem();
+                    String listviewItem = (String) listview.getSelectionModel().getSelectedItem();
                     //use this to do whatever you want to. Open Link etc.
-                    me = new Media(new File(pathToSelectedFile).toURI().toString());
-                    mp = new MediaPlayer(me);
-
-                    // Resize window and set minimum window size when media has loaded
-                    Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
-                    mp.setOnReady(sizeToSceneRun);
-
-                    // Change isPlaying state when mp starts playing
-                    mp.setOnPlaying(new Runnable() {
-                        @Override
-                        public void run() {
-                            isPlaying = true;
-                        }
-                    });
-
-                    // Change isPlaying state on pause or stop
-                    mp.setOnPaused(new Runnable() {
-                        @Override
-                        public void run() {
-                            isPlaying = false;
-                        }
-                    });
-                    mp.setOnStopped(new Runnable() {
-                        @Override
-                        public void run() {
-                            isPlaying = false;
-                        }
-                    });
-
-                    mediaView.setMediaPlayer(mp);
-                    mp.setAutoPlay(false);
-                    mp.play();
+                    mediaSelection(listviewItem);
                 }
             }
         });
@@ -383,12 +326,21 @@ public class MediaPlayerController implements Initializable {
         String pathToSelectedFile = selectedFile.getAbsolutePath();
         System.out.println(pathToSelectedFile);
 
+        // To ArrayList
+        List<String> pathDivided = new ArrayList<>(Arrays.asList(pathToSelectedFile.split("\\\\")));
+
+        // Get file name
+        String mediaTitle = pathDivided.get(pathDivided.size()-1);
+
+        // Remove ".mp4" from filename and play file
+        mediaTitle = mediaTitle.substring(0, mediaTitle.length()-4);
+
         // Add to database in table Media
-        playlistAdd.ifNotExistAddToMediaTable(pathToSelectedFile);
+        playlistAdd.ifNotExistAddToMediaTable(getComputerName(), mediaTitle, pathToSelectedFile);
         // Add to database in table PlaylistCollection
-        playlistAdd.addMediaToPlaylist(chosenPlaylist, pathToSelectedFile);
+        playlistAdd.addMediaToPlaylist(getComputerName(), chosenPlaylist, mediaTitle, pathToSelectedFile);
         // Refresh listview
-        listview.setItems((FXCollections.observableArrayList(playlistAdd.loadPlaylistFromDB(chosenPlaylist))));
+        listview.setItems((FXCollections.observableArrayList(playlistAdd.loadPlaylistFromDB(getComputerName(), chosenPlaylist))));
     }
 
     /**
@@ -399,10 +351,10 @@ public class MediaPlayerController implements Initializable {
         PlaylistHandler playlistHandler = new PlaylistHandler();
 
         // Delete media from database and thus listview
-        playlistHandler.deleteMediaFromPlaylist(chosenPlaylist, (String) listview.getSelectionModel().getSelectedItem());
+        playlistHandler.deleteMediaFromPlaylist(getComputerName(), chosenPlaylist, (String) listview.getSelectionModel().getSelectedItem());
 
         // Refresh listview
-        listview.setItems((FXCollections.observableArrayList(playlistHandler.loadPlaylistFromDB(chosenPlaylist))));
+        listview.setItems((FXCollections.observableArrayList(playlistHandler.loadPlaylistFromDB(getComputerName(), chosenPlaylist))));
 
     }
 
@@ -713,5 +665,20 @@ public class MediaPlayerController implements Initializable {
         } else {
             // ... user chose CANCEL or closed the dialog
         }
+    }
+
+    /**
+     * Get the name of the host PC
+     * @return host name
+     */
+    private String getComputerName()
+    {
+        Map<String, String> env = System.getenv();
+        if (env.containsKey("COMPUTERNAME"))
+            return env.get("COMPUTERNAME");
+        else if (env.containsKey("HOSTNAME"))
+            return env.get("HOSTNAME");
+        else
+            return "Unknown Computer";
     }
 }
