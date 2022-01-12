@@ -11,6 +11,7 @@
 <?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -126,22 +127,36 @@
                         <Button mnemonicParsing="false" text="Search" />
                      </children>
                   </HBox>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="SOMETIMES">
-                     <content>
-                        <VBox>
-                           <children>
-                              <ListView fx:id="listview" editable="true" onMouseClicked="#playSongFromPlaylist" prefHeight="200.0" prefWidth="249.0" VBox.vgrow="SOMETIMES" />
-                              <HBox alignment="CENTER_LEFT">
+                  <SplitPane dividerPositions="0.5" orientation="VERTICAL" VBox.vgrow="SOMETIMES">
+                    <items>
+                        <ScrollPane fitToHeight="true" fitToWidth="true">
+                           <content>
+                              <VBox>
                                  <children>
-                                    <Button fx:id="addToPlaylist" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-color: lightgreen;" text="+" />
-                                    <Button fx:id="removeFromPlaylist" mnemonicParsing="false" onAction="#removeSongFromPlaylistViaButton" style="-fx-background-color: pink;" text="-" />
-                                    <Label text=" Current playlist: " />
-                                    <Label fx:id="currentPlaylist" />
+                                    <ListView prefHeight="120.0" prefWidth="200.0" VBox.vgrow="SOMETIMES" />
                                  </children>
-                              </HBox>
-                           </children></VBox>
-                     </content>
-                  </ScrollPane>
+                              </VBox>
+                           </content>
+                        </ScrollPane>
+                        <ScrollPane fitToHeight="true" fitToWidth="true">
+                           <content>
+                              <VBox>
+                                 <children>
+                                    <ListView fx:id="listview" editable="true" onMouseClicked="#playSongFromPlaylist" prefHeight="200.0" prefWidth="249.0" VBox.vgrow="SOMETIMES" />
+                                    <HBox alignment="CENTER_LEFT">
+                                       <children>
+                                          <Button fx:id="addToPlaylist" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-color: lightgreen;" text="+" />
+                                          <Button fx:id="removeFromPlaylist" mnemonicParsing="false" onAction="#removeSongFromPlaylistViaButton" style="-fx-background-color: pink;" text="-" />
+                                          <Label text=" Current playlist: " />
+                                          <Label fx:id="currentPlaylist" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </content>
+                        </ScrollPane>
+                    </items>
+                  </SplitPane>
                </children>
             </VBox>
          </children>
