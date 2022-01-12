@@ -639,5 +639,6 @@ public class MediaPlayerController implements Initializable {
         } else {
             // ... user chose CANCEL or closed the dialog
         }
+
     }
 }
