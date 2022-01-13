@@ -20,21 +20,13 @@ import javafx.stage.StageStyle;
 import java.io.IOException;
 import java.util.Objects;
 
-
-
 public class MainApplication extends Application {
 
     // Fxml stage instance used for later access to stage
     public static Stage iStage;
 
-
-    /**
-     * Resize scene to fit fxml content size and set minimum size to content size
-     */
-    public static void sizeToScene() {
-        iStage.sizeToScene();
-        iStage.setMinWidth(iStage.getWidth());
-        iStage.setMinHeight(iStage.getHeight());
+    public static void main(String[] args) {
+        launch();
     }
 
     @Override
@@ -56,14 +48,14 @@ public class MainApplication extends Application {
 
         // Finally
         stage.show();
-
     }
 
-
-
-
-    public static void main(String[] args) {
-        launch();
+    /**
+     * Resize scene to fit fxml content size and set minimum size to content size
+     */
+    public static void sizeToScene() {
+        iStage.sizeToScene();
+        iStage.setMinWidth(iStage.getWidth());
+        iStage.setMinHeight(iStage.getHeight());
     }
 }
-

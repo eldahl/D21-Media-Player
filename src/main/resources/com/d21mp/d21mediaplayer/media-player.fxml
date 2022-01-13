@@ -28,12 +28,11 @@
             <Insets />
          </VBox.margin>
          <children>
-            <MenuBar fx:id="menuBar" prefHeight="26.0" prefWidth="194.0" style="-fx-background-radius: 0;" HBox.hgrow="ALWAYS">
+            <MenuBar fx:id="menuBar" prefHeight="26.0" style="-fx-background-radius: 0;">
               <menus>
                 <Menu mnemonicParsing="false" text="File">
                   <items>
                         <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
-                    <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
                         <MenuItem mnemonicParsing="false" onAction="#exit" text="Exit" />
                   </items>
                 </Menu>
@@ -41,7 +40,6 @@
                   <items>
                     <MenuItem mnemonicParsing="false" onAction="#toggleSearchPlaylistView" text="Search / Playlist" />
                         <RadioMenuItem fx:id="darkmode" mnemonicParsing="false" onAction="#toggleDarkMode" text="Dark mode" />
-                        <RadioMenuItem fx:id="maximize" mnemonicParsing="false" onAction="#maximize" text="Maximize" />
                   </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Playlist">
@@ -61,11 +59,29 @@
                   <Cursor fx:constant="DEFAULT" />
                </cursor>
             </MenuBar>
-            <MenuBar onMouseDragged="#drag" onMousePressed="#presDrag" prefHeight="26.0" prefWidth="344.0" style="-fx-background-radius: 0;" HBox.hgrow="ALWAYS">
+            <MenuBar onMouseDragged="#drag" onMousePressed="#presDrag" prefHeight="26.0" style="-fx-background-radius: 0;" HBox.hgrow="SOMETIMES">
                <cursor>
                   <Cursor fx:constant="MOVE" />
                </cursor>
+               <HBox.margin>
+                  <Insets left="-16.0" />
+               </HBox.margin>
             </MenuBar>
+            <Button focusTraversable="false" mnemonicParsing="false" onAction="#minimize" prefHeight="28.0" prefWidth="28.0" text="-">
+               <HBox.margin>
+                  <Insets top="-2.0" />
+               </HBox.margin>
+            </Button>
+            <Button focusTraversable="false" mnemonicParsing="false" onAction="#maximize" prefHeight="28.0" prefWidth="28.0" text="■">
+               <HBox.margin>
+                  <Insets top="-2.0" />
+               </HBox.margin>
+            </Button>
+            <Button focusTraversable="false" mnemonicParsing="false" onAction="#exit" prefHeight="28.0" prefWidth="28.0" text="X">
+               <HBox.margin>
+                  <Insets right="-2.0" top="-2.0" />
+               </HBox.margin>
+            </Button>
          </children>
       </HBox>
       <HBox VBox.vgrow="SOMETIMES">
@@ -194,8 +210,8 @@
                                     <ListView fx:id="listview" editable="true" onMouseClicked="#playSongFromPlaylist" prefHeight="200.0" prefWidth="249.0" VBox.vgrow="SOMETIMES" />
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
-                                          <Button fx:id="addToPlaylist" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-color: lightgreen;" text="+" />
-                                          <Button fx:id="removeFromPlaylist" mnemonicParsing="false" onAction="#removeSongFromPlaylistViaButton" style="-fx-background-color: pink;" text="-" />
+                                          <Button fx:id="addToPlaylist" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-color: lightgreen;" />
+                                          <Button fx:id="removeFromPlaylist" mnemonicParsing="false" onAction="#removeSongFromPlaylistViaButton" style="-fx-background-color: pink;" />
                                           <Label text=" Current playlist: " />
                                           <Label fx:id="currentPlaylist" />
                                        </children>

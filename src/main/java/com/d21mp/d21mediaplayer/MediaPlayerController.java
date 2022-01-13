@@ -2,7 +2,6 @@ package com.d21mp.d21mediaplayer;
 
 import javafx.animation.*;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -42,7 +41,7 @@ public class MediaPlayerController implements Initializable {
     @FXML
     private Slider sliderTime, sliderVolume;
     @FXML
-    RadioMenuItem darkmode, maximize;
+    RadioMenuItem darkmode;
     @FXML
     private ListView<String> listview;
 	@FXML
@@ -63,8 +62,6 @@ public class MediaPlayerController implements Initializable {
     private boolean showSearchPlaylistView = true;
     // Weather or not media is currently playing
     private boolean isPlaying = false;
-    // This is used for handling the playlist
-    PlaylistHandler playlist = new PlaylistHandler();
 
      // This is used for handling the animations
     AnimationHandler animation = new AnimationHandler();
@@ -192,24 +189,6 @@ public class MediaPlayerController implements Initializable {
 
         //play the media
         mpPlay();
-    }
-
-
-    /**
-     * Closes current playing media
-     * // WHY DOES THIS THEN PLAY ANOTHER MEDIA?????
-     * // NIKOLAI
-     */
-    @FXML
-    public void close() {
-
-        me = new Media(new File("src/main/java/com/d21mp/d21mediaplayer/media/Meme.mp4").toURI().toString());
-        mp = new MediaPlayer(me);
-        Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
-        mp.setOnReady(sizeToSceneRun);
-        mediaView.setMediaPlayer(mp);
-        mp.setAutoPlay(false);
-        mp.play();
     }
 
     /**
@@ -571,31 +550,6 @@ public class MediaPlayerController implements Initializable {
 
     @FXML
     /**
-     * Handler for the skipback button
-     */
-    private void buttonSkipBack()
-    {
-        if(playlist.getPlaylistSize()>0) {
-			// Play the next media in mediaPlayer
-			getURLFromPlaylist(nextMedia.previous);
-		}
-    }
-
-    @FXML
-    /**
-     * Handler for the skipforward button
-     */
-    private void buttonSkipForward() {
-
-        if(playlist.getPlaylistSize()>0) {
-			// Play the next media in mediaPlayer
-			getURLFromPlaylist(nextMedia.next);
-		}
-
-    }
-
-    @FXML
-    /**
      * Handler for the mute button
      */
     private void mute()
@@ -649,7 +603,7 @@ public class MediaPlayerController implements Initializable {
         previous,
         next;
     }
-
+    /*
     private void getURLFromPlaylist(nextMedia p){
         if (playlist.getPlaylistSize()>0) {
             //Creates a new mediaplayer with the next media to play
@@ -663,7 +617,7 @@ public class MediaPlayerController implements Initializable {
             mpPlay();
         }
     }
-
+    */
     private MediaPlayer createMediaPlayer(String URL){
 
         // Stops the current media if there is some playing
@@ -746,13 +700,22 @@ public class MediaPlayerController implements Initializable {
     }
 
     /**
-     * Toggles maximize window
+     * Minimize window
      */
      @FXML
-     public void maximize() {
+     public void minimize() {
         Stage stage = (Stage) rootVBox.getScene().getWindow();
-         stage.setMaximized(maximize.isSelected());
+        stage.setIconified(true);
      }
+
+    /**
+     * Maximize window
+     */
+    @FXML
+    public void maximize() {
+        Stage stage = (Stage) rootVBox.getScene().getWindow();
+        stage.setMaximized(!stage.isMaximized());
+    }
 
     /**
      * Allows the user to drag movie by menu bar
