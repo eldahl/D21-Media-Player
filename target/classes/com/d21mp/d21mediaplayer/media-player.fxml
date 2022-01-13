@@ -123,7 +123,7 @@
                   <HBox maxHeight="25.0" VBox.vgrow="SOMETIMES">
                      <children>
                         <TextField fx:id="searchField" focusTraversable="false" prefHeight="26.0" prefWidth="249.0" promptText="Search" HBox.hgrow="SOMETIMES" />
-                        <Button mnemonicParsing="false" text="Search" />
+                        <Button mnemonicParsing="false" onAction="#buttonSearch" text="Search" />
                      </children>
                   </HBox>
                   <ScrollPane VBox.vgrow="SOMETIMES">

@@ -73,6 +73,9 @@ public class MediaPlayerController implements Initializable {
     //This is used for handling the playlist
     PlaylistHandler playlist = new PlaylistHandler();
 
+    //This is used for handling the yt-search and results
+    YoutubeHandler yt = new YoutubeHandler();
+
 
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -418,17 +421,11 @@ public class MediaPlayerController implements Initializable {
      */
     private void buttonSkipForward() {
 
-        YoutubeHandler yth = new YoutubeHandler();
-
-        yth.downloadYoutubeVideo("kda popstars");
-        System.out.println("done");
-
-        /*
         if(playlist.getPlaylistSize()>0) {
 			// Play the next media in mediaPlayer
 			getURLFromPlaylist(nextMedia.next);
 		}
-         */
+
     }
 
     @FXML
