@@ -13,8 +13,11 @@
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.media.MediaView?>
 
@@ -71,11 +74,25 @@
                <children>
                   <VBox fx:id="mediaViewVBox" alignment="CENTER" maxHeight="2000.0" maxWidth="2000.0" minHeight="90.0" minWidth="160.0" style="-fx-background-radius: 0;" VBox.vgrow="SOMETIMES">
                      <children>
-                        <MediaView fx:id="mediaView" fitHeight="${mediaViewVBox.height}" fitWidth="${mediaViewVBox.width}" onMouseClicked="#buttonPlayPause">
-                           <cursor>
-                              <Cursor fx:constant="DEFAULT" />
-                           </cursor>
-                        </MediaView>
+                        <StackPane prefHeight="150.0" prefWidth="200.0">
+                           <children>
+                              <MediaView fx:id="mediaView" fitHeight="${mediaViewVBox.height}" fitWidth="${mediaViewVBox.width}" onMouseClicked="#buttonPlayPause">
+                                 <cursor>
+                                    <Cursor fx:constant="DEFAULT" />
+                                 </cursor>
+                              </MediaView>
+                              <ImageView fx:id="imgPlay" fitHeight="150.0" fitWidth="200.0" opacity="0.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@play.png" />
+                                 </image>
+                              </ImageView>
+                              <ImageView fx:id="imgPause" fitHeight="150.0" fitWidth="200.0" opacity="0.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@pause.png" />
+                                 </image>
+                              </ImageView>
+                           </children>
+                        </StackPane>
                      </children>
                   </VBox>
                   <Slider fx:id="sliderTime" majorTickUnit="10.0" minorTickCount="10" onMouseDragged="#sliderTimeDragging" onMousePressed="#mpPause" onMouseReleased="#mpPlay" snapToTicks="true" />
