@@ -1,44 +1,13 @@
 package com.d21mp.d21mediaplayer;
 
-import javafx.util.Duration;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class PlaylistHandler {
 
-    private int currentMediaPlayingPosition;
-
-    private int playlistSize;
-
-    //These arraylists show the master, shuffle and current playlists
-    private final ArrayList<String> masterPlaylist = new ArrayList<>();
-    private final ArrayList<String> shufflePlaylist = new ArrayList<>();
-    private final ArrayList<String> currentPlaylist = new ArrayList<>();
-
-    public PlaylistHandler(){
-        this.currentMediaPlayingPosition = 0;
-        this.playlistSize = masterPlaylist.size();
-    }
-
-    private String PlaylistCollection = "PlaylistCollection";
-
-
-    private String Relation = "Relation";
-
     /**
-     * Get the next url in the playlist
+     * Fetches PlaylistName from PlaylistOverview
      */
-    public String getNextUrlFromPlaylist(){
-        if (playlistSize==currentMediaPlayingPosition+1){
-            currentMediaPlayingPosition=0;
-        } else {
-            currentMediaPlayingPosition+=1;
-        }
-        return currentPlaylist.get(currentMediaPlayingPosition);
-    }
-
     public ArrayList<String> loadPlaylistOverview(String HostName) {
         ArrayList<String> loadedList = new ArrayList<>();
         DB.selectSQL("SELECT PlaylistName FROM PlaylistOverview WHERE HostName = '" + HostName + "'");
@@ -75,7 +44,6 @@ public class PlaylistHandler {
         return loadedPlaylist;
     }
 
-
     /**
      * Adds a new playlist to the database
      */
@@ -83,6 +51,9 @@ public class PlaylistHandler {
         DB.insertSQL("INSERT INTO PlaylistOverview (HostName, PlaylistName) VALUES ('" + HostName + "','" + PlaylistName + "' );");
     }
 
+    /**
+     * Deletes a playlist from playlistOverview and rows with playlistName from PlaylistCollection
+     */
     public void deletePlaylist(String HostName, String PlaylistName) {
         DB.insertSQL("DELETE FROM PlaylistCollection WHERE HostName = '" + HostName + "' AND PlaylistName = '" + PlaylistName + "';");
         DB.insertSQL("DELETE FROM PlaylistOverview WHERE HostName = '" + HostName + "' AND PlaylistName = '" + PlaylistName + "';");

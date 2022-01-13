@@ -67,17 +67,17 @@
                   <Insets left="-16.0" />
                </HBox.margin>
             </MenuBar>
-            <Button focusTraversable="false" mnemonicParsing="false" onAction="#minimize" prefHeight="28.0" prefWidth="28.0" text="-">
+            <Button fx:id="minimizeButton" focusTraversable="false" mnemonicParsing="false" onAction="#minimize" prefHeight="28.0" prefWidth="28.0" text="-">
                <HBox.margin>
                   <Insets top="-2.0" />
                </HBox.margin>
             </Button>
-            <Button focusTraversable="false" mnemonicParsing="false" onAction="#maximize" prefHeight="28.0" prefWidth="28.0" text="■">
+            <Button fx:id="maximizeButton" focusTraversable="false" mnemonicParsing="false" onAction="#maximize" prefHeight="28.0" prefWidth="28.0" text="■">
                <HBox.margin>
                   <Insets top="-2.0" />
                </HBox.margin>
             </Button>
-            <Button focusTraversable="false" mnemonicParsing="false" onAction="#exit" prefHeight="28.0" prefWidth="28.0" text="X">
+            <Button fx:id="exitButton" focusTraversable="false" mnemonicParsing="false" onAction="#exit" prefHeight="28.0" prefWidth="28.0" text="X">
                <HBox.margin>
                   <Insets right="-2.0" top="-2.0" />
                </HBox.margin>
