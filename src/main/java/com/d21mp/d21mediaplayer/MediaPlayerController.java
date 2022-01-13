@@ -50,11 +50,13 @@ public class MediaPlayerController implements Initializable {
     @FXML
     private Button playPauseBut, stopBut, skipForwardBut, skipBackwardBut, addToPlaylist, removeFromPlaylist;
     @FXML
-    public Slider sliderTime, sliderVolume;
+    private Slider sliderTime, sliderVolume;
     @FXML
     RadioMenuItem darkmode, maximize;
     @FXML
     ListView listview;
+    @FXML
+    private ImageView imgPlay,imgPause;
 
     // For media player
     private MediaPlayer mp;
@@ -76,6 +78,9 @@ public class MediaPlayerController implements Initializable {
 
     // This is used for handling the playlist
     PlaylistHandler playlist = new PlaylistHandler();
+
+     // This is used for handling the animations
+    AnimationHandler animation = new AnimationHandler();
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -107,7 +112,7 @@ public class MediaPlayerController implements Initializable {
         mediaViewVBox.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
         mediaView.setPreserveRatio(true);
 
-        labelAnimation();
+        animation.labelAnimation(currentPlaylist, 2);
         // WE DON'T WANT AN MEDIA TO AUTOPLAY THEREFOR DELETED
     }
 
@@ -458,6 +463,10 @@ public class MediaPlayerController implements Initializable {
     private void mpPlay(){
         // Play the mediaPlayer with the attached media
         mp.play();
+        if (imgPause.getOpacity()==0 && imgPlay.getOpacity()==0){
+            animation.fadeOut(imgPlay,0.5);
+        }
+
         setButtonUIImage(playPauseBut, pauseImg);
         isPlaying = true;
     }
@@ -469,6 +478,9 @@ public class MediaPlayerController implements Initializable {
     private void mpPause(){
         // Pause the mediaPlayer
         mp.pause();
+        if (imgPause.getOpacity()==0 && imgPlay.getOpacity()==0){
+            animation.fadeOut(imgPause,0.5);
+        }
         setButtonUIImage(playPauseBut, playImg);
         isPlaying = false;
     }
@@ -750,20 +762,7 @@ public class MediaPlayerController implements Initializable {
         }
     }
 
-    /**
-     * Animation for current playlist. I want this to keep scrolling from the right if the text is too wide. Like your radio.
-     */
-    @FXML
-    public void labelAnimation() {
 
-        KeyFrame kfP = new KeyFrame(Duration.seconds(2), new KeyValue(currentPlaylist.textFillProperty(), Color.GREY));
-        Timeline TIMER = new Timeline();
-        TIMER.getKeyFrames().add(kfP);
-        TIMER.setCycleCount(Animation.INDEFINITE);
-        TIMER.setAutoReverse(true);
-        TIMER.play();
-
-    }
 
     /**
      * Get the name of the host PC
