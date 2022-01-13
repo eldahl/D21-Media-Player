@@ -420,7 +420,7 @@ public class MediaPlayerController implements Initializable {
 
         YoutubeHandler yth = new YoutubeHandler();
 
-        yth.downloadYoutubeVideo("https://www.youtube.com/watch?v=mDYqT0_9VR4");
+        yth.downloadYoutubeVideo("kda popstars");
         System.out.println("done");
 
         /*
@@ -497,7 +497,7 @@ public class MediaPlayerController implements Initializable {
     private void sliderVolume()
     {
         // Skip forwards and backwards in the media via the slider
-        mp.setVolume(sliderVolume.getValue()/100);
+        mp.setVolume(Math.pow(sliderVolume.getValue()/100,2));
     }
 
     enum nextMedia {
