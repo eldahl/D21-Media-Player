@@ -117,7 +117,6 @@ public class MediaPlayerController implements Initializable {
         animation.labelAnimation(currentPlaylist, 2);
         // WE DON'T WANT AN MEDIA TO AUTOPLAY THEREFOR DELETED
     }
-
     // endregion
 
     // region [UI methods]
@@ -307,7 +306,6 @@ public class MediaPlayerController implements Initializable {
     // endregion
 
     // region [Media methods]
-
     /**
      * Method for selecting a media to be played in media viewer
      */
@@ -332,7 +330,7 @@ public class MediaPlayerController implements Initializable {
     }
 
     /**
-     * Creat the mediaplayer with its attributes
+     * Create the mediaplayer with its attributes
      */
     private void createMediaPlayer(String URL){
 
@@ -513,7 +511,6 @@ public class MediaPlayerController implements Initializable {
     // endregion
 
     // region [Playlist methods]
-
     /**
      * Creates a new playlist and adds to database
      */
@@ -773,7 +770,6 @@ public class MediaPlayerController implements Initializable {
     // endregion
 
     // region [Telemetry]
-
     /**
      * Get the name of the host PC
      * @return host name
