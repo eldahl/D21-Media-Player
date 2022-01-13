@@ -22,12 +22,12 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
 public class MediaPlayerController implements Initializable {
 
+    // region [FXML]
     @FXML
     private MediaView mediaView;
     @FXML
@@ -37,7 +37,8 @@ public class MediaPlayerController implements Initializable {
     @FXML
     private VBox rootVBox, searchPlaylistView, mediaViewVBox;
     @FXML
-    private Button playPauseBut, stopBut, skipForwardBut, skipBackwardBut, addToPlaylist, removeFromPlaylist, shuffleButton, loopButton, muteButton;
+    private Button playPauseBut, stopBut, skipForwardBut, skipBackwardBut, addToPlaylist, removeFromPlaylist,
+            shuffleButton, loopButton, muteButton, minimizeButton, maximizeButton, exitButton;
     @FXML
     private Slider sliderTime, sliderVolume;
     @FXML
@@ -46,7 +47,9 @@ public class MediaPlayerController implements Initializable {
     private ListView<String> listview;
 	@FXML
     private ImageView imgPlay,imgPause;
+    // endregion
 
+    // region [Class variables]
     // For media player
     private MediaPlayer mp;
     private Media me;
@@ -57,16 +60,23 @@ public class MediaPlayerController implements Initializable {
     private String chosenPlaylist = "";
     // For icons
     private Image playImg, pauseImg, stopImg, skipForwardImg, skipBackwardImg, addButton, removeButton, shuffleImg, loopImg, muteImg;
-    // Weather or not the search / playlist view is displayed in the UI
-    // Initially the view is initialized as being displayed, so set to true
+    // Whether the search / playlist view is displayed in the UI with showing as default
     private boolean showSearchPlaylistView = true;
-    // Weather or not media is currently playing
+    // Whether media is currently playing
     private boolean isPlaying = false;
 
-     // This is used for handling the animations
+    // endregion
+
+    // region [Class objects]
+
+    // This is used for handling the animations
     AnimationHandler animation = new AnimationHandler();
-    //This is used for handling the yt-search and results
+    // This is used for handling the yt-search and results
     YoutubeHandler yt = new YoutubeHandler();
+
+    // endregion
+
+    // region [Initialize]
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Hide Search/Playlist view
@@ -108,6 +118,10 @@ public class MediaPlayerController implements Initializable {
         // WE DON'T WANT AN MEDIA TO AUTOPLAY THEREFOR DELETED
     }
 
+    // endregion
+
+    // region [UI methods]
+
     /**
      * Show or hides the search / playlist view, depending on its state
      */
@@ -143,6 +157,158 @@ public class MediaPlayerController implements Initializable {
     }
 
     /**
+     * Minimize window
+     */
+    @FXML
+    public void minimize() {
+        Stage stage = (Stage) rootVBox.getScene().getWindow();
+        stage.setIconified(true);
+    }
+
+    /**
+     * Maximize window
+     */
+    @FXML
+    public void maximize() {
+        Stage stage = (Stage) rootVBox.getScene().getWindow();
+        stage.setMaximized(!stage.isMaximized());
+    }
+
+    /**
+     * Allows the user to drag movie by menu bar
+     */
+    @FXML
+    private void drag(MouseEvent event) {
+        Stage stage = (Stage) rootVBox.getScene().getWindow();
+        stage.setY(event.getScreenY() - yOffset);
+        stage.setX(event.getScreenX() - xOffset);
+    }
+
+    /**
+     * Allows the user to drag movie by menu bar
+     */
+    @FXML
+    private void presDrag(MouseEvent event) {
+        xOffset = event.getSceneX();
+        yOffset = event.getSceneY();
+    }
+
+    /**
+     * Displays the about alert box
+     */
+    @FXML
+    public void about() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("About");
+        alert.setHeaderText(null);
+        alert.setContentText("Version: 0.5 \n\nSupported files: mp3, mp4 \n\nAuthors: Group 4\nBug report: someone@mail.com");
+        // Add custom graphics to dialog box
+        alert.setGraphic(new ImageView(Objects.requireNonNull(this.getClass().getResource("awesomeicon.png")).toString()));
+
+        // Set to dark mord if activated
+        if (darkmode.isSelected()) {
+            alert.getDialogPane().setStyle("-fx-background-color: darkgrey");
+        }
+
+        // Get the Stage
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+
+        // Add a custom icon
+        stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("awesomeicon.png")).toString()));
+
+        alert.showAndWait();
+    }
+
+    /**
+     * Allows the user to exit the application after confirming an alert
+     */
+    @FXML
+    public void exit() {
+        // Values for alert box
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Exist");
+        alert.setHeaderText(null);
+        alert.setContentText("Are you sure you want to exit?");
+
+        // Get the Stage
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+
+        // Add a custom icon
+        stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("awesomeicon.png")).toString()));
+
+        // Set to dark mord if activated
+        if (darkmode.isSelected()) {
+            alert.getDialogPane().setStyle("-fx-background-color: darkgrey");
+        }
+
+        // Get result
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            // ... user chose OK
+            System.exit(0);
+        } else {
+            // ... user chose CANCEL or closed the dialog
+        }
+    }
+
+    /**
+     * Shuffles the playlist by click on button and refreshes lower listview
+     */
+    @FXML
+    public void shufflePlaylist() {
+        PlaylistHandler playlistShuffler = new PlaylistHandler();
+        List<String> items = new ArrayList<>(playlistShuffler.loadPlaylistFromDB(getComputerName(), chosenPlaylist));
+        Collections.shuffle(items);
+        listview.getItems().setAll(items);
+    }
+
+    public void animationForLater() {
+        Timeline animation = new Timeline(
+                new KeyFrame(Duration.millis(500), e -> listview.getSelectionModel().selectNext()));
+        listview.getSelectionModel().select(0);
+        animation.setCycleCount(listview.getItems().size()-1);
+        animation.play();
+    } //TODO IM ON IT //NIKOLAI
+
+    /**
+     * Toggles light/dark mode
+     */
+    @FXML
+    public void toggleDarkMode() {
+        if (darkmode.isSelected()) {
+            // Main theme
+            rootVBox.setStyle("-fx-base:black");
+            // Buttons
+            playPauseBut.setStyle("-fx-base:darkgrey");
+            stopBut.setStyle("-fx-base:darkgrey");
+            skipForwardBut.setStyle("-fx-base:darkgrey");
+            skipBackwardBut.setStyle("-fx-base:darkgrey");
+            loopButton.setStyle("-fx-base:darkgrey");
+            shuffleButton.setStyle("-fx-base:darkgrey");
+            minimizeButton.setStyle("-fx-base:darkgrey");
+            maximizeButton.setStyle("-fx-base:darkgrey");
+            exitButton.setStyle("-fx-base:darkgrey");
+        }
+        else {
+            // Main theme
+            rootVBox.setStyle("");
+            // Buttons
+            playPauseBut.setStyle("");
+            stopBut.setStyle("");
+            skipForwardBut.setStyle("");
+            skipBackwardBut.setStyle("");
+            loopButton.setStyle("");
+            shuffleButton.setStyle("");
+            minimizeButton.setStyle("");
+            maximizeButton.setStyle("");
+            exitButton.setStyle("");
+        }
+    }
+    // endregion
+
+    // region [Media methods]
+
+    /**
      * Method for selecting a media to be played in media viewer
      */
     public void mediaSelection(String title) {
@@ -163,6 +329,59 @@ public class MediaPlayerController implements Initializable {
 
         //play media player
         mpPlay();
+    }
+
+    /**
+     * Creat the mediaplayer with its attributes
+     */
+    private void createMediaPlayer(String URL){
+
+        // Stops the current media if there is some playing
+        buttonStop();
+
+        me = new Media(new File(URL).toURI().toString());
+        mp = new MediaPlayer(me);
+
+        // Resize window and set minimum window size when media has loaded
+        Runnable sizeToSceneRun = MainApplication::sizeToScene;
+        mp.setOnReady(sizeToSceneRun);
+
+        // Resize the slider
+        Runnable sliderResize = this::sliderTimeScaling;
+        mp.setOnReady(sliderResize);
+
+        // While playing this changes the UI live
+        Runnable timeSliderUpdater = this::sliderTimeDragging;
+        mp.setOnPlaying(timeSliderUpdater);
+
+        // Set the volume to the same as last media
+        sliderVolume();
+
+        // Change isPlaying state when mp starts playing
+        mp.setOnPlaying(new Runnable() {
+            @Override
+            public void run() {
+                isPlaying = true;
+            }
+        });
+
+        // Change isPlaying state on pause or stop
+        mp.setOnPaused(new Runnable() {
+            @Override
+            public void run() {
+                isPlaying = false;
+            }
+        });
+        mp.setOnStopped(new Runnable() {
+            @Override
+            public void run() {
+                isPlaying = false;
+            }
+        });
+
+        // Set the media player to be the one in the media view
+        mediaView.setMediaPlayer(mp);
+        mp.setAutoPlay(false);
     }
 
     /**
@@ -190,6 +409,110 @@ public class MediaPlayerController implements Initializable {
         //play the media
         mpPlay();
     }
+
+    /**
+     * Plays the Media
+     */
+    @FXML
+    private void mpPlay(){
+        // Play the mediaPlayer with the attached media
+        mp.play();
+        if (imgPause.getOpacity()==0 && imgPlay.getOpacity()==0){
+            animation.fadeOut(imgPlay,0.5);
+        }
+
+        setButtonUIImage(playPauseBut, pauseImg);
+        isPlaying = true;
+    }
+
+    /**
+     * Pause the Media
+     */
+    @FXML
+    private void mpPause(){
+        // Pause the mediaPlayer
+        mp.pause();
+        if (imgPause.getOpacity()==0 && imgPlay.getOpacity()==0){
+            animation.fadeOut(imgPause,0.5);
+        }
+        setButtonUIImage(playPauseBut, playImg);
+        isPlaying = false;
+    }
+
+    /**
+     * Handler for the play and pause button
+     */
+    @FXML
+    private void buttonPlayPause() {
+        if (!isPlaying)
+            mpPlay();
+        else
+            mpPause();
+    }
+
+    /**
+     * Handler for the stop button
+     */
+    @FXML
+    private void buttonStop() {
+        if (mp != null){
+            // Stop the mediaPlayer
+            mp.stop();
+            setButtonUIImage(playPauseBut, playImg);
+            isPlaying = false;
+        }
+    }
+
+    /**
+     * Handler for the mute button
+     */
+    @FXML
+    private void mute() {
+        if (mp.getVolume()==0){
+            //Set the volume to the sliders value
+            sliderVolume();
+        } else {
+            //Mute the sound
+            mp.setVolume(0);
+        }
+    }
+
+    /**
+     * Handler for the Time slider
+     */
+    @FXML
+    private void sliderTimeDragging() {
+        // Skip forwards and backwards in the media via the slider
+        mp.setStartTime(Duration.seconds(sliderTime.getValue()));
+
+        //Update the time
+        //timeChangeShow();
+    }
+
+    private void timeChangeShow(){
+        //The time
+    } //TODO WHAT IS THIS?? //NIKOLAI
+
+    /**
+     * void for the Time sliders scaling
+     */
+    private void sliderTimeScaling() {
+        //Slider scaling
+        sliderTime.setMax(Double.parseDouble(MediaPlayerInfo.getDuration(mp)));
+    }
+
+    /**
+     * Handler for the sound slider
+     */
+    @FXML
+    private void sliderVolume() {
+        // Skip forwards and backwards in the media via the slider
+        mp.setVolume(Math.pow(sliderVolume.getValue()/100,2));
+    }
+
+    // endregion
+
+    // region [Playlist methods]
 
     /**
      * Creates a new playlist and adds to database
@@ -297,6 +620,9 @@ public class MediaPlayerController implements Initializable {
         }
     }
 
+    /**
+     * Deletes a playlist
+     */
     @FXML
     public void deletePlaylist() {
         // Create new object
@@ -444,27 +770,35 @@ public class MediaPlayerController implements Initializable {
         mediaSelection(listviewItem);
     }
 
+    // endregion
+
+    // region [Telemetry]
+
+    /**
+     * Get the name of the host PC
+     * @return host name
+     */
+    private String getComputerName() {
+        Map<String, String> env = System.getenv();
+        if (env.containsKey("COMPUTERNAME"))
+            return env.get("COMPUTERNAME");
+        else if (env.containsKey("HOSTNAME"))
+            return env.get("HOSTNAME");
+        else
+            return "Unknown Computer";
+    }
+
+    // endregiong
+
+    // region [in progress]
+
+    /**
+     * Loop playlist if button is activated
+     */
     @FXML
     public void loop() {
     // TODO BY NIKOLAI
     }
-
-    @FXML
-    public void shufflePlaylist() {
-        PlaylistHandler playlistShuffler = new PlaylistHandler();
-        List<String> items = new ArrayList<>(playlistShuffler.loadPlaylistFromDB(getComputerName(), chosenPlaylist));
-        Collections.shuffle(items);
-        listview.getItems().setAll(items);
-    }
-
-    public void animationForLater() {
-        Timeline animation = new Timeline(
-                new KeyFrame(Duration.millis(500), e -> listview.getSelectionModel().selectNext()));
-        listview.getSelectionModel().select(0);
-        animation.setCycleCount(listview.getItems().size()-1);
-        animation.play();
-    }
-
 
     /**
      * Search Media table in Media Player DB by keyword found in a text field
@@ -485,324 +819,21 @@ public class MediaPlayerController implements Initializable {
         return collected;
     }
 
+    /**
+     * Add search results to upper listview
+     */
     public void addSearchResult() {
         // add button
         // add label
     }
 
+    /**
+     * Clear search results from upper listview
+     */
     public void clearSearchResults() {
 
     }
 
-    @FXML
-    /**
-     * Plays the Media
-     */
-    private void mpPlay(){
-        // Play the mediaPlayer with the attached media
-        mp.play();
-        if (imgPause.getOpacity()==0 && imgPlay.getOpacity()==0){
-            animation.fadeOut(imgPlay,0.5);
-        }
+    // endregion
 
-        setButtonUIImage(playPauseBut, pauseImg);
-        isPlaying = true;
-    }
-
-    @FXML
-    /**
-     * Pause the Media
-     */
-    private void mpPause(){
-        // Pause the mediaPlayer
-        mp.pause();
-        if (imgPause.getOpacity()==0 && imgPlay.getOpacity()==0){
-            animation.fadeOut(imgPause,0.5);
-        }
-        setButtonUIImage(playPauseBut, playImg);
-        isPlaying = false;
-    }
-
-    @FXML
-    /**
-     * Handler for the play and pause button
-     */
-    private void buttonPlayPause() {
-        if (!isPlaying)
-            mpPlay();
-        else
-            mpPause();
-    }
-
-    @FXML
-    /**
-     * Handler for the stop button
-     */
-    private void buttonStop()
-    {
-        if (mp != null){
-            // Stop the mediaPlayer
-            mp.stop();
-            setButtonUIImage(playPauseBut, playImg);
-            isPlaying = false;
-        }
-    }
-
-    @FXML
-    /**
-     * Handler for the mute button
-     */
-    private void mute()
-    {
-        if (mp.getVolume()==0){
-            //Set the volume to the sliders value
-            sliderVolume();
-        } else {
-            //Mute the sound
-            mp.setVolume(0);
-        }
-    }
-
-    /**
-     * Handler for the Time slider
-     */
-    @FXML
-    private void sliderTimeDragging()
-    {
-        // Skip forwards and backwards in the media via the slider
-        mp.setStartTime(Duration.seconds(sliderTime.getValue()));
-
-        //Update the time
-        //timeChangeShow();
-    }
-
-    private void timeChangeShow(){
-        //The time
-    }
-
-    /**
-     * void for the Time sliders scaling
-     */
-    private void sliderTimeScaling()
-    {
-        //Slider scaling
-        sliderTime.setMax(Double.parseDouble(MediaPlayerInfo.getDuration(mp)));
-    }
-
-    /**
-     * Handler for the sound slider
-     */
-    @FXML
-    private void sliderVolume()
-    {
-        // Skip forwards and backwards in the media via the slider
-        mp.setVolume(Math.pow(sliderVolume.getValue()/100,2));
-    }
-
-    enum nextMedia {
-        previous,
-        next;
-    }
-    /*
-    private void getURLFromPlaylist(nextMedia p){
-        if (playlist.getPlaylistSize()>0) {
-            //Creates a new mediaplayer with the next media to play
-            if (p.equals(nextMedia.next)){
-                createMediaPlayer(playlist.getNextUrlFromPlaylist());
-            } else {
-                createMediaPlayer(playlist.getPreviousFromPlaylist());
-            }
-
-            //Plays the new media
-            mpPlay();
-        }
-    }
-    */
-    private MediaPlayer createMediaPlayer(String URL){
-
-        // Stops the current media if there is some playing
-        buttonStop();
-
-        me = new Media(new File(URL).toURI().toString());
-        mp = new MediaPlayer(me);
-
-        // Resize window and set minimum window size when media has loaded
-        Runnable sizeToSceneRun = () -> MainApplication.sizeToScene();
-        mp.setOnReady(sizeToSceneRun);
-
-        // Resize the slider
-        Runnable sliderResize = () -> sliderTimeScaling();
-        mp.setOnReady(sliderResize);
-
-        // While playing this changes the UI live
-        Runnable timeSliderUpdater = () -> sliderTimeDragging();
-        mp.setOnPlaying(timeSliderUpdater);
-
-        // Set the volume to the same as last media
-        sliderVolume();
-
-        // Change isPlaying state when mp starts playing
-        mp.setOnPlaying(new Runnable() {
-            @Override
-            public void run() {
-                isPlaying = true;
-            }
-        });
-
-        // Change isPlaying state on pause or stop
-        mp.setOnPaused(new Runnable() {
-            @Override
-            public void run() {
-                isPlaying = false;
-            }
-        });
-        mp.setOnStopped(new Runnable() {
-            @Override
-            public void run() {
-                isPlaying = false;
-            }
-        });
-
-        // Set the media player to be the one in the mediaview
-        mediaView.setMediaPlayer(mp);
-        mp.setAutoPlay(false);
-
-        return mp;
-    }
-
-    /**
-     * Toggles light/dark mode
-     */
-    @FXML
-    public void toggleDarkMode() {
-        if (darkmode.isSelected()) {
-            // Main theme
-            rootVBox.setStyle("-fx-base:black");
-            // Buttons
-            playPauseBut.setStyle("-fx-base:darkgrey");
-            stopBut.setStyle("-fx-base:darkgrey");
-            skipForwardBut.setStyle("-fx-base:darkgrey");
-            skipBackwardBut.setStyle("-fx-base:darkgrey");
-            loopButton.setStyle("-fx-base:darkgrey");
-            shuffleButton.setStyle("-fx-base:darkgrey");
-        }
-        else {
-            // Main theme
-            rootVBox.setStyle("");
-            // Buttons
-            playPauseBut.setStyle("");
-            stopBut.setStyle("");
-            skipForwardBut.setStyle("");
-            skipBackwardBut.setStyle("");
-            loopButton.setStyle("");
-            shuffleButton.setStyle("");
-        }
-    }
-
-    /**
-     * Minimize window
-     */
-     @FXML
-     public void minimize() {
-        Stage stage = (Stage) rootVBox.getScene().getWindow();
-        stage.setIconified(true);
-     }
-
-    /**
-     * Maximize window
-     */
-    @FXML
-    public void maximize() {
-        Stage stage = (Stage) rootVBox.getScene().getWindow();
-        stage.setMaximized(!stage.isMaximized());
-    }
-
-    /**
-     * Allows the user to drag movie by menu bar
-     */
-    @FXML
-    private void drag(MouseEvent event) {
-        Stage stage = (Stage) rootVBox.getScene().getWindow();
-        stage.setY(event.getScreenY() - yOffset);
-        stage.setX(event.getScreenX() - xOffset);
-    }
-
-    /**
-     * Allows the user to drag movie by menu bar
-     */
-    @FXML
-    private void presDrag(MouseEvent event) {
-        xOffset = event.getSceneX();
-        yOffset = event.getSceneY();
-    }
-
-    @FXML
-    public void about() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("About");
-        alert.setHeaderText(null);
-        alert.setContentText("Version: 0.5 \n\nSupported files: mp3, mp4 \n\nAuthors: Group 4\nBug report: someone@mail.com");
-        // Add custom graphics to dialog box
-        alert.setGraphic(new ImageView(Objects.requireNonNull(this.getClass().getResource("awesomeicon.png")).toString()));
-
-        // Set to dark mord if activated
-        if (darkmode.isSelected()) {
-            alert.getDialogPane().setStyle("-fx-background-color: darkgrey");
-        }
-
-        // Get the Stage
-        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-
-        // Add a custom icon
-        stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("awesomeicon.png")).toString()));
-
-        alert.showAndWait();
-    }
-
-
-    /**
-     * Allows the user to exit the application after confirming an alert
-     */
-    @FXML
-    public void exit() {
-        // Values for alert box
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirm Exist");
-        alert.setHeaderText(null);
-        alert.setContentText("Are you sure you want to exit?");
-
-        // Get the Stage
-        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
-
-        // Add a custom icon
-        stage.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResource("awesomeicon.png")).toString()));
-
-        // Set to dark mord if activated
-        if (darkmode.isSelected()) {
-            alert.getDialogPane().setStyle("-fx-background-color: darkgrey");
-        }
-
-        // Get result
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK){
-            // ... user chose OK
-            System.exit(0);
-        } else {
-            // ... user chose CANCEL or closed the dialog
-        }
-    }
-
-    /**
-     * Get the name of the host PC
-     * @return host name
-     */
-    private String getComputerName() {
-        Map<String, String> env = System.getenv();
-        if (env.containsKey("COMPUTERNAME"))
-            return env.get("COMPUTERNAME");
-        else if (env.containsKey("HOSTNAME"))
-            return env.get("HOSTNAME");
-        else
-            return "Unknown Computer";
-    }
-}
+} // End of class
