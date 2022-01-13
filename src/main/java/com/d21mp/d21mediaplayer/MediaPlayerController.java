@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
@@ -67,6 +68,8 @@ public class MediaPlayerController implements Initializable {
 
      // This is used for handling the animations
     AnimationHandler animation = new AnimationHandler();
+    //This is used for handling the yt-search and results
+    YoutubeHandler yt = new YoutubeHandler();
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // Hide Search/Playlist view
@@ -566,6 +569,30 @@ public class MediaPlayerController implements Initializable {
         }
     }
 
+    @FXML
+    /**
+     * Handler for the skipback button
+     */
+    private void buttonSkipBack()
+    {
+        if(playlist.getPlaylistSize()>0) {
+			// Play the next media in mediaPlayer
+			getURLFromPlaylist(nextMedia.previous);
+		}
+    }
+
+    @FXML
+    /**
+     * Handler for the skipforward button
+     */
+    private void buttonSkipForward() {
+
+        if(playlist.getPlaylistSize()>0) {
+			// Play the next media in mediaPlayer
+			getURLFromPlaylist(nextMedia.next);
+		}
+
+    }
 
     @FXML
     /**
@@ -615,9 +642,27 @@ public class MediaPlayerController implements Initializable {
     private void sliderVolume()
     {
         // Skip forwards and backwards in the media via the slider
-        mp.setVolume(sliderVolume.getValue()/100);
+        mp.setVolume(Math.pow(sliderVolume.getValue()/100,2));
     }
 
+    enum nextMedia {
+        previous,
+        next;
+    }
+
+    private void getURLFromPlaylist(nextMedia p){
+        if (playlist.getPlaylistSize()>0) {
+            //Creates a new mediaplayer with the next media to play
+            if (p.equals(nextMedia.next)){
+                createMediaPlayer(playlist.getNextUrlFromPlaylist());
+            } else {
+                createMediaPlayer(playlist.getPreviousFromPlaylist());
+            }
+
+            //Plays the new media
+            mpPlay();
+        }
+    }
 
     private MediaPlayer createMediaPlayer(String URL){
 
