@@ -44,9 +44,11 @@ public class MediaPlayerController implements Initializable {
     @FXML
     RadioMenuItem darkmode;
     @FXML
-    private ListView<String> listview;
+    private ListView<String> playlistListView, searchListView;
 	@FXML
     private ImageView imgPlay,imgPause;
+    @FXML
+    private CheckBox doYoutubeSearch;
     // endregion
 
     // region [Class variables]
@@ -258,14 +260,14 @@ public class MediaPlayerController implements Initializable {
         PlaylistHandler playlistShuffler = new PlaylistHandler();
         List<String> items = new ArrayList<>(playlistShuffler.loadPlaylistFromDB(getComputerName(), chosenPlaylist));
         Collections.shuffle(items);
-        listview.getItems().setAll(items);
+        playlistListView.getItems().setAll(items);
     }
 
     public void animationForLater() {
         Timeline animation = new Timeline(
-                new KeyFrame(Duration.millis(500), e -> listview.getSelectionModel().selectNext()));
-        listview.getSelectionModel().select(0);
-        animation.setCycleCount(listview.getItems().size()-1);
+                new KeyFrame(Duration.millis(500), e -> playlistListView.getSelectionModel().selectNext()));
+        playlistListView.getSelectionModel().select(0);
+        animation.setCycleCount(playlistListView.getItems().size()-1);
         animation.play();
     } //TODO IM ON IT //NIKOLAI
 
@@ -510,6 +512,47 @@ public class MediaPlayerController implements Initializable {
 
     // endregion
 
+    //region [Search methods]
+
+    /**
+     * Called when performing a search from the search view
+     */
+    @FXML
+    public void search() {
+
+        // Make sure we have something to search for
+        if(!searchField.getText().isEmpty()) {
+            // Search DB
+            if(!doYoutubeSearch.isSelected()) {
+                ArrayList<String> result = searchCreatorOrTitle(searchField.getText());
+                searchListView.setItems(FXCollections.observableArrayList(result));
+            }
+            else { // Search YouTube
+
+            }
+        }
+    }
+
+    /**
+     * Search Media table in Media Player DB by keyword found in a text field
+     * @return All found results an Arraylist
+     */
+    public ArrayList<String> searchCreatorOrTitle(String searchString) {
+        DB.selectSQL("SELECT URL FROM Media WHERE Creator LIKE '%" + searchString + "%' OR Title LIKE '%" + searchString +"%'");
+        ArrayList<String> collected = new ArrayList();
+        do {
+            String result = DB.getData();
+            if (result.equals(DB.NOMOREDATA)) {
+                break;
+            }
+            else {
+                collected.add(result);
+            }
+        } while (true);
+        return collected;
+    }
+    //endregion
+
     // region [Playlist methods]
     /**
      * Creates a new playlist and adds to database
@@ -552,7 +595,7 @@ public class MediaPlayerController implements Initializable {
         result.ifPresent(s -> playlistCreator.createPlaylist(getComputerName(), s));
 
         // Refresh listview
-        result.ifPresent(s -> listview.setItems((FXCollections.observableArrayList(playlistCreator.loadPlaylistFromDB(getComputerName(), s)))));
+        result.ifPresent(s -> playlistListView.setItems((FXCollections.observableArrayList(playlistCreator.loadPlaylistFromDB(getComputerName(), s)))));
 
         // Show Search and Playlist to the right
         if(!showSearchPlaylistView) {
@@ -604,7 +647,7 @@ public class MediaPlayerController implements Initializable {
         currentPlaylist.setText(chosenPlaylist);
 
         // Refresh listview
-        result.ifPresent(s -> listview.setItems((FXCollections.observableArrayList(playlistOpener.loadPlaylistFromDB(getComputerName(), s)))));
+        result.ifPresent(s -> playlistListView.setItems((FXCollections.observableArrayList(playlistOpener.loadPlaylistFromDB(getComputerName(), s)))));
 
         // Show Search and Playlist to the right
         if(!showSearchPlaylistView) {
@@ -664,12 +707,12 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     public void playSongFromPlaylist(MouseEvent event) {
-        listview.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        playlistListView.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent click) {
                 if (click.getClickCount() == 2) {
                     // Use ListView's getSelected Item
-                    String listviewItem = (String) listview.getSelectionModel().getSelectedItem();
+                    String listviewItem = (String) playlistListView.getSelectionModel().getSelectedItem();
 
                     // Play media!
                     mediaSelection(listviewItem);
@@ -716,7 +759,7 @@ public class MediaPlayerController implements Initializable {
         // Add to database in table PlaylistCollection
         playlistAdd.addMediaToPlaylist(getComputerName(), chosenPlaylist, mediaTitle, pathToSelectedFile);
         // Refresh listview
-        listview.setItems((FXCollections.observableArrayList(playlistAdd.loadPlaylistFromDB(getComputerName(), chosenPlaylist))));
+        playlistListView.setItems((FXCollections.observableArrayList(playlistAdd.loadPlaylistFromDB(getComputerName(), chosenPlaylist))));
     }
 
     /**
@@ -728,10 +771,10 @@ public class MediaPlayerController implements Initializable {
         PlaylistHandler playlistHandler = new PlaylistHandler();
 
         // Delete media from database and thus listview
-        playlistHandler.deleteMediaFromPlaylist(getComputerName(), chosenPlaylist, (String) listview.getSelectionModel().getSelectedItem());
+        playlistHandler.deleteMediaFromPlaylist(getComputerName(), chosenPlaylist, (String) playlistListView.getSelectionModel().getSelectedItem());
 
         // Refresh listview
-        listview.setItems((FXCollections.observableArrayList(playlistHandler.loadPlaylistFromDB(getComputerName(), chosenPlaylist))));
+        playlistListView.setItems((FXCollections.observableArrayList(playlistHandler.loadPlaylistFromDB(getComputerName(), chosenPlaylist))));
     }
 
     /**
@@ -740,12 +783,12 @@ public class MediaPlayerController implements Initializable {
     @FXML
     public void playNext() {
         // Current listview item
-        String listviewItem = (String) listview.getSelectionModel().getSelectedItem();
+        String listviewItem = (String) playlistListView.getSelectionModel().getSelectedItem();
         // Select next item in listview
-        listview.getSelectionModel().selectNext();
+        playlistListView.getSelectionModel().selectNext();
 
         // Cast this item to a string to fetch title
-        String nextListviewItem = (String) listview.getSelectionModel().getSelectedItem();
+        String nextListviewItem = (String) playlistListView.getSelectionModel().getSelectedItem();
 
         // Play media!
         mediaSelection(nextListviewItem);
@@ -758,10 +801,10 @@ public class MediaPlayerController implements Initializable {
     public void playPrevious() {
 
         // Select next item in listview
-        listview.getSelectionModel().selectPrevious();
+        playlistListView.getSelectionModel().selectPrevious();
 
         // Cast this item to a string to fetch title
-        String listviewItem = listview.getSelectionModel().getSelectedItem();
+        String listviewItem = playlistListView.getSelectionModel().getSelectedItem();
 
         // Play media!
         mediaSelection(listviewItem);
@@ -794,25 +837,6 @@ public class MediaPlayerController implements Initializable {
     @FXML
     public void loop() {
     // TODO BY NIKOLAI
-    }
-
-    /**
-     * Search Media table in Media Player DB by keyword found in a text field
-     * @return All found results an Arraylist
-     */
-    public ArrayList<String> searchFunction() {
-        DB.selectSQL("SELECT URL FROM Media WHERE Creator LIKE '%" + this.searchField.getText() + "%' OR Title LIKE '%" + this.searchField.getText() +"%'");
-        ArrayList<String> collected = new ArrayList();
-        do {
-            String result = DB.getData();
-            if (result.equals(DB.NOMOREDATA)) {
-                break;
-            }
-            else {
-                collected.add(result);
-            }
-        } while (true);
-        return collected;
     }
 
     /**
