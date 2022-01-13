@@ -41,7 +41,7 @@ public class AnimationHandler {
      */
     public void labelAnimation(Label lbl, double duration) {
 
-        KeyFrame kfP = new KeyFrame(Duration.seconds(duration), new KeyValue(lbl.textFillProperty(), Color.GREY));
+        KeyFrame kfP = new KeyFrame(Duration.seconds(2), new KeyValue(currentPlaylist.textFillProperty(), Color.GREY));
         Timeline TIMER = new Timeline();
         TIMER.getKeyFrames().add(kfP);
         TIMER.setCycleCount(Animation.INDEFINITE);
