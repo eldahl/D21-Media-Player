@@ -1,6 +1,8 @@
 package com.d21mp.d21mediaplayer;
 
 import javafx.animation.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -40,7 +42,7 @@ public class MediaPlayerController implements Initializable {
     private Button playPauseBut, stopBut, skipForwardBut, skipBackwardBut, addToPlaylist, removeFromPlaylist,
             shuffleButton, loopButton, muteButton, minimizeButton, maximizeButton, exitButton;
     @FXML
-    private Slider sliderTime, sliderVolume;
+    private Slider progressSlider, sliderVolume;
     @FXML
     RadioMenuItem darkmode;
     @FXML
@@ -346,16 +348,30 @@ public class MediaPlayerController implements Initializable {
         Runnable sizeToSceneRun = MainApplication::sizeToScene;
         mp.setOnReady(sizeToSceneRun);
 
+        // Seems to be unneeded, deprecated - Esben
         // Resize the slider
-        Runnable sliderResize = this::sliderTimeScaling;
-        mp.setOnReady(sliderResize);
-
+        //Runnable sliderResize = this::sliderTimeScaling;
+        //mp.setOnReady(sliderResize);
         // While playing this changes the UI live
-        Runnable timeSliderUpdater = this::sliderTimeDragging;
-        mp.setOnPlaying(timeSliderUpdater);
+        //Runnable timeSliderUpdater = this::sliderTimeDragging;
+        //mp.setOnPlaying(timeSliderUpdater);
 
         // Set the volume to the same as last media
         sliderVolume();
+
+        mp.setOnReady(new Runnable() {
+            @Override
+            public void run() {
+                progressSlider.setMax(me.getDuration().toSeconds());
+                System.out.println("set progress slider max: " + me.getDuration().toSeconds());
+                mp.currentTimeProperty().addListener(new ChangeListener<Duration>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Duration> observableValue, Duration oldValue, Duration newValue) {
+                        progressSlider.setValue(newValue.toSeconds());
+                    }
+                });
+            }
+        });
 
         // Change isPlaying state when mp starts playing
         mp.setOnPlaying(new Runnable() {
@@ -444,10 +460,13 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     private void buttonPlayPause() {
-        if (!isPlaying)
-            mpPlay();
-        else
-            mpPause();
+        // Make sure we don't get an exception when trying to play/pause
+        if(mp != null) {
+            if (!isPlaying)
+                mpPlay();
+            else
+                mpPause();
+        }
     }
 
     /**
@@ -478,27 +497,11 @@ public class MediaPlayerController implements Initializable {
     }
 
     /**
-     * Handler for the Time slider
+     *  Seeks to the point in the video supplied by the progress slider
      */
     @FXML
-    private void sliderTimeDragging() {
-        // Skip forwards and backwards in the media via the slider
-        mp.setStartTime(Duration.seconds(sliderTime.getValue()));
-
-        //Update the time
-        //timeChangeShow();
-    }
-
-    private void timeChangeShow(){
-        //The time
-    } //TODO WHAT IS THIS?? //NIKOLAI
-
-    /**
-     * void for the Time sliders scaling
-     */
-    private void sliderTimeScaling() {
-        //Slider scaling
-        sliderTime.setMax(Double.parseDouble(MediaPlayerInfo.getDuration(mp)));
+    public void sliderSeek() {
+        mp.seek(Duration.seconds(progressSlider.valueProperty().doubleValue()));
     }
 
     /**
@@ -525,6 +528,12 @@ public class MediaPlayerController implements Initializable {
             // Search DB
             if(!doYoutubeSearch.isSelected()) {
                 ArrayList<String> result = searchCreatorOrTitle(searchField.getText());
+                ListIterator<String> i = result.listIterator();
+                while(i.hasNext()) {
+                    String next = i.next();
+                    List<String> path = Arrays.asList(next.split("\\\\"));
+                    i.set(path.get(path.size()-1).split("\\.")[0]);
+                }
                 searchListView.setItems(FXCollections.observableArrayList(result));
             }
             else { // Search YouTube
@@ -538,7 +547,7 @@ public class MediaPlayerController implements Initializable {
      * @return All found results an Arraylist
      */
     public ArrayList<String> searchCreatorOrTitle(String searchString) {
-        DB.selectSQL("SELECT URL FROM Media WHERE Creator LIKE '%" + searchString + "%' OR Title LIKE '%" + searchString +"%'");
+        DB.selectSQL("SELECT URL FROM Media WHERE Creator LIKE '%" + searchString + "%' OR Title LIKE '%" + searchString +"%' AND HostName = '" + getComputerName() + "' AND HostName IS NOT NULL");
         ArrayList<String> collected = new ArrayList();
         do {
             String result = DB.getData();
