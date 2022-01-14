@@ -69,15 +69,15 @@ public class PlaylistHandler {
     /**
      * If not exist, add media to media
      */
-    public void ifNotExistAddToMediaTable(String HostName, String Title, String URL) {
-        DB.insertSQL("INSERT INTO Media (HostName, Title, URL) SELECT '" + HostName  + "','" + Title + "','" + URL + "' WHERE NOT EXISTS (SELECT HostName, Title, URL FROM Media WHERE HostName = '" + HostName + "' AND Title = '" + Title + "' AND URL = '" + URL + "');");
+    public void ifNotExistAddToMediaTable(String HostName, String Title, String URI) {
+        DB.insertSQL("INSERT INTO Media (HostName, Title, URI) SELECT '" + HostName  + "','" + Title + "','" + URI + "' WHERE NOT EXISTS (SELECT HostName, Title, URI FROM Media WHERE HostName = '" + HostName + "' AND Title = '" + Title + "' AND URI = '" + URI + "');");
     }
 
     /**
      * Adds a media to this playlist
      */
-    public void addMediaToPlaylist(String HostName, String PlaylistName, String Title, String URL) {
-        DB.insertSQL("INSERT INTO PlaylistCollection (HostName, PlaylistName, Title, URL) VALUES ('" + HostName + "','" + PlaylistName + "','" +  Title + "','" + URL + "' );");
+    public void addMediaToPlaylist(String HostName, String PlaylistName, String Title, String URI) {
+        DB.insertSQL("INSERT INTO PlaylistCollection (HostName, PlaylistName, Title, URI) VALUES ('" + HostName + "','" + PlaylistName + "','" +  Title + "','" + URI + "' );");
     }
 
     /**

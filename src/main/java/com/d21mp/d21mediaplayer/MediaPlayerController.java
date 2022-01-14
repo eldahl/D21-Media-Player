@@ -11,6 +11,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
+import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -24,6 +25,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
@@ -65,7 +67,7 @@ public class MediaPlayerController implements Initializable {
     // To log current playlist at all time
     private String chosenPlaylist = "";
     // For icons
-    private Image playImg, pauseImg, stopImg, skipForwardImg, skipBackwardImg, addButton, removeButton, shuffleImg, loopImg, muteImg;
+    private Image playImg, pauseImg, stopImg, skipForwardImg, skipBackwardImg, addButton, removeButton, shuffleImg, loopImg, muteImg, unmuteImg;
     // Whether the search / playlist view is displayed in the UI with showing as default
     private boolean showSearchPlaylistView = true;
     // Whether media is currently playing
@@ -103,6 +105,7 @@ public class MediaPlayerController implements Initializable {
         shuffleImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/shuffle.png").toURI().toString());
         loopImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/loop.png").toURI().toString());
         muteImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/mute.png").toURI().toString());
+        unmuteImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/unmute.png").toURI().toString());
 
         // Check for successful loading of images and add to buttons
         if (playImg != null && pauseImg != null && stopImg != null && skipForwardImg != null &&
@@ -323,7 +326,7 @@ public class MediaPlayerController implements Initializable {
      */
     public void mediaSelection(String title) {
         String path = "";
-        DB.selectSQL("SELECT URL FROM Media WHERE Title = '" + title + "'");
+        DB.selectSQL("SELECT URI FROM Media WHERE Title = '" + title + "'");
         do {
             String data = DB.getData();
             if (data.equals(DB.NOMOREDATA)) {
@@ -344,12 +347,12 @@ public class MediaPlayerController implements Initializable {
     /**
      * Create the mediaplayer with its attributes
      */
-    private void createMediaPlayer(String URL) {
+    private void createMediaPlayer(String URI) {
 
         // Stops the current media if there is some playing
         buttonStop();
 
-        me = new Media(new File(URL).toURI().toString());
+        me = new Media(new File(URI).toURI().toString());
         mp = new MediaPlayer(me);
 
         // Resize window and set minimum window size when media has loaded
@@ -371,7 +374,6 @@ public class MediaPlayerController implements Initializable {
             @Override
             public void run() {
                 progressSlider.setMax(me.getDuration().toSeconds());
-                System.out.println("set progress slider max: " + me.getDuration().toSeconds());
                 mp.currentTimeProperty().addListener(new ChangeListener<Duration>() {
                     @Override
                     public void changed(ObservableValue<? extends Duration> observableValue, Duration oldValue, Duration newValue) {
@@ -418,7 +420,7 @@ public class MediaPlayerController implements Initializable {
         // Open classic file explorer window
         File selectedFile = fileChooser.showOpenDialog(null);
 
-        // Get URL for file
+        // Get URI for file
         String pathToSelectedFile = selectedFile.getAbsolutePath();
 
         // Separate path by "\" to get filename
@@ -441,10 +443,6 @@ public class MediaPlayerController implements Initializable {
     private void mpPlay() {
         // Play the mediaPlayer with the attached media
         mp.play();
-        if (imgPause.getOpacity()==0 && imgPlay.getOpacity()==0){
-            animation.fadeOut(imgPlay,0.5);
-        }
-
         setButtonUIImage(playPauseBut, pauseImg);
         isPlaying = true;
     }
@@ -456,11 +454,28 @@ public class MediaPlayerController implements Initializable {
     private void mpPause(){
         // Pause the mediaPlayer
         mp.pause();
-        if (imgPause.getOpacity()==0 && imgPlay.getOpacity()==0){
-            animation.fadeOut(imgPause,0.5);
-        }
         setButtonUIImage(playPauseBut, playImg);
         isPlaying = false;
+    }
+
+    /**
+     * Animation for play/pause when pressing anywhere in media view
+     */
+    @FXML
+    private void playPauseOverlayAnimation() {
+        if (!isPlaying) {
+            mp.play();
+            if (imgPause.getOpacity() == 0 && imgPlay.getOpacity() == 0) {
+                animation.fadeOut(imgPlay, 0.5);
+                setButtonUIImage(playPauseBut, pauseImg);
+            }
+        } else {
+            mp.pause();
+            if (imgPause.getOpacity() == 0 && imgPlay.getOpacity() == 0) {
+                animation.fadeOut(imgPause, 0.5);
+                setButtonUIImage(playPauseBut, playImg);
+            }
+        }
     }
 
     /**
@@ -498,9 +513,11 @@ public class MediaPlayerController implements Initializable {
         if (mp.getVolume()==0){
             //Set the volume to the sliders value
             sliderVolume();
+            setButtonUIImage(muteButton, muteImg);
         } else {
             //Mute the sound
             mp.setVolume(0);
+            setButtonUIImage(muteButton, unmuteImg);
         }
     }
 
@@ -529,23 +546,24 @@ public class MediaPlayerController implements Initializable {
      * Called when performing a search from the search view
      */
     @FXML
-    public void search() {
+    public void search() throws IOException {
 
         // Make sure we have something to search for
         if(!searchField.getText().isEmpty()) {
             // Search DB
-            if(!doYoutubeSearch.isSelected()) {
+            if (!doYoutubeSearch.isSelected()) {
                 ArrayList<String> result = searchCreatorOrTitle(searchField.getText());
                 ListIterator<String> i = result.listIterator();
-                while(i.hasNext()) {
+                while (i.hasNext()) {
                     String next = i.next();
                     List<String> path = Arrays.asList(next.split("\\\\"));
-                    i.set(path.get(path.size()-1).split("\\.")[0]);
+                    i.set(path.get(path.size() - 1).split("\\.")[0]);
                 }
                 searchListView.setItems(FXCollections.observableArrayList(result));
-            }
-            else { // Search YouTube
-
+            } else { // Search YouTube and download the title of the amount of video results
+                ArrayList<String> ytResult = yt.searchYoutube(searchField.getText(), 10);
+                // Shows the search results in the listview
+                searchListView.setItems(FXCollections.observableArrayList(ytResult));
             }
         }
     }
@@ -555,7 +573,7 @@ public class MediaPlayerController implements Initializable {
      * @return All found results an Arraylist
      */
     public ArrayList<String> searchCreatorOrTitle(String searchString) {
-        DB.selectSQL("SELECT URL FROM Media WHERE Creator LIKE '%" + searchString + "%' OR Title LIKE '%" + searchString +"%' AND HostName = '" + getComputerName() + "' AND HostName IS NOT NULL");
+        DB.selectSQL("SELECT URI FROM Media WHERE Creator LIKE '%" + searchString + "%' OR Title LIKE '%" + searchString +"%' AND HostName = '" + getComputerName() + "' AND HostName IS NOT NULL");
         ArrayList<String> collected = new ArrayList();
         do {
             String result = DB.getData();
@@ -758,6 +776,56 @@ public class MediaPlayerController implements Initializable {
     }
 
     /**
+     * Allows the user to play media from listview by using a double click
+     */
+    @FXML
+    public void getItemFromSearchList(MouseEvent event) {
+        searchListView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent click) {
+                System.out.println("IT WORKS");
+
+                if (click.getClickCount() == 2) {
+                    // Use ListView's getSelected Item
+
+                    if (!doYoutubeSearch.isSelected()) {
+                        String listviewItem = (String) searchListView.getSelectionModel().getSelectedItem();
+                        System.out.println(listviewItem);
+                        // Play media!
+                        mediaSelection(listviewItem);
+                    }
+                    else {
+                        YoutubeHandler youtubeHandler = new YoutubeHandler();
+                        String listviewItem = (String) searchListView.getSelectionModel().getSelectedItem();
+                        youtubeHandler.downloadVideo(listviewItem);
+                        mediaSelection(listviewItem);
+                    }
+
+
+                    // When ended, autoplay next media
+                    mp.setOnEndOfMedia(new Runnable() {
+                        @Override
+                        public void run() {
+                            mp.seek(Duration.ZERO);
+
+                            // Loop media if button is activated
+                            if (loopMedia) {
+                                mp.play();
+                            }
+                            // Loop playlist if button is activated
+                            // TODO NIKOLAI
+                            // Go to next media
+                            else {
+                                playNext();
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    /**
      * Add media to a playlist and refresh listview
      */
     @FXML
@@ -769,7 +837,7 @@ public class MediaPlayerController implements Initializable {
         // Values for fileChooser
         File selectedFile = fileChooser.showOpenDialog(null);
 
-        // Get URL to file
+        // Get URI to file
         String pathToSelectedFile = selectedFile.getAbsolutePath();
 
         // Separate path by "\" to get filename
@@ -865,10 +933,10 @@ public class MediaPlayerController implements Initializable {
     public void loop() {
         if (!loopMedia) {
             loopMedia = true;
-            setButtonUIImage(loopButton, muteImg);
+            loopButton.setStyle("-fx-border-color: pink");
         } else {
             loopMedia = false;
-            setButtonUIImage(loopButton, loopImg);
+            loopButton.setStyle("-fx-border-color: transparent");
         }
     }
 
@@ -877,27 +945,6 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     private void loopPlaylist() {
-
-    /**
-     * Loop playlist if button is activated
-     */
-    @FXML
-    public void loop() {
-    // TODO BY NIKOLAI
-    }
-
-    /**
-     * Add search results to upper listview
-     */
-    public void addSearchResult() {
-        // add button
-        // add label
-    }
-
-    /**
-     * Clear search results from upper listview
-     */
-    public void clearSearchResults() {
 
     }
 
