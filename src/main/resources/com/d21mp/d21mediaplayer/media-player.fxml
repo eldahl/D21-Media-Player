@@ -112,7 +112,7 @@
                         </StackPane>
                      </children>
                   </VBox>
-                  <Slider fx:id="sliderTime" majorTickUnit="10.0" minorTickCount="10" onMouseDragged="#sliderTimeDragging" onMousePressed="#mpPause" onMouseReleased="#mpPlay" snapToTicks="true" />
+                  <Slider fx:id="progressSlider" majorTickUnit="10.0" minorTickCount="10" onMouseDragged="#sliderSeek" onMousePressed="#sliderSeek" snapToTicks="true" />
                   <HBox alignment="CENTER_LEFT">
                      <children>
                         <Button fx:id="playPauseBut" mnemonicParsing="false" onAction="#buttonPlayPause" style="-fx-background-radius: 0;">
@@ -186,7 +186,7 @@
                <children>
                   <HBox maxHeight="25.0" VBox.vgrow="SOMETIMES">
                      <children>
-                        <TextField fx:id="searchField" focusTraversable="false" prefHeight="26.0" prefWidth="249.0" promptText="Search" style="-fx-background-radius: 0;" HBox.hgrow="SOMETIMES" />
+                        <TextField fx:id="searchField" focusTraversable="false" onAction="#search" prefHeight="26.0" prefWidth="249.0" promptText="Search" style="-fx-background-radius: 0;" HBox.hgrow="SOMETIMES" />
                         <CheckBox fx:id="doYoutubeSearch" minHeight="25.333333332" mnemonicParsing="false" text="YouTube">
                            <HBox.margin>
                               <Insets left="4.0" right="4.0" />
