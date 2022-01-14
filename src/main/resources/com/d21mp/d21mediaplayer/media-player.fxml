@@ -28,7 +28,7 @@
             <Insets />
          </VBox.margin>
          <children>
-            <MenuBar fx:id="menuBar" prefHeight="26.0" style="-fx-background-radius: 0;">
+            <MenuBar fx:id="menubarLeft" prefHeight="26.0" style="-fx-background-radius: 0; -fx-border-width: 1; -fx-padding: 0; -fx-shape: M15.699,23.746,18.019,23.746,18.019,26.169,15.699,26.169; -fx-border-color: pink;">
               <menus>
                 <Menu mnemonicParsing="false" text="File">
                   <items>
@@ -59,7 +59,7 @@
                   <Cursor fx:constant="DEFAULT" />
                </cursor>
             </MenuBar>
-            <MenuBar onMouseDragged="#drag" onMousePressed="#presDrag" prefHeight="26.0" style="-fx-background-radius: 0;" HBox.hgrow="SOMETIMES">
+            <MenuBar fx:id="menubarRight" onMouseDragged="#drag" onMousePressed="#presDrag" prefHeight="26.0" style="-fx-background-radius: 0; -fx-border-radius: 0; -fx-padding: 0; -fx-shape: M15.699,23.746,18.019,23.746,18.019,26.169,15.699,26.169;" HBox.hgrow="SOMETIMES">
                <cursor>
                   <Cursor fx:constant="MOVE" />
                </cursor>
@@ -67,20 +67,29 @@
                   <Insets left="-16.0" />
                </HBox.margin>
             </MenuBar>
-            <Button fx:id="minimizeButton" focusTraversable="false" mnemonicParsing="false" onAction="#minimize" prefHeight="28.0" prefWidth="28.0" text="-">
+            <Button fx:id="minimizeButton" alignment="TOP_CENTER" focusTraversable="false" mnemonicParsing="false" onAction="#minimize" prefHeight="28.0" prefWidth="28.0" style="-fx-shape: M15.699,23.746,18.019,23.746,18.019,26.169,15.699,26.169;" text="─">
                <HBox.margin>
                   <Insets top="-2.0" />
                </HBox.margin>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
             </Button>
-            <Button fx:id="maximizeButton" focusTraversable="false" mnemonicParsing="false" onAction="#maximize" prefHeight="28.0" prefWidth="28.0" text="■">
+            <Button fx:id="maximizeButton" focusTraversable="false" mnemonicParsing="false" onAction="#maximize" prefHeight="28.0" prefWidth="28.0" style="-fx-shape: M15.699,23.746,18.019,23.746,18.019,26.169,15.699,26.169;" text="■">
                <HBox.margin>
                   <Insets top="-2.0" />
                </HBox.margin>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
             </Button>
-            <Button fx:id="exitButton" focusTraversable="false" mnemonicParsing="false" onAction="#exit" prefHeight="28.0" prefWidth="28.0" text="X">
+            <Button fx:id="exitButton" focusTraversable="false" mnemonicParsing="false" onAction="#exit" prefHeight="28.0" prefWidth="28.0" style="-fx-shape: M15.699,23.746,18.019,23.746,18.019,26.169,15.699,26.169;" text="X">
                <HBox.margin>
                   <Insets right="-2.0" top="-2.0" />
                </HBox.margin>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
             </Button>
          </children>
       </HBox>
@@ -92,17 +101,17 @@
                      <children>
                         <StackPane prefHeight="150.0" prefWidth="200.0">
                            <children>
-                              <MediaView fx:id="mediaView" fitHeight="${mediaViewVBox.height}" fitWidth="${mediaViewVBox.width}" onMouseClicked="#buttonPlayPause">
+                              <MediaView fx:id="mediaView" fitHeight="${mediaViewVBox.height}" fitWidth="${mediaViewVBox.width}" onMouseClicked="#playPauseOverlayAnimation">
                                  <cursor>
                                     <Cursor fx:constant="DEFAULT" />
                                  </cursor>
                               </MediaView>
-                              <ImageView fx:id="imgPlay" fitHeight="150.0" fitWidth="200.0" opacity="0.0" pickOnBounds="true" preserveRatio="true">
+                              <ImageView fx:id="imgPlay" fitHeight="150.0" fitWidth="200.0" onMouseClicked="#playPauseOverlayAnimation" opacity="0.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
                                     <Image url="@play.png" />
                                  </image>
                               </ImageView>
-                              <ImageView fx:id="imgPause" fitHeight="150.0" fitWidth="200.0" opacity="0.0" pickOnBounds="true" preserveRatio="true">
+                              <ImageView fx:id="imgPause" fitHeight="150.0" fitWidth="200.0" onMouseClicked="#playPauseOverlayAnimation" opacity="0.0" pickOnBounds="true" preserveRatio="true">
                                  <image>
                                     <Image url="@pause.png" />
                                  </image>
@@ -149,7 +158,7 @@
                               <Cursor fx:constant="HAND" />
                            </cursor>
                         </Button>
-                        <Button fx:id="loopButton" mnemonicParsing="false" onAction="#loop" style="-fx-background-radius: 0;">
+                        <Button fx:id="loopButton" mnemonicParsing="false" onMouseClicked="#loop" style="-fx-background-radius: 0;">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor>
@@ -186,7 +195,7 @@
                   <HBox maxHeight="25.0" VBox.vgrow="SOMETIMES">
                      <children>
                         <TextField fx:id="searchField" focusTraversable="false" prefHeight="26.0" prefWidth="249.0" promptText="Search" style="-fx-background-radius: 0;" HBox.hgrow="SOMETIMES" />
-                        <Button mnemonicParsing="false" style="-fx-background-radius: 0;" text="Search">
+                        <Button fx:id="searchButton" mnemonicParsing="false" style="-fx-background-radius: 0;" text="Search">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></Button>
@@ -198,7 +207,7 @@
                            <content>
                               <VBox>
                                  <children>
-                                    <ListView prefHeight="120.0" prefWidth="200.0" VBox.vgrow="SOMETIMES" />
+                                    <ListView prefHeight="120.0" prefWidth="200.0" style="-fx-shape: M15.699,23.746,18.019,23.746,18.019,26.169,15.699,26.169;" VBox.vgrow="SOMETIMES" />
                                  </children>
                               </VBox>
                            </content>
@@ -207,11 +216,16 @@
                            <content>
                               <VBox>
                                  <children>
-                                    <ListView fx:id="listview" editable="true" onMouseClicked="#playSongFromPlaylist" prefHeight="200.0" prefWidth="249.0" VBox.vgrow="SOMETIMES" />
+                                    <ListView fx:id="listview" editable="true" onMouseClicked="#playSongFromPlaylist" prefHeight="200.0" prefWidth="249.0" style="-fx-shape: M15.699,23.746,18.019,23.746,18.019,26.169,15.699,26.169;" VBox.vgrow="SOMETIMES" />
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
-                                          <Button fx:id="addToPlaylist" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-color: lightgreen;" />
-                                          <Button fx:id="removeFromPlaylist" mnemonicParsing="false" onAction="#removeSongFromPlaylistViaButton" style="-fx-background-color: pink;" />
+                                          <Button fx:id="addToPlaylist" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-radius: 0;" />
+                                          <Button fx:id="removeFromPlaylist" mnemonicParsing="false" onAction="#removeSongFromPlaylistViaButton" style="-fx-background-radius: 0;" />
+                                          <Button fx:id="loopPlaylistButton" mnemonicParsing="false" onAction="#loopPlaylist" onMouseClicked="#loop" style="-fx-background-radius: 0;">
+                                             <cursor>
+                                                <Cursor fx:constant="HAND" />
+                                             </cursor>
+                                          </Button>
                                           <Label text=" Current playlist: " />
                                           <Label fx:id="currentPlaylist" />
                                        </children>

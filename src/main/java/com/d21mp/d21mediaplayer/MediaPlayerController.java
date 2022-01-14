@@ -35,18 +35,20 @@ public class MediaPlayerController implements Initializable {
     @FXML
     private TextField searchField;
     @FXML
+    private MenuBar menubarLeft, menubarRight;
+    @FXML
     private VBox rootVBox, searchPlaylistView, mediaViewVBox;
     @FXML
     private Button playPauseBut, stopBut, skipForwardBut, skipBackwardBut, addToPlaylist, removeFromPlaylist,
-            shuffleButton, loopButton, muteButton, minimizeButton, maximizeButton, exitButton;
+            shuffleButton, loopButton, muteButton, minimizeButton, maximizeButton, exitButton, loopPlaylistButton, searchButton;
     @FXML
     private Slider sliderTime, sliderVolume;
     @FXML
     RadioMenuItem darkmode;
     @FXML
     private ListView<String> listview;
-	@FXML
-    private ImageView imgPlay,imgPause;
+    @FXML
+    private ImageView imgPlay, imgPause;
     // endregion
 
     // region [Class variables]
@@ -64,6 +66,10 @@ public class MediaPlayerController implements Initializable {
     private boolean showSearchPlaylistView = true;
     // Whether media is currently playing
     private boolean isPlaying = false;
+    // Whether to loop media
+    private boolean loopMedia = false;
+    // Whether to loop playlist
+    private boolean loopPlaylist = false;
 
     // endregion
 
@@ -95,7 +101,7 @@ public class MediaPlayerController implements Initializable {
         muteImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/mute.png").toURI().toString());
 
         // Check for successful loading of images and add to buttons
-        if(playImg != null && pauseImg != null && stopImg != null && skipForwardImg != null &&
+        if (playImg != null && pauseImg != null && stopImg != null && skipForwardImg != null &&
                 skipBackwardImg != null && addButton != null && removeButton != null && shuffleImg != null && muteImg != null) {
             setButtonUIImage(playPauseBut, pauseImg);
             setButtonUIImage(stopBut, stopImg);
@@ -106,8 +112,8 @@ public class MediaPlayerController implements Initializable {
             setButtonUIImage(shuffleButton, shuffleImg);
             setButtonUIImage(loopButton, loopImg);
             setButtonUIImage(muteButton, muteImg);
-        }
-        else
+            setButtonUIImage(loopPlaylistButton, loopImg);
+        } else
             System.out.println("Error: Failed to load UI icons");
 
         // Paint it black and preserve aspect ratio of video
@@ -125,15 +131,14 @@ public class MediaPlayerController implements Initializable {
      * Show or hides the search / playlist view, depending on its state
      */
     public void toggleSearchPlaylistView() {
-        if(!showSearchPlaylistView) {
+        if (!showSearchPlaylistView) {
             // Show view
             searchPlaylistView.setVisible(true);
             searchPlaylistView.setManaged(true);
             showSearchPlaylistView = true;
             // Resize scene and set minimum size to content size
             MainApplication.sizeToScene();
-        }
-        else {
+        } else {
             // Hide view
             searchPlaylistView.setVisible(false);
             searchPlaylistView.setManaged(false);
@@ -145,8 +150,9 @@ public class MediaPlayerController implements Initializable {
 
     /**
      * Puts the supplied image onto supplied button
+     *
      * @param button Button to put image onto
-     * @param img Image to put on button
+     * @param img    Image to put on button
      */
     private void setButtonUIImage(Button button, Image img) {
         ImageView view = new ImageView(img);
@@ -242,7 +248,7 @@ public class MediaPlayerController implements Initializable {
 
         // Get result
         Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK){
+        if (result.get() == ButtonType.OK) {
             // ... user chose OK
             System.exit(0);
         } else {
@@ -265,7 +271,7 @@ public class MediaPlayerController implements Initializable {
         Timeline animation = new Timeline(
                 new KeyFrame(Duration.millis(500), e -> listview.getSelectionModel().selectNext()));
         listview.getSelectionModel().select(0);
-        animation.setCycleCount(listview.getItems().size()-1);
+        animation.setCycleCount(listview.getItems().size() - 1);
         animation.play();
     } //TODO IM ON IT //NIKOLAI
 
@@ -276,19 +282,19 @@ public class MediaPlayerController implements Initializable {
     public void toggleDarkMode() {
         if (darkmode.isSelected()) {
             // Main theme
-            rootVBox.setStyle("-fx-base:black");
+            rootVBox.setStyle("-fx-base:#212120");
             // Buttons
-            playPauseBut.setStyle("-fx-base:darkgrey");
-            stopBut.setStyle("-fx-base:darkgrey");
-            skipForwardBut.setStyle("-fx-base:darkgrey");
-            skipBackwardBut.setStyle("-fx-base:darkgrey");
-            loopButton.setStyle("-fx-base:darkgrey");
-            shuffleButton.setStyle("-fx-base:darkgrey");
-            minimizeButton.setStyle("-fx-base:darkgrey");
-            maximizeButton.setStyle("-fx-base:darkgrey");
-            exitButton.setStyle("-fx-base:darkgrey");
-        }
-        else {
+            playPauseBut.setStyle("-fx-base:#233038");
+            stopBut.setStyle("-fx-base:#233038");
+            skipForwardBut.setStyle("-fx-base:#233038");
+            skipBackwardBut.setStyle("-fx-base:#233038");
+            loopButton.setStyle("-fx-base:#233038");
+            searchButton.setStyle("-fx-base:#233038");
+            loopPlaylistButton.setStyle("-fx-base:#233038");
+            muteButton.setStyle("-fx-base:#233038");
+            ;
+
+        } else {
             // Main theme
             rootVBox.setStyle("");
             // Buttons
@@ -298,14 +304,15 @@ public class MediaPlayerController implements Initializable {
             skipBackwardBut.setStyle("");
             loopButton.setStyle("");
             shuffleButton.setStyle("");
-            minimizeButton.setStyle("");
-            maximizeButton.setStyle("");
-            exitButton.setStyle("");
+            searchButton.setStyle("");
+            loopPlaylistButton.setStyle("");
+            muteButton.setStyle("");
         }
     }
     // endregion
 
     // region [Media methods]
+
     /**
      * Method for selecting a media to be played in media viewer
      */
@@ -316,8 +323,7 @@ public class MediaPlayerController implements Initializable {
             String data = DB.getData();
             if (data.equals(DB.NOMOREDATA)) {
                 break;
-            }
-            else {
+            } else {
                 path = data;
             }
         } while (true);
@@ -332,7 +338,7 @@ public class MediaPlayerController implements Initializable {
     /**
      * Create the mediaplayer with its attributes
      */
-    private void createMediaPlayer(String URL){
+    private void createMediaPlayer(String URL) {
 
         // Stops the current media if there is some playing
         buttonStop();
@@ -399,10 +405,10 @@ public class MediaPlayerController implements Initializable {
         List<String> pathDivided = new ArrayList<>(Arrays.asList(pathToSelectedFile.split("\\\\")));
 
         // Get file name
-        String mediaTitle = pathDivided.get(pathDivided.size()-1);
+        String mediaTitle = pathDivided.get(pathDivided.size() - 1);
 
         // Remove ".mp4" from filename and play file
-        mediaSelection(mediaTitle.substring(0, mediaTitle.length()-4));
+        mediaSelection(mediaTitle.substring(0, mediaTitle.length() - 4));
 
         //play the media
         mpPlay();
@@ -412,13 +418,9 @@ public class MediaPlayerController implements Initializable {
      * Plays the Media
      */
     @FXML
-    private void mpPlay(){
+    private void mpPlay() {
         // Play the mediaPlayer with the attached media
         mp.play();
-        if (imgPause.getOpacity()==0 && imgPlay.getOpacity()==0){
-            animation.fadeOut(imgPlay,0.5);
-        }
-
         setButtonUIImage(playPauseBut, pauseImg);
         isPlaying = true;
     }
@@ -427,14 +429,31 @@ public class MediaPlayerController implements Initializable {
      * Pause the Media
      */
     @FXML
-    private void mpPause(){
+    private void mpPause() {
         // Pause the mediaPlayer
         mp.pause();
-        if (imgPause.getOpacity()==0 && imgPlay.getOpacity()==0){
-            animation.fadeOut(imgPause,0.5);
-        }
         setButtonUIImage(playPauseBut, playImg);
         isPlaying = false;
+    }
+
+    /**
+     * Animation for play/pause when pressing anywhere in media view
+     */
+    @FXML
+    private void playPauseOverlayAnimation() {
+        if (!isPlaying) {
+            mp.play();
+            if (imgPause.getOpacity() == 0 && imgPlay.getOpacity() == 0) {
+                animation.fadeOut(imgPlay, 0.5);
+                setButtonUIImage(playPauseBut, pauseImg);
+            }
+        } else {
+            mp.pause();
+            if (imgPause.getOpacity() == 0 && imgPlay.getOpacity() == 0) {
+                animation.fadeOut(imgPause, 0.5);
+                setButtonUIImage(playPauseBut, playImg);
+            }
+        }
     }
 
     /**
@@ -453,7 +472,7 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     private void buttonStop() {
-        if (mp != null){
+        if (mp != null) {
             // Stop the mediaPlayer
             mp.stop();
             setButtonUIImage(playPauseBut, playImg);
@@ -466,7 +485,7 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     private void mute() {
-        if (mp.getVolume()==0){
+        if (mp.getVolume() == 0) {
             //Set the volume to the sliders value
             sliderVolume();
         } else {
@@ -487,7 +506,7 @@ public class MediaPlayerController implements Initializable {
         //timeChangeShow();
     }
 
-    private void timeChangeShow(){
+    private void timeChangeShow() {
         //The time
     } //TODO WHAT IS THIS?? //NIKOLAI
 
@@ -505,12 +524,13 @@ public class MediaPlayerController implements Initializable {
     @FXML
     private void sliderVolume() {
         // Skip forwards and backwards in the media via the slider
-        mp.setVolume(Math.pow(sliderVolume.getValue()/100,2));
+        mp.setVolume(Math.pow(sliderVolume.getValue() / 100, 2));
     }
 
     // endregion
 
     // region [Playlist methods]
+
     /**
      * Creates a new playlist and adds to database
      */
@@ -543,7 +563,7 @@ public class MediaPlayerController implements Initializable {
 
         // Convert to string and remove "Optional[" and "]" from string
         String resultAsString = String.valueOf(result);
-        chosenPlaylist = resultAsString.substring(9, resultAsString.length()-1);
+        chosenPlaylist = resultAsString.substring(9, resultAsString.length() - 1);
 
         // Set the current playlist label
         currentPlaylist.setText(chosenPlaylist);
@@ -555,7 +575,7 @@ public class MediaPlayerController implements Initializable {
         result.ifPresent(s -> listview.setItems((FXCollections.observableArrayList(playlistCreator.loadPlaylistFromDB(getComputerName(), s)))));
 
         // Show Search and Playlist to the right
-        if(!showSearchPlaylistView) {
+        if (!showSearchPlaylistView) {
             // Show view
             searchPlaylistView.setVisible(true);
             searchPlaylistView.setManaged(true);
@@ -598,7 +618,7 @@ public class MediaPlayerController implements Initializable {
 
         // Convert to string and remove "Optional[" and "]" from string
         String resultAsString = String.valueOf(result);
-        chosenPlaylist = resultAsString.substring(9, resultAsString.length()-1);
+        chosenPlaylist = resultAsString.substring(9, resultAsString.length() - 1);
 
         // Open playlist!
         currentPlaylist.setText(chosenPlaylist);
@@ -607,7 +627,7 @@ public class MediaPlayerController implements Initializable {
         result.ifPresent(s -> listview.setItems((FXCollections.observableArrayList(playlistOpener.loadPlaylistFromDB(getComputerName(), s)))));
 
         // Show Search and Playlist to the right
-        if(!showSearchPlaylistView) {
+        if (!showSearchPlaylistView) {
             // Show view
             searchPlaylistView.setVisible(true);
             searchPlaylistView.setManaged(true);
@@ -653,7 +673,7 @@ public class MediaPlayerController implements Initializable {
 
         // Convert to string and remove "Optional[" and "]" from string
         String resultAsString = String.valueOf(result);
-        resultAsString = resultAsString.substring(9, resultAsString.length()-1);
+        resultAsString = resultAsString.substring(9, resultAsString.length() - 1);
 
         // Delete playlist!
         playlistDeleter.deletePlaylist(getComputerName(), resultAsString);
@@ -679,7 +699,17 @@ public class MediaPlayerController implements Initializable {
                         @Override
                         public void run() {
                             mp.seek(Duration.ZERO);
-                            playNext();
+
+                            // Loop media if button is activated
+                            if (loopMedia) {
+                                mp.play();
+                            }
+                            // Loop playlist if button is activated
+                            // TODO NIKOLAI
+                            // Go to next media
+                            else {
+                                playNext();
+                            }
                         }
                     });
                 }
@@ -706,10 +736,10 @@ public class MediaPlayerController implements Initializable {
         List<String> pathDivided = new ArrayList<>(Arrays.asList(pathToSelectedFile.split("\\\\")));
 
         // Get file name
-        String mediaTitle = pathDivided.get(pathDivided.size()-1);
+        String mediaTitle = pathDivided.get(pathDivided.size() - 1);
 
         // Remove ".mp4" from filename and play file
-        mediaTitle = mediaTitle.substring(0, mediaTitle.length()-4);
+        mediaTitle = mediaTitle.substring(0, mediaTitle.length() - 4);
 
         // Add to database in table Media
         playlistAdd.ifNotExistAddToMediaTable(getComputerName(), mediaTitle, pathToSelectedFile);
@@ -770,8 +800,10 @@ public class MediaPlayerController implements Initializable {
     // endregion
 
     // region [Telemetry]
+
     /**
      * Get the name of the host PC
+     *
      * @return host name
      */
     private String getComputerName() {
@@ -789,11 +821,25 @@ public class MediaPlayerController implements Initializable {
     // region [in progress]
 
     /**
-     * Loop playlist if button is activated
+     * Loop media if button is activated
      */
     @FXML
     public void loop() {
-    // TODO BY NIKOLAI
+        if (!loopMedia) {
+            loopMedia = true;
+            setButtonUIImage(loopButton, muteImg);
+        } else {
+            loopMedia = false;
+            setButtonUIImage(loopButton, loopImg);
+        }
+    }
+
+    /**
+     * Loop playlist if button is activated
+     */
+    @FXML
+    private void loopPlaylist() {
+
     }
 
     /**
