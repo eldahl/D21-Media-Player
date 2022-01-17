@@ -29,7 +29,7 @@
             <Insets />
          </VBox.margin>
          <children>
-            <MenuBar fx:id="menubarLeft" prefHeight="26.0" style="-fx-background-radius: 0; -fx-border-width: 1; -fx-padding: 0; -fx-shape: M15.699,23.746,18.019,23.746,18.019,26.169,15.699,26.169; -fx-border-color: pink;">
+            <MenuBar fx:id="menubarLeft" focusTraversable="false" prefHeight="26.0" style="-fx-background-radius: 0; -fx-border-width: 1; -fx-padding: 0; -fx-shape: M15.699,23.746,18.019,23.746,18.019,26.169,15.699,26.169; -fx-border-color: pink;">
               <menus>
                 <Menu mnemonicParsing="false" text="File">
                   <items>
@@ -121,10 +121,19 @@
                         </StackPane>
                      </children>
                   </VBox>
-                  <Slider fx:id="progressSlider" majorTickUnit="10.0" minorTickCount="10" onMouseDragged="#sliderSeek" onMousePressed="#sliderSeek" snapToTicks="true" />
+                  <Slider fx:id="progressSlider" focusTraversable="false" majorTickUnit="10.0" minorTickCount="10" onMouseDragged="#sliderSeek" onMousePressed="#sliderSeek" snapToTicks="true" />
+                  <HBox alignment="CENTER_RIGHT" VBox.vgrow="NEVER">
+                     <children>
+                        <Label fx:id="timelineCounter" text="00:00:00 / 00:21:53">
+                           <HBox.margin>
+                              <Insets left="10.0" right="10.0" top="-4.0" />
+                           </HBox.margin>
+                        </Label>
+                     </children>
+                  </HBox>
                   <HBox alignment="CENTER_LEFT">
                      <children>
-                        <Button fx:id="playPauseBut" mnemonicParsing="false" onAction="#buttonPlayPause" style="-fx-background-radius: 0;">
+                        <Button fx:id="playPauseBut" focusTraversable="false" mnemonicParsing="false" onAction="#buttonPlayPause" style="-fx-background-radius: 0;">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
@@ -132,7 +141,7 @@
                               <Cursor fx:constant="HAND" />
                            </cursor>
                         </Button>
-                        <Button fx:id="stopBut" mnemonicParsing="false" onAction="#buttonStop" style="-fx-background-radius: 0;">
+                        <Button fx:id="stopBut" focusTraversable="false" mnemonicParsing="false" onAction="#buttonStop" style="-fx-background-radius: 0;">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
@@ -143,7 +152,7 @@
                               <Cursor fx:constant="HAND" />
                            </cursor>
                         </Button>
-                        <Button fx:id="skipBackwardBut" mnemonicParsing="false" onAction="#playPrevious" style="-fx-background-radius: 0;">
+                        <Button fx:id="skipBackwardBut" focusTraversable="false" mnemonicParsing="false" onAction="#playPrevious" style="-fx-background-radius: 0;">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
@@ -151,7 +160,7 @@
                               <Cursor fx:constant="HAND" />
                            </cursor>
                         </Button>
-                        <Button fx:id="skipForwardBut" mnemonicParsing="false" onAction="#playNext" style="-fx-background-radius: 0;">
+                        <Button fx:id="skipForwardBut" focusTraversable="false" mnemonicParsing="false" onAction="#playNext" style="-fx-background-radius: 0;">
                            <HBox.margin>
                               <Insets right="6.0" />
                            </HBox.margin>
@@ -159,12 +168,12 @@
                               <Cursor fx:constant="HAND" />
                            </cursor>
                         </Button>
-                        <Button fx:id="loopButton" mnemonicParsing="false" onAction="#loop" style="-fx-background-radius: 0;">
+                        <Button fx:id="loopButton" focusTraversable="false" mnemonicParsing="false" onAction="#loop" style="-fx-background-radius: 0;">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor>
                         </Button>
-                        <Button fx:id="shuffleButton" mnemonicParsing="false" onAction="#shufflePlaylist" style="-fx-background-radius: 0;">
+                        <Button fx:id="shuffleButton" focusTraversable="false" mnemonicParsing="false" onAction="#shufflePlaylist" style="-fx-background-radius: 0;">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor>
@@ -175,18 +184,18 @@
                               <Insets left="6.0" right="6.0" />
                            </HBox.margin>
                            <children>
-                              <Slider fx:id="sliderVolume" onMouseDragged="#sliderVolume" prefWidth="100.0" value="100.0" />
+                              <Slider fx:id="sliderVolume" focusTraversable="false" onMouseDragged="#sliderVolume" prefWidth="100.0" value="100.0" />
                               <Label fx:id="labelTime" text="0%    Vol.    100%" />
                            </children>
                         </VBox>
-                        <Button fx:id="muteButton" mnemonicParsing="false" onAction="#mute" style="-fx-background-radius: 0;">
+                        <Button fx:id="muteButton" focusTraversable="false" mnemonicParsing="false" onAction="#mute" style="-fx-background-radius: 0;">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor>
                         </Button>
                      </children>
                      <padding>
-                        <Insets bottom="8.0" left="10.0" right="10.0" top="8.0" />
+                        <Insets bottom="8.0" left="10.0" right="10.0" />
                      </padding>
                   </HBox>
                </children>
@@ -196,12 +205,12 @@
                   <HBox maxHeight="25.0" VBox.vgrow="SOMETIMES">
                      <children>
                         <TextField fx:id="searchField" focusTraversable="false" onAction="#search" prefHeight="26.0" prefWidth="249.0" promptText="Search" style="-fx-background-radius: 0;" HBox.hgrow="SOMETIMES" />
-                        <CheckBox fx:id="doYoutubeSearch" minHeight="25.333333332" mnemonicParsing="false" text="YouTube">
+                        <CheckBox fx:id="doYoutubeSearch" focusTraversable="false" minHeight="25.333333332" mnemonicParsing="false" text="YouTube">
                            <HBox.margin>
                               <Insets left="4.0" right="4.0" />
                            </HBox.margin>
                         </CheckBox>
-                        <Button fx:id="searchButton" mnemonicParsing="false" onAction="#search" style="-fx-background-radius: 0;" text="Search">
+                        <Button fx:id="searchButton" focusTraversable="false" mnemonicParsing="false" onAction="#search" style="-fx-background-radius: 0;" text="Search">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></Button>
@@ -213,7 +222,7 @@
                            <content>
                               <VBox>
                                  <children>
-                                    <ListView fx:id="searchListView" editable="true" onMouseClicked="#getItemFromSearchList" prefHeight="120.0" prefWidth="200.0" style="-fx-shape: M15.699,23.746,18.019,23.746,18.019,26.169,15.699,26.169;" VBox.vgrow="SOMETIMES" />
+                                    <ListView fx:id="searchListView" editable="true" focusTraversable="false" onMouseClicked="#getItemFromSearchList" prefHeight="120.0" prefWidth="200.0" style="-fx-shape: M15.699,23.746,18.019,23.746,18.019,26.169,15.699,26.169;" VBox.vgrow="SOMETIMES" />
                                  </children>
                               </VBox>
                            </content>
@@ -222,12 +231,12 @@
                            <content>
                               <VBox>
                                  <children>
-                                    <ListView fx:id="playlistListView" editable="true" onMouseClicked="#playSongFromPlaylist" prefHeight="200.0" prefWidth="249.0" style="-fx-shape: M15.699,23.746,18.019,23.746,18.019,26.169,15.699,26.169;" VBox.vgrow="SOMETIMES" />
+                                    <ListView fx:id="playlistListView" editable="true" focusTraversable="false" onMouseClicked="#playSongFromPlaylist" prefHeight="200.0" prefWidth="249.0" style="-fx-shape: M15.699,23.746,18.019,23.746,18.019,26.169,15.699,26.169;" VBox.vgrow="SOMETIMES" />
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
-                                          <Button fx:id="addToPlaylist" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-radius: 0;" />
-                                          <Button fx:id="removeFromPlaylist" mnemonicParsing="false" onAction="#removeSongFromPlaylistViaButton" style="-fx-background-radius: 0;" />
-                                          <Button fx:id="loopPlaylistButton" mnemonicParsing="false" onAction="#loopPlaylist" style="-fx-background-radius: 0;">
+                                          <Button fx:id="addToPlaylist" focusTraversable="false" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-radius: 0;" />
+                                          <Button fx:id="removeFromPlaylist" focusTraversable="false" mnemonicParsing="false" onAction="#removeSongFromPlaylistViaButton" style="-fx-background-radius: 0;" />
+                                          <Button fx:id="loopPlaylistButton" focusTraversable="false" mnemonicParsing="false" onAction="#loopPlaylist" style="-fx-background-radius: 0;">
                                              <cursor>
                                                 <Cursor fx:constant="HAND" />
                                              </cursor>
