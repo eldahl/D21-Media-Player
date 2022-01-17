@@ -1,6 +1,7 @@
 package com.d21mp.d21mediaplayer;
 
 import javafx.animation.*;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -11,7 +12,6 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
-import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -76,6 +76,8 @@ public class MediaPlayerController implements Initializable {
     private boolean loopMedia = false;
     // Whether to loop playlist
     private boolean loopPlaylist = false;
+    // Whether the Mediaplayer is muted or not
+    private boolean isMuted = false;
 
     // endregion
 
@@ -84,9 +86,103 @@ public class MediaPlayerController implements Initializable {
     // This is used for handling the animations
     AnimationHandler animation = new AnimationHandler();
     // This is used for handling the yt-search and results
-    YoutubeHandler yt = new YoutubeHandler();
+    YoutubeHandler youtubeHandler = new YoutubeHandler();
 
     // endregion
+
+    //region [Threading]
+
+    String titleToLookFor="";
+    String lastTitle;
+    boolean exit = false;
+
+    /**
+     * This is the thread used for checking after the downloaded YouTube video
+     */
+    private final Thread checkDownload = new Thread(() -> {
+
+        // The list with all the filenames
+        ArrayList<String> fileNames = new ArrayList<>();
+
+        // Reset the boolean exit so it doesn't close the thread, before the file has been found
+        exit = false;
+
+        // Max amount of times the thread cycles before closing (so it doesn't look forever, if an error accrues)
+        int amountOfCycles = 20;
+
+        // This is the path for the folder that is looked in
+        File lookIn = new File(System.getProperty("user.dir")+"\\src\\main\\java\\com\\d21mp\\d21mediaplayer\\media");
+
+        // This while loop ends when the file has been found
+        while (!exit){
+            try {
+                //Next cycle get registered and then checks if it should end the thread
+                amountOfCycles-=1;
+                if (amountOfCycles==0){
+                    System.out.println("Can't find it");
+                    exit=true;
+                    return;
+                }
+
+                // Here it gets/updates an array of the files in the targeted folder
+                fileNames.clear();
+
+                // Update the file list
+                String[] files = lookIn.list();
+
+                // Add all the file names to the fileNames array
+                for (String s : files){
+                    fileNames.add(s);
+                }
+
+                //If the fileNames array contains the title that was downloaded, then the media gets played
+                if (fileNames.contains(titleToLookFor)){
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            //Create a new mediaplayer with the now finished downloaded video
+                            createMediaPlayer(lookIn+"\\"+titleToLookFor);
+                            //Plays the media
+                            mpPlay();
+                        }
+                    });
+
+                    //Ends the thread as it is no longer needed
+                    exit=true;
+                    return;
+                } else {
+                    Thread.sleep(2000);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    });
+
+    /**
+     * This is used for searching týoutube
+     */
+    private final Thread searchOnYoutube = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    ArrayList<String> ytResult = null;
+                    try {
+                        // Search YouTube and download the title of the amount of video results
+                        ytResult = youtubeHandler.searchYoutube(searchField.getText(), 10);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    // Shows the search results in the listview
+                    searchListView.setItems(FXCollections.observableArrayList(ytResult));
+                }
+            });
+        }
+    });
+
+    //endregion
 
     // region [Initialize]
 
@@ -349,8 +445,10 @@ public class MediaPlayerController implements Initializable {
      */
     private void createMediaPlayer(String URI) {
 
-        // Stops the current media if there is some playing
-        buttonStop();
+        if (mp != null){
+            // Stops the current media if there is some playing
+            buttonStop();
+        }
 
         me = new Media(new File(URI).toURI().toString());
         mp = new MediaPlayer(me);
@@ -417,23 +515,21 @@ public class MediaPlayerController implements Initializable {
     public void openFile() {
         FileChooser fileChooser = new FileChooser();
 
+        //Set the default start of the filechooser to the media folder
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")+"\\src\\main\\java\\com\\d21mp\\d21mediaplayer\\media"));
+
         // Open classic file explorer window
         File selectedFile = fileChooser.showOpenDialog(null);
 
-        // Get URI for file
-        String pathToSelectedFile = selectedFile.getAbsolutePath();
+        if (selectedFile != null){
+            // Get URI for file
+            String pathToSelectedFile = selectedFile.getAbsolutePath();
 
-        // Separate path by "\" to get filename
-        List<String> pathDivided = new ArrayList<>(Arrays.asList(pathToSelectedFile.split("\\\\")));
+            createMediaPlayer(pathToSelectedFile);
 
-        // Get file name
-        String mediaTitle = pathDivided.get(pathDivided.size() - 1);
-
-        // Remove ".mp4" from filename and play file
-        mediaSelection(mediaTitle.substring(0, mediaTitle.length() - 4));
-
-        //play the media
-        mpPlay();
+            //play the media
+            mpPlay();
+        }
     }
 
     /**
@@ -441,10 +537,12 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     private void mpPlay() {
-        // Play the mediaPlayer with the attached media
-        mp.play();
-        setButtonUIImage(playPauseBut, pauseImg);
-        isPlaying = true;
+        if (mp != null){
+            // Play the mediaPlayer with the attached media
+            mp.play();
+            setButtonUIImage(playPauseBut, pauseImg);
+            isPlaying = true;
+        }
     }
 
     /**
@@ -452,10 +550,12 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     private void mpPause(){
-        // Pause the mediaPlayer
-        mp.pause();
-        setButtonUIImage(playPauseBut, playImg);
-        isPlaying = false;
+        if (mp != null){
+            // Pause the mediaPlayer
+            mp.pause();
+            setButtonUIImage(playPauseBut, playImg);
+            isPlaying = false;
+        }
     }
 
     /**
@@ -463,17 +563,19 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     private void playPauseOverlayAnimation() {
-        if (!isPlaying) {
-            mp.play();
-            if (imgPause.getOpacity() == 0 && imgPlay.getOpacity() == 0) {
-                animation.fadeOut(imgPlay, 0.5);
-                setButtonUIImage(playPauseBut, pauseImg);
-            }
-        } else {
-            mp.pause();
-            if (imgPause.getOpacity() == 0 && imgPlay.getOpacity() == 0) {
-                animation.fadeOut(imgPause, 0.5);
-                setButtonUIImage(playPauseBut, playImg);
+        if (mp != null){
+            if (!isPlaying) {
+                mp.play();
+                if (imgPause.getOpacity() == 0 && imgPlay.getOpacity() == 0) {
+                    animation.fadeOut(imgPlay, 0.5);
+                    setButtonUIImage(playPauseBut, pauseImg);
+                }
+            } else {
+                mp.pause();
+                if (imgPause.getOpacity() == 0 && imgPlay.getOpacity() == 0) {
+                    animation.fadeOut(imgPause, 0.5);
+                    setButtonUIImage(playPauseBut, playImg);
+                }
             }
         }
     }
@@ -510,14 +612,18 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     private void mute() {
-        if (mp.getVolume()==0){
-            //Set the volume to the sliders value
-            sliderVolume();
-            setButtonUIImage(muteButton, muteImg);
-        } else {
-            //Mute the sound
-            mp.setVolume(0);
-            setButtonUIImage(muteButton, unmuteImg);
+        if (mp != null){
+            if (mp.getVolume()==0){
+                //Set the volume to the sliders value
+                isMuted=false;
+                sliderVolume();
+                setButtonUIImage(muteButton, muteImg);
+            } else {
+                //Mute the sound
+                isMuted=true;
+                mp.setVolume(0);
+                setButtonUIImage(muteButton, unmuteImg);
+            }
         }
     }
 
@@ -526,7 +632,9 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     public void sliderSeek() {
-        mp.seek(Duration.seconds(progressSlider.valueProperty().doubleValue()));
+        if (mp != null){
+            mp.seek(Duration.seconds(progressSlider.valueProperty().doubleValue()));
+        }
     }
 
     /**
@@ -534,8 +642,10 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     private void sliderVolume() {
-        // Skip forwards and backwards in the media via the slider
-        mp.setVolume(Math.pow(sliderVolume.getValue()/100,2));
+        if (mp != null && !isMuted){
+            // Skip forwards and backwards in the media via the slider
+            mp.setVolume(Math.pow(sliderVolume.getValue()/100,2));
+        }
     }
 
     // endregion
@@ -560,10 +670,8 @@ public class MediaPlayerController implements Initializable {
                     i.set(path.get(path.size() - 1).split("\\.")[0]);
                 }
                 searchListView.setItems(FXCollections.observableArrayList(result));
-            } else { // Search YouTube and download the title of the amount of video results
-                ArrayList<String> ytResult = yt.searchYoutube(searchField.getText(), 10);
-                // Shows the search results in the listview
-                searchListView.setItems(FXCollections.observableArrayList(ytResult));
+            } else {
+                new Thread(searchOnYoutube).start();
             }
         }
     }
@@ -586,6 +694,14 @@ public class MediaPlayerController implements Initializable {
         } while (true);
         return collected;
     }
+
+    /**
+     * This clears the search list
+     */
+    public void clearSearchResults(){
+        searchListView.getItems().clear();
+    }
+
     //endregion
 
     // region [Playlist methods]
@@ -783,8 +899,6 @@ public class MediaPlayerController implements Initializable {
         searchListView.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent click) {
-                System.out.println("IT WORKS");
-
                 if (click.getClickCount() == 2) {
                     // Use ListView's getSelected Item
 
@@ -793,33 +907,44 @@ public class MediaPlayerController implements Initializable {
                         System.out.println(listviewItem);
                         // Play media!
                         mediaSelection(listviewItem);
+
+                        // When ended, autoplay next media
+                        mp.setOnEndOfMedia(new Runnable() {
+                            @Override
+                            public void run() {
+                                mp.seek(Duration.ZERO);
+
+                                // Loop media if button is activated
+                                if (loopMedia) {
+                                    mp.play();
+                                }
+                                // Loop playlist if button is activated
+                                // TODO NIKOLAI
+                                // Go to next media
+                                else {
+                                    playNext();
+                                }
+                            }
+                        });
                     }
                     else {
-                        YoutubeHandler youtubeHandler = new YoutubeHandler();
-                        String listviewItem = (String) searchListView.getSelectionModel().getSelectedItem();
-                        youtubeHandler.downloadVideo(listviewItem);
-                        mediaSelection(listviewItem);
+                        // Here the title is saved for searching later
+                        String listviewItemTitle = searchListView.getSelectionModel().getSelectedItem();
+
+                        // Here it takes the position of the selected item
+                        int listviewItemVideoID = searchListView.getSelectionModel().getSelectedIndex();
+                        // Here the youtube video gets downloaded via the videoID of the selected item
+                        youtubeHandler.downloadVideo(youtubeHandler.getVideoID(listviewItemVideoID));
+
+                        // This clears the search
+                        clearSearchResults();
+                        searchField.setText("");
+
+                        // Here the thread for checking the download gets prepared and started
+                        titleToLookFor=youtubeHandler.cleanTitle(listviewItemTitle)+".mp4";
+                        lastTitle=titleToLookFor;
+                        new Thread(checkDownload).start();
                     }
-
-
-                    // When ended, autoplay next media
-                    mp.setOnEndOfMedia(new Runnable() {
-                        @Override
-                        public void run() {
-                            mp.seek(Duration.ZERO);
-
-                            // Loop media if button is activated
-                            if (loopMedia) {
-                                mp.play();
-                            }
-                            // Loop playlist if button is activated
-                            // TODO NIKOLAI
-                            // Go to next media
-                            else {
-                                playNext();
-                            }
-                        }
-                    });
                 }
             }
         });
@@ -877,16 +1002,18 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     public void playNext() {
-        // Current listview item
-        String listviewItem = (String) playlistListView.getSelectionModel().getSelectedItem();
-        // Select next item in listview
-        playlistListView.getSelectionModel().selectNext();
+        if (!playlistListView.getItems().isEmpty()){
+            // Current listview item
+            String listviewItem = (String) playlistListView.getSelectionModel().getSelectedItem();
+            // Select next item in listview
+            playlistListView.getSelectionModel().selectNext();
 
-        // Cast this item to a string to fetch title
-        String nextListviewItem = (String) playlistListView.getSelectionModel().getSelectedItem();
+            // Cast this item to a string to fetch title
+            String nextListviewItem = (String) playlistListView.getSelectionModel().getSelectedItem();
 
-        // Play media!
-        mediaSelection(nextListviewItem);
+            // Play media!
+            mediaSelection(nextListviewItem);
+        }
     }
 
     /**
@@ -894,15 +1021,16 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     public void playPrevious() {
+        if (!playlistListView.getItems().isEmpty()){
+            // Select next item in listview
+            playlistListView.getSelectionModel().selectPrevious();
 
-        // Select next item in listview
-        playlistListView.getSelectionModel().selectPrevious();
+            // Cast this item to a string to fetch title
+            String listviewItem = playlistListView.getSelectionModel().getSelectedItem();
 
-        // Cast this item to a string to fetch title
-        String listviewItem = playlistListView.getSelectionModel().getSelectedItem();
-
-        // Play media!
-        mediaSelection(listviewItem);
+            // Play media!
+            mediaSelection(listviewItem);
+        }
     }
 
     // endregion
@@ -924,6 +1052,7 @@ public class MediaPlayerController implements Initializable {
     }
 
     // endregiong
+
     // region [in progress]
 
     /**
