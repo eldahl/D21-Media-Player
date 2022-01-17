@@ -87,6 +87,8 @@ public class MediaPlayerController implements Initializable {
     AnimationHandler animation = new AnimationHandler();
     // This is used for handling the yt-search and results
     YoutubeHandler youtubeHandler = new YoutubeHandler();
+    // Create new object
+    PlaylistHandler playlistHandler = new PlaylistHandler();
 
     // endregion
 
@@ -493,16 +495,14 @@ public class MediaPlayerController implements Initializable {
         Runnable sizeToSceneRun = MainApplication::sizeToScene;
         mp.setOnReady(sizeToSceneRun);
 
-        // Seems to be unneeded, deprecated - Esben
-        // Resize the slider
-        //Runnable sliderResize = this::sliderTimeScaling;
-        //mp.setOnReady(sliderResize);
-        // While playing this changes the UI live
-        //Runnable timeSliderUpdater = this::sliderTimeDragging;
-        //mp.setOnPlaying(timeSliderUpdater);
-
-        // Set the volume to the same as last media
-        sliderVolume();
+        //Checks if the media was muted or not
+        if (isMuted){
+            // Set the volume to the same as last media
+            mp.setVolume(0);
+        } else {
+            // Set the volume to the same as last media
+            sliderVolume();
+        }
 
         mp.setOnReady(new Runnable() {
             @Override
@@ -536,6 +536,23 @@ public class MediaPlayerController implements Initializable {
             @Override
             public void run() {
                 isPlaying = false;
+            }
+        });
+
+        // When ended, autoplay next media
+        mp.setOnEndOfMedia(new Runnable() {
+            @Override
+            public void run() {
+                mp.seek(Duration.ZERO);
+
+                // Loop media if button is activated
+                if (loopMedia) {
+                    mp.play();
+                }
+                // Loop playlist if button is activated
+                else {
+                    playNext();
+                }
             }
         });
 
@@ -746,9 +763,6 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     public void createPlaylist() {
-        // Create new object
-        PlaylistHandler playlistCreator = new PlaylistHandler();
-
         // Values for dialog box
         TextInputDialog dialog = new TextInputDialog();
         dialog.setHeaderText(null);
@@ -779,10 +793,10 @@ public class MediaPlayerController implements Initializable {
         currentPlaylist.setText(chosenPlaylist);
 
         // Create playlist!
-        result.ifPresent(s -> playlistCreator.createPlaylist(getComputerName(), s));
+        result.ifPresent(s -> playlistHandler.createPlaylist(getComputerName(), s));
 
         // Refresh listview
-        result.ifPresent(s -> playlistListView.setItems((FXCollections.observableArrayList(playlistCreator.loadPlaylistFromDB(getComputerName(), s)))));
+        result.ifPresent(s -> playlistListView.setItems((FXCollections.observableArrayList(playlistHandler.loadPlaylistFromDB(getComputerName(), s)))));
 
         // Show Search and Playlist to the right
         if (!showSearchPlaylistView) {
@@ -800,11 +814,8 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     public void openPlaylist() {
-        // Create new object
-        PlaylistHandler playlistOpener = new PlaylistHandler();
-
         // Fetches PlaylistName from PlaylistOverview and collects in a List
-        List<String> choices = playlistOpener.loadPlaylistOverview(getComputerName());
+        List<String> choices = playlistHandler.loadPlaylistOverview(getComputerName());
 
         // Values for dialog box
         ChoiceDialog<String> dialog = new ChoiceDialog<>("", choices);
@@ -834,7 +845,7 @@ public class MediaPlayerController implements Initializable {
         currentPlaylist.setText(chosenPlaylist);
 
         // Refresh listview
-        result.ifPresent(s -> playlistListView.setItems((FXCollections.observableArrayList(playlistOpener.loadPlaylistFromDB(getComputerName(), s)))));
+        result.ifPresent(s -> playlistListView.setItems((FXCollections.observableArrayList(playlistHandler.loadPlaylistFromDB(getComputerName(), s)))));
 
         // Show Search and Playlist to the right
         if (!showSearchPlaylistView) {
@@ -852,11 +863,8 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     public void deletePlaylist() {
-        // Create new object
-        PlaylistHandler playlistDeleter = new PlaylistHandler();
-
         // Fetches PlaylistName from PlaylistOverview and collects in a List
-        List<String> choices = playlistDeleter.loadPlaylistOverview(getComputerName());
+        List<String> choices = playlistHandler.loadPlaylistOverview(getComputerName());
 
         // Values for dialog box
         ChoiceDialog<String> dialog = new ChoiceDialog<>("", choices);
@@ -886,7 +894,7 @@ public class MediaPlayerController implements Initializable {
         resultAsString = resultAsString.substring(9, resultAsString.length() - 1);
 
         // Delete playlist!
-        playlistDeleter.deletePlaylist(getComputerName(), resultAsString);
+        playlistHandler.deletePlaylist(getComputerName(), resultAsString);
     }
 
     /**
@@ -903,25 +911,6 @@ public class MediaPlayerController implements Initializable {
 
                     // Play media!
                     mediaSelection(listviewItem);
-
-                    // When ended, autoplay next media
-                    mp.setOnEndOfMedia(new Runnable() {
-                        @Override
-                        public void run() {
-                            mp.seek(Duration.ZERO);
-
-                            // Loop media if button is activated
-                            if (loopMedia) {
-                                mp.play();
-                            }
-                            // Loop playlist if button is activated
-                            // TODO NIKOLAI
-                            // Go to next media
-                            else {
-                                playNext();
-                            }
-                        }
-                    });
                 }
             }
         });
@@ -992,30 +981,35 @@ public class MediaPlayerController implements Initializable {
     @FXML
     public void addSongToPlaylistViaButton() {
         // Create needed objects
-        PlaylistHandler playlistAdd = new PlaylistHandler();
         FileChooser fileChooser = new FileChooser();
+
+        //Set the default start of the filechooser to the media folder
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")+"\\src\\main\\java\\com\\d21mp\\d21mediaplayer\\media"));
 
         // Values for fileChooser
         File selectedFile = fileChooser.showOpenDialog(null);
 
-        // Get URI to file
-        String pathToSelectedFile = selectedFile.getAbsolutePath();
+        //Checks if there is a file
+        if (selectedFile != null){
+            // Get URI to file
+            String pathToSelectedFile = selectedFile.getAbsolutePath();
 
-        // Separate path by "\" to get filename
-        List<String> pathDivided = new ArrayList<>(Arrays.asList(pathToSelectedFile.split("\\\\")));
+            // Separate path by "\" to get filename
+            List<String> pathDivided = new ArrayList<>(Arrays.asList(pathToSelectedFile.split("\\\\")));
 
-        // Get file name
-        String mediaTitle = pathDivided.get(pathDivided.size() - 1);
+            // Get file name
+            String mediaTitle = pathDivided.get(pathDivided.size() - 1);
 
-        // Remove ".mp4" from filename and play file
-        mediaTitle = mediaTitle.substring(0, mediaTitle.length() - 4);
+            // Remove ".mp4" from filename and play file
+            mediaTitle = mediaTitle.substring(0, mediaTitle.length() - 4);
 
-        // Add to database in table Media
-        playlistAdd.ifNotExistAddToMediaTable(getComputerName(), mediaTitle, pathToSelectedFile);
-        // Add to database in table PlaylistCollection
-        playlistAdd.addMediaToPlaylist(getComputerName(), chosenPlaylist, mediaTitle, pathToSelectedFile);
-        // Refresh listview
-        playlistListView.setItems((FXCollections.observableArrayList(playlistAdd.loadPlaylistFromDB(getComputerName(), chosenPlaylist))));
+            // Add to database in table Media
+            playlistHandler.ifNotExistAddToMediaTable(getComputerName(), mediaTitle, pathToSelectedFile);
+            // Add to database in table PlaylistCollection
+            playlistHandler.addMediaToPlaylist(getComputerName(), chosenPlaylist, mediaTitle, pathToSelectedFile);
+            // Refresh listview
+            playlistListView.setItems((FXCollections.observableArrayList(playlistHandler.loadPlaylistFromDB(getComputerName(), chosenPlaylist))));
+        }
     }
 
     /**
@@ -1023,14 +1017,13 @@ public class MediaPlayerController implements Initializable {
      */
     @FXML
     public void removeSongFromPlaylistViaButton() {
-        // Create new object
-        PlaylistHandler playlistHandler = new PlaylistHandler();
+        if (!playlistListView.getSelectionModel().isEmpty()){
+            // Delete media from database and thus listview
+            playlistHandler.deleteMediaFromPlaylist(getComputerName(), chosenPlaylist, (String) playlistListView.getSelectionModel().getSelectedItem());
 
-        // Delete media from database and thus listview
-        playlistHandler.deleteMediaFromPlaylist(getComputerName(), chosenPlaylist, (String) playlistListView.getSelectionModel().getSelectedItem());
-
-        // Refresh listview
-        playlistListView.setItems((FXCollections.observableArrayList(playlistHandler.loadPlaylistFromDB(getComputerName(), chosenPlaylist))));
+            // Refresh listview
+            playlistListView.setItems((FXCollections.observableArrayList(playlistHandler.loadPlaylistFromDB(getComputerName(), chosenPlaylist))));
+        }
     }
 
     /**
@@ -1041,11 +1034,21 @@ public class MediaPlayerController implements Initializable {
         if (!playlistListView.getItems().isEmpty()){
             // Current listview item
             String listviewItem = (String) playlistListView.getSelectionModel().getSelectedItem();
-            // Select next item in listview
-            playlistListView.getSelectionModel().selectNext();
 
-            // Cast this item to a string to fetch title
-            String nextListviewItem = (String) playlistListView.getSelectionModel().getSelectedItem();
+            //The next media
+            String nextListviewItem;
+
+            if (loopPlaylist && playlistListView.getSelectionModel().getSelectedIndex() == playlistListView.getItems().size()-1){
+                // Cast this item to a string to fetch title
+                nextListviewItem = (String) playlistListView.getItems().get(0);
+                // Select next item in listview
+                playlistListView.getSelectionModel().select(0);
+            } else {
+                // Select next item in listview
+                playlistListView.getSelectionModel().selectNext();
+                // Cast this item to a string to fetch title
+                nextListviewItem = (String) playlistListView.getSelectionModel().getSelectedItem();
+            }
 
             // Play media!
             mediaSelection(nextListviewItem);
@@ -1058,11 +1061,22 @@ public class MediaPlayerController implements Initializable {
     @FXML
     public void playPrevious() {
         if (!playlistListView.getItems().isEmpty()){
-            // Select next item in listview
-            playlistListView.getSelectionModel().selectPrevious();
 
-            // Cast this item to a string to fetch title
-            String listviewItem = playlistListView.getSelectionModel().getSelectedItem();
+            //The next media
+            String listviewItem;
+
+            if (loopPlaylist && playlistListView.getSelectionModel().getSelectedIndex() == 0){
+                // Select next item in listview
+                playlistListView.getSelectionModel().select(playlistListView.getItems().size()-1);
+                // Cast this item to a string to fetch title
+                listviewItem = playlistListView.getItems().get(playlistListView.getItems().size()-1);
+            } else {
+                // Select next item in listview
+                playlistListView.getSelectionModel().selectPrevious();
+
+                // Cast this item to a string to fetch title
+                listviewItem = playlistListView.getSelectionModel().getSelectedItem();
+            }
 
             // Play media!
             mediaSelection(listviewItem);
@@ -1111,6 +1125,13 @@ public class MediaPlayerController implements Initializable {
     @FXML
     private void loopPlaylist() {
 
+        if (!loopPlaylist) {
+            loopPlaylist = true;
+            loopPlaylistButton.setStyle("-fx-border-color: pink");
+        } else {
+            loopPlaylist = false;
+            loopPlaylistButton.setStyle("-fx-border-color: transparent");
+        }
     }
 
     // endregion
