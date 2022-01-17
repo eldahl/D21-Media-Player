@@ -182,6 +182,13 @@ public class MediaPlayerController implements Initializable {
         }
     });
 
+    private final Thread checkDirectory = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            scanDirectory();
+        }
+    });
+
     //endregion
 
     // region [Initialize]
@@ -224,7 +231,36 @@ public class MediaPlayerController implements Initializable {
         mediaView.setPreserveRatio(true);
 
         animation.labelAnimation(currentPlaylist, 2);
-        // WE DON'T WANT AN MEDIA TO AUTOPLAY THEREFOR DELETED
+
+        // Scan media directory
+        new Thread(checkDirectory).start();
+    }
+
+    /**
+     * Scan media directory on launch
+     */
+    private void scanDirectory() {
+
+        PlaylistHandler playlistHandler = new PlaylistHandler();
+
+        // Scan media directory
+        File directory = new File("./src/main/java/com/d21mp/d21mediaplayer/media/");
+        File[] files = directory.listFiles((dir, name) -> name.endsWith(".mp4"));
+
+        // Create URI List
+        List<String> listOfURIs = new ArrayList<>();
+
+        // GET URI
+        for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
+            listOfURIs.add(String.valueOf(files[i]));
+            String URI = listOfURIs.get(i);
+
+            // Split to get title
+            List<String> titlesAsList = Arrays.asList(URI.split("\\\\"));
+            String title = titlesAsList.get(titlesAsList.size() - 1);
+            // Add to DB
+            playlistHandler.ifNotExistAddToMediaTable(getComputerName(), title, URI);
+        }
     }
     // endregion
 
@@ -422,7 +458,7 @@ public class MediaPlayerController implements Initializable {
      */
     public void mediaSelection(String title) {
         String path = "";
-        DB.selectSQL("SELECT URI FROM Media WHERE Title = '" + title + "'");
+        DB.selectSQL("SELECT URI FROM Media WHERE HostName = '" + getComputerName() + "' AND Title = '" + title + "'");
         do {
             String data = DB.getData();
             if (data.equals(DB.NOMOREDATA)) {
