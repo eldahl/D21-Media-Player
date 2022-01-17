@@ -74,6 +74,24 @@ public class PlaylistHandler {
     }
 
     /**
+     * Add multiple values
+     */
+    public void addMultipleValuesToMediaTable(String HostName, String URI, String Title) {
+        DB.insertSQL("INSERT INTO Media (HostName, Title, URI) VALUES ('" + HostName + "','" + URI + "','" + Title + "');");
+        // String HostName = GetComputerName(), GetComputerName(),
+        // String URI = LKJASLDKJASD + ALSKDLKAJSLDKJS + ALKSJDLKAJSDLKJASD + ALKSJDLASKJDLKASJD
+
+
+    }
+
+    /**
+     * Delete from media
+     */
+    public void deleteFromMediaTable(String HostName) {
+        DB.insertSQL("DELETE FROM Media WHERE HostName = '" + HostName + "'");
+    }
+
+    /**
      * Adds a media to this playlist
      */
     public void addMediaToPlaylist(String HostName, String PlaylistName, String Title, String URI) {
