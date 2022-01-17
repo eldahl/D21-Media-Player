@@ -23,6 +23,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +36,7 @@ public class MediaPlayerController implements Initializable {
     @FXML
     private MediaView mediaView;
     @FXML
-    private Label currentPlaylist;
+    private Label currentPlaylist, timelineCounter;
     @FXML
     private TextField searchField;
     @FXML
@@ -89,7 +90,52 @@ public class MediaPlayerController implements Initializable {
     YoutubeHandler youtubeHandler = new YoutubeHandler();
     // Create new object
     PlaylistHandler playlistHandler = new PlaylistHandler();
+    // endregion
 
+    // region [Initialize]
+
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        // Hide Search/Playlist view
+        toggleSearchPlaylistView();
+
+        // Load icon images for video controls
+        playImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/play.png").toURI().toString());
+        pauseImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/pause.png").toURI().toString());
+        stopImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/stop.png").toURI().toString());
+        skipForwardImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/skip-forward.png").toURI().toString());
+        skipBackwardImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/skip-backward.png").toURI().toString());
+        addButton = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/add32.png").toURI().toString());
+        removeButton = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/remove32.png").toURI().toString());
+        shuffleImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/shuffle.png").toURI().toString());
+        loopImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/loop.png").toURI().toString());
+        muteImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/mute.png").toURI().toString());
+        unmuteImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/unmute.png").toURI().toString());
+
+        // Check for successful loading of images and add to buttons
+        if (playImg != null && pauseImg != null && stopImg != null && skipForwardImg != null &&
+                skipBackwardImg != null && addButton != null && removeButton != null && shuffleImg != null && muteImg != null) {
+            setButtonUIImage(playPauseBut, pauseImg);
+            setButtonUIImage(stopBut, stopImg);
+            setButtonUIImage(skipForwardBut, skipForwardImg);
+            setButtonUIImage(skipBackwardBut, skipBackwardImg);
+            setButtonUIImage(addToPlaylist, addButton);
+            setButtonUIImage(removeFromPlaylist, removeButton);
+            setButtonUIImage(shuffleButton, shuffleImg);
+            setButtonUIImage(loopButton, loopImg);
+            setButtonUIImage(muteButton, unmuteImg);
+            setButtonUIImage(loopPlaylistButton, loopImg);
+        } else
+            System.out.println("Error: Failed to load UI icons");
+
+        // Paint it black and preserve aspect ratio of video
+        mediaViewVBox.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+        mediaView.setPreserveRatio(true);
+
+        animation.labelAnimation(currentPlaylist, 2);
+
+        // Scan media directory
+        new Thread(checkDirectory).start();
+    }
     // endregion
 
     //region [Threading]
@@ -193,51 +239,7 @@ public class MediaPlayerController implements Initializable {
 
     //endregion
 
-    // region [Initialize]
-
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Hide Search/Playlist view
-        toggleSearchPlaylistView();
-
-        // Load icon images for video controls
-        playImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/play.png").toURI().toString());
-        pauseImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/pause.png").toURI().toString());
-        stopImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/stop.png").toURI().toString());
-        skipForwardImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/skip-forward.png").toURI().toString());
-        skipBackwardImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/skip-backward.png").toURI().toString());
-        addButton = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/add32.png").toURI().toString());
-        removeButton = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/remove32.png").toURI().toString());
-        shuffleImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/shuffle.png").toURI().toString());
-        loopImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/loop.png").toURI().toString());
-        muteImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/mute.png").toURI().toString());
-        unmuteImg = new Image(new File("src/main/resources/com/d21mp/d21mediaplayer/unmute.png").toURI().toString());
-
-        // Check for successful loading of images and add to buttons
-        if (playImg != null && pauseImg != null && stopImg != null && skipForwardImg != null &&
-                skipBackwardImg != null && addButton != null && removeButton != null && shuffleImg != null && muteImg != null) {
-            setButtonUIImage(playPauseBut, pauseImg);
-            setButtonUIImage(stopBut, stopImg);
-            setButtonUIImage(skipForwardBut, skipForwardImg);
-            setButtonUIImage(skipBackwardBut, skipBackwardImg);
-            setButtonUIImage(addToPlaylist, addButton);
-            setButtonUIImage(removeFromPlaylist, removeButton);
-            setButtonUIImage(shuffleButton, shuffleImg);
-            setButtonUIImage(loopButton, loopImg);
-            setButtonUIImage(muteButton, muteImg);
-            setButtonUIImage(loopPlaylistButton, loopImg);
-        } else
-            System.out.println("Error: Failed to load UI icons");
-
-        // Paint it black and preserve aspect ratio of video
-        mediaViewVBox.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-        mediaView.setPreserveRatio(true);
-
-        animation.labelAnimation(currentPlaylist, 2);
-
-        // Scan media directory
-        new Thread(checkDirectory).start();
-    }
-
+    //region [Utility]
     /**
      * Scan media directory on launch
      */
@@ -249,22 +251,30 @@ public class MediaPlayerController implements Initializable {
         File directory = new File("./src/main/java/com/d21mp/d21mediaplayer/media/");
         File[] files = directory.listFiles((dir, name) -> name.endsWith(".mp4"));
 
-        // Create URI List
-        List<String> listOfURIs = new ArrayList<>();
+        // Delete all preexisting entries from this HostName
+        DB.deleteSQL("DELETE FROM Media WHERE HostName='"+ getComputerName() + "'");
 
-        // GET URI
+        // Add all entries together for one insert query
+        ArrayList<String> insertStrings = new ArrayList<String>();
         for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
-            listOfURIs.add(String.valueOf(files[i]));
-            String URI = listOfURIs.get(i);
+            // Get URI
+            String URI = String.valueOf(files[i]);
 
             // Split to get title
             List<String> titlesAsList = Arrays.asList(URI.split("\\\\"));
             String title = titlesAsList.get(titlesAsList.size() - 1);
-            // Add to DB
-            playlistHandler.ifNotExistAddToMediaTable(getComputerName(), title, URI);
+            title = title.split("\\.mp4")[0];
+
+            // Add to DB INSERT query
+            insertStrings.add("INSERT INTO Media (HostName, Title, URI) VALUES('"+getComputerName()+"', '" + title + "', '" + URI + "')");
         }
+        // Add inserts together for better performance
+        String dbInsertStr = String.join("\n", insertStrings);
+        // Insert into DB
+        DB.insertSQL(dbInsertStr);
+
     }
-    // endregion
+    //endregion
 
     // region [UI methods]
 
@@ -430,11 +440,20 @@ public class MediaPlayerController implements Initializable {
             stopBut.setStyle("-fx-base:#233038");
             skipForwardBut.setStyle("-fx-base:#233038");
             skipBackwardBut.setStyle("-fx-base:#233038");
-            loopButton.setStyle("-fx-base:#233038");
             searchButton.setStyle("-fx-base:#233038");
-            loopPlaylistButton.setStyle("-fx-base:#233038");
             muteButton.setStyle("-fx-base:#233038");
-            ;
+            shuffleButton.setStyle("-fx-base:#233038");
+            //loopButton.setStyle("");
+            //loopPlaylistButton.setStyle("");
+            if(loopMedia)
+                loopButton.setStyle("-fx-base:#233038");
+            else
+                loopButton.setStyle("");
+
+            if(loopPlaylist)
+                loopPlaylistButton.setStyle("-fx-base:#233038");
+            else
+                loopPlaylistButton.setStyle("");
 
         } else {
             // Main theme
@@ -444,11 +463,18 @@ public class MediaPlayerController implements Initializable {
             stopBut.setStyle("");
             skipForwardBut.setStyle("");
             skipBackwardBut.setStyle("");
-            loopButton.setStyle("");
-            shuffleButton.setStyle("");
             searchButton.setStyle("");
-            loopPlaylistButton.setStyle("");
             muteButton.setStyle("");
+            shuffleButton.setStyle("");
+            if(loopMedia)
+                loopButton.setStyle("-fx-base:#dec7af");
+            else
+                loopButton.setStyle("");
+
+            if(loopPlaylist)
+                loopPlaylistButton.setStyle("-fx-base:#dec7af");
+            else
+                loopPlaylistButton.setStyle("");
         }
     }
     // endregion
@@ -461,13 +487,16 @@ public class MediaPlayerController implements Initializable {
     public void mediaSelection(String title) {
         String path = "";
         DB.selectSQL("SELECT URI FROM Media WHERE HostName = '" + getComputerName() + "' AND Title = '" + title + "'");
+        System.out.println("Playing: " + title+".mp4");
         do {
             String data = DB.getData();
+
             if (data.equals(DB.NOMOREDATA)) {
                 break;
             }
             else {
                 path = data;
+                System.out.println("Path from DB:\n"+data+"\n");
             }
         } while (true);
 
@@ -512,6 +541,8 @@ public class MediaPlayerController implements Initializable {
                     @Override
                     public void changed(ObservableValue<? extends Duration> observableValue, Duration oldValue, Duration newValue) {
                         progressSlider.setValue(newValue.toSeconds());
+                        if(mp != null)
+                            timelineCounter.setText(DurationFormatUtils.formatDuration((long)newValue.toMillis(), "HH:mm:ss") + " / " + DurationFormatUtils.formatDuration((long)mp.getTotalDuration().toMillis(), "HH:mm:ss"));
                     }
                 });
             }
@@ -670,12 +701,12 @@ public class MediaPlayerController implements Initializable {
                 //Set the volume to the sliders value
                 isMuted=false;
                 sliderVolume();
-                setButtonUIImage(muteButton, muteImg);
+                setButtonUIImage(muteButton, unmuteImg);
             } else {
                 //Mute the sound
                 isMuted=true;
                 mp.setVolume(0);
-                setButtonUIImage(muteButton, unmuteImg);
+                setButtonUIImage(muteButton, muteImg);
             }
         }
     }
@@ -1112,10 +1143,13 @@ public class MediaPlayerController implements Initializable {
     public void loop() {
         if (!loopMedia) {
             loopMedia = true;
-            loopButton.setStyle("-fx-border-color: pink");
+            if(darkmode.isSelected())
+                loopButton.setStyle("-fx-base:#233038");
+            else
+                loopButton.setStyle("-fx-base:#dec7af");
         } else {
             loopMedia = false;
-            loopButton.setStyle("-fx-border-color: transparent");
+            loopButton.setStyle("");
         }
     }
 
@@ -1127,10 +1161,14 @@ public class MediaPlayerController implements Initializable {
 
         if (!loopPlaylist) {
             loopPlaylist = true;
-            loopPlaylistButton.setStyle("-fx-border-color: pink");
+
+            if(darkmode.isSelected())
+                loopPlaylistButton.setStyle("-fx-base:#233038");
+            else
+                loopPlaylistButton.setStyle("-fx-base:#dec7af");
         } else {
             loopPlaylist = false;
-            loopPlaylistButton.setStyle("-fx-border-color: transparent");
+            loopPlaylistButton.setStyle("");
         }
     }
 
