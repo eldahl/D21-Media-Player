@@ -14,6 +14,7 @@
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
@@ -140,6 +141,9 @@
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor>
+                           <tooltip>
+                              <Tooltip text="Play or pause current media" />
+                           </tooltip>
                         </Button>
                         <Button fx:id="stopBut" focusTraversable="false" mnemonicParsing="false" onAction="#buttonStop" style="-fx-background-radius: 0;">
                            <HBox.margin>
@@ -151,6 +155,9 @@
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor>
+                           <tooltip>
+                              <Tooltip text="Stop" />
+                           </tooltip>
                         </Button>
                         <Button fx:id="skipBackwardBut" focusTraversable="false" mnemonicParsing="false" onAction="#playPrevious" style="-fx-background-radius: 0;">
                            <HBox.margin>
@@ -159,6 +166,9 @@
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor>
+                           <tooltip>
+                              <Tooltip text="Previous media" />
+                           </tooltip>
                         </Button>
                         <Button fx:id="skipForwardBut" focusTraversable="false" mnemonicParsing="false" onAction="#playNext" style="-fx-background-radius: 0;">
                            <HBox.margin>
@@ -167,16 +177,25 @@
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor>
+                           <tooltip>
+                              <Tooltip text="Next media" />
+                           </tooltip>
                         </Button>
                         <Button fx:id="loopButton" focusTraversable="false" mnemonicParsing="false" onAction="#loop" style="-fx-background-radius: 0;">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor>
+                           <tooltip>
+                              <Tooltip text="Loop selected media" />
+                           </tooltip>
                         </Button>
                         <Button fx:id="shuffleButton" focusTraversable="false" mnemonicParsing="false" onAction="#shufflePlaylist" style="-fx-background-radius: 0;">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor>
+                           <tooltip>
+                              <Tooltip text="Shuffle playlist" />
+                           </tooltip>
                         </Button>
                         <Region HBox.hgrow="ALWAYS" />
                         <VBox alignment="CENTER">
@@ -192,6 +211,9 @@
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor>
+                           <tooltip>
+                              <Tooltip text="Mute" />
+                           </tooltip>
                         </Button>
                      </children>
                      <padding>
@@ -204,11 +226,17 @@
                <children>
                   <HBox maxHeight="25.0" VBox.vgrow="SOMETIMES">
                      <children>
-                        <TextField fx:id="searchField" focusTraversable="false" onAction="#search" prefHeight="26.0" prefWidth="249.0" promptText="Search" style="-fx-background-radius: 0;" HBox.hgrow="SOMETIMES" />
+                        <TextField fx:id="searchField" focusTraversable="false" onAction="#search" prefHeight="26.0" prefWidth="249.0" promptText="Search" style="-fx-background-radius: 0;" HBox.hgrow="SOMETIMES">
+                           <tooltip>
+                              <Tooltip text="Search for medias in directory" />
+                           </tooltip></TextField>
                         <CheckBox fx:id="doYoutubeSearch" focusTraversable="false" minHeight="25.333333332" mnemonicParsing="false" text="YouTube">
                            <HBox.margin>
                               <Insets left="4.0" right="4.0" />
                            </HBox.margin>
+                           <tooltip>
+                              <Tooltip text="Check to search for media on Youtube. Double click to download selected file and play" />
+                           </tooltip>
                         </CheckBox>
                         <Button fx:id="searchButton" focusTraversable="false" mnemonicParsing="false" onAction="#search" style="-fx-background-radius: 0;" text="Search">
                            <cursor>
@@ -234,12 +262,21 @@
                                     <ListView fx:id="playlistListView" editable="true" focusTraversable="false" onMouseClicked="#playSongFromPlaylist" prefHeight="200.0" prefWidth="249.0" style="-fx-shape: M15.699,23.746,18.019,23.746,18.019,26.169,15.699,26.169;" VBox.vgrow="SOMETIMES" />
                                     <HBox alignment="CENTER_LEFT">
                                        <children>
-                                          <Button fx:id="addToPlaylist" focusTraversable="false" mnemonicParsing="false" onAction="#addSongToPlaylistViaButton" style="-fx-background-radius: 0;" />
-                                          <Button fx:id="removeFromPlaylist" focusTraversable="false" mnemonicParsing="false" onAction="#removeSongFromPlaylistViaButton" style="-fx-background-radius: 0;" />
+                                          <Button fx:id="addToPlaylist" focusTraversable="false" mnemonicParsing="false" onAction="#addMediaToPlaylistViaButton" style="-fx-background-radius: 0;">
+                                             <tooltip>
+                                                <Tooltip text="Add media to playlist" />
+                                             </tooltip></Button>
+                                          <Button fx:id="removeFromPlaylist" focusTraversable="false" mnemonicParsing="false" onAction="#removeSongFromPlaylistViaButton" style="-fx-background-radius: 0;">
+                                             <tooltip>
+                                                <Tooltip text="Remove media from playlist" />
+                                             </tooltip></Button>
                                           <Button fx:id="loopPlaylistButton" focusTraversable="false" mnemonicParsing="false" onAction="#loopPlaylist" style="-fx-background-radius: 0;">
                                              <cursor>
                                                 <Cursor fx:constant="HAND" />
                                              </cursor>
+                                             <tooltip>
+                                                <Tooltip text="Loop playlist" />
+                                             </tooltip>
                                           </Button>
                                           <Label text=" Current playlist: " />
                                           <Label fx:id="currentPlaylist" />

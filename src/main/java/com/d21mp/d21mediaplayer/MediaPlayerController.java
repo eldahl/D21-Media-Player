@@ -383,7 +383,7 @@ public class MediaPlayerController implements Initializable {
     public void exit() {
         // Values for alert box
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirm Exist");
+        alert.setTitle("Confirm Exit");
         alert.setHeaderText(null);
         alert.setContentText("Are you sure you want to exit?");
 
@@ -574,14 +574,13 @@ public class MediaPlayerController implements Initializable {
         mp.setOnEndOfMedia(new Runnable() {
             @Override
             public void run() {
-                mp.seek(Duration.ZERO);
-
                 // Loop media if button is activated
                 if (loopMedia) {
+                    mp.seek(Duration.ZERO);
                     mp.play();
                 }
                 // Loop playlist if button is activated
-                else {
+                else if (loopPlaylist || playlistListView.getSelectionModel().getSelectedIndex() != playlistListView.getItems().size()-1){
                     playNext();
                 }
             }
@@ -1010,36 +1009,44 @@ public class MediaPlayerController implements Initializable {
      * Add media to a playlist and refresh listview
      */
     @FXML
-    public void addSongToPlaylistViaButton() {
+    public void addMediaToPlaylistViaButton() {
         // Create needed objects
-        FileChooser fileChooser = new FileChooser();
 
-        //Set the default start of the filechooser to the media folder
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")+"\\src\\main\\java\\com\\d21mp\\d21mediaplayer\\media"));
+        // Open a playlist if current playlist is null or empty
+        if (chosenPlaylist.equals("") || chosenPlaylist.equals("empt")) {
+            openPlaylist();
+        }
 
-        // Values for fileChooser
-        File selectedFile = fileChooser.showOpenDialog(null);
+        else {
+            FileChooser fileChooser = new FileChooser();
 
-        //Checks if there is a file
-        if (selectedFile != null){
-            // Get URI to file
-            String pathToSelectedFile = selectedFile.getAbsolutePath();
+            //Set the default start of the filechooser to the media folder
+            fileChooser.setInitialDirectory(new File(System.getProperty("user.dir") + "\\src\\main\\java\\com\\d21mp\\d21mediaplayer\\media"));
 
-            // Separate path by "\" to get filename
-            List<String> pathDivided = new ArrayList<>(Arrays.asList(pathToSelectedFile.split("\\\\")));
+            // Values for fileChooser
+            File selectedFile = fileChooser.showOpenDialog(null);
 
-            // Get file name
-            String mediaTitle = pathDivided.get(pathDivided.size() - 1);
+            //Checks if there is a file
+            if (selectedFile != null) {
+                // Get URI to file
+                String pathToSelectedFile = selectedFile.getAbsolutePath();
 
-            // Remove ".mp4" from filename and play file
-            mediaTitle = mediaTitle.substring(0, mediaTitle.length() - 4);
+                // Separate path by "\" to get filename
+                List<String> pathDivided = new ArrayList<>(Arrays.asList(pathToSelectedFile.split("\\\\")));
 
-            // Add to database in table Media
-            playlistHandler.ifNotExistAddToMediaTable(getComputerName(), mediaTitle, pathToSelectedFile);
-            // Add to database in table PlaylistCollection
-            playlistHandler.addMediaToPlaylist(getComputerName(), chosenPlaylist, mediaTitle, pathToSelectedFile);
-            // Refresh listview
-            playlistListView.setItems((FXCollections.observableArrayList(playlistHandler.loadPlaylistFromDB(getComputerName(), chosenPlaylist))));
+                // Get file name
+                String mediaTitle = pathDivided.get(pathDivided.size() - 1);
+
+                // Remove ".mp4" from filename and play file
+                mediaTitle = mediaTitle.substring(0, mediaTitle.length() - 4);
+
+                // Add to database in table Media
+                playlistHandler.ifNotExistAddToMediaTable(getComputerName(), mediaTitle, pathToSelectedFile);
+                // Add to database in table PlaylistCollection
+                playlistHandler.addMediaToPlaylist(getComputerName(), chosenPlaylist, mediaTitle, pathToSelectedFile);
+                // Refresh listview
+                playlistListView.setItems((FXCollections.observableArrayList(playlistHandler.loadPlaylistFromDB(getComputerName(), chosenPlaylist))));
+            }
         }
     }
 
