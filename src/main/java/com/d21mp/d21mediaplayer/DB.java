@@ -55,7 +55,7 @@ public class DB {
     }
     private static void connect(){
         try {
-            con = DriverManager.getConnection("jdbc:sqlserver://51.75.69.121:"+port+";databaseName="+databaseName,userName,password);
+            con = DriverManager.getConnection("jdbc:sqlserver://[Host]:"+port+";databaseName="+databaseName,userName,password);
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
