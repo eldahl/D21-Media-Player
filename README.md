@@ -16,6 +16,7 @@ The duration of the project was from January 4th to January 20th 2022.
  - Playlist
  - Youtube Search and Download
  - Custom borderless window design
+ - Dark mode / Light mode
 
 
 ![Video Player GIF](/img/video-player.gif)
