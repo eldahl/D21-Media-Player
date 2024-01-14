@@ -18,7 +18,7 @@ The duration of the project was from January 4th to January 20th 2022.
  - Custom borderless window design
  - Dark mode / Light mode
 
-
+## Images
 ![Video Player GIF](/img/video-player.gif)
 ![Video Player Dark Mode](/img/video-player-dark.png)
 ![Video Player Dark Mode Playlist](/img/video-player-playlist-dark.png)
