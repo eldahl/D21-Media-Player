@@ -1,5 +1,5 @@
 # D21 Media Player 
-This project was done as part of a three person group project for our CS degree.
+This project was done as part of a three person group project for our CS degree.\
 The duration of the project was from January 4th to January 20th 2022.
 
 ## Features
